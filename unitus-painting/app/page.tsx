@@ -21,8 +21,9 @@ const MainLayout: React.FC = () => {
         <AboutUs />
         <Services />
         <RecentProjects />
-        <CustomerFeedback />
         <NotableClients />
+
+        <CustomerFeedback />
         <LatestNews />
         <Newsletter />
       </main>

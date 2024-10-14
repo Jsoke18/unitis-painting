@@ -60,8 +60,8 @@ const NotableClients: React.FC = () => {
       initial="hidden"
       animate={controls}
       variants={sectionVariants}
-      className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 overflow-hidden"
-    >
+      className=" mt-10 py-16 mb-20 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden"
+      >
       <div className="max-w-7xl mx-auto">
         <motion.h2
           variants={itemVariants}
