@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 type ProjectCardProps = {
   image: string;
@@ -6,13 +11,38 @@ type ProjectCardProps = {
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ image, title }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    }
+  }, [controls, inView]);
+
   return (
-    <div className="flex flex-col w-3/12 max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col grow px-3.5 py-6 w-full text-2xl font-bold tracking-wide text-center bg-white border border-solid border-neutral-300 text-blue-950 max-md:mt-10">
-        <img loading="lazy" src={image} alt={title} className="object-contain w-full aspect-[0.74]" />
-        <div className="self-center mt-7">{title}</div>
-      </div>
-    </div>
+    <motion.div
+      ref={ref}
+      animate={controls}
+      initial="hidden"
+      variants={{
+        visible: { opacity: 1, y: 0 },
+        hidden: { opacity: 0, y: 50 }
+      }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
+        <CardContent className="p-0">
+          <img src={image} alt={title} className="w-full h-64 object-cover" />
+          <div className="p-6">
+            <h3 className="text-xl font-semibold text-blue-950 mb-2">{title}</h3>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -25,21 +55,31 @@ const RecentProjects: React.FC = () => {
   ];
 
   return (
-    <section className="flex flex-col items-center px-10 py-72 mt-0 w-full bg-blue-950 max-md:px-5 max-md:py-24 max-md:max-w-full">
-      <h2 className="text-5xl font-extrabold tracking-wide leading-tight text-center text-white max-md:max-w-full max-md:text-4xl">
-        Our Recent Projects
-      </h2>
-      <div className="self-stretch mt-12 max-md:mt-10 max-md:max-w-full">
-        <div className="flex gap-5 max-md:flex-col">
+    <section className="bg-blue-950 py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl sm:text-5xl font-bold text-white text-center mb-12">
+          Our Recent Projects
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {projects.map((project, index) => (
             <ProjectCard key={index} {...project} />
           ))}
         </div>
+        <motion.div 
+          className="text-center mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <Button 
+            variant="secondary" 
+            size="lg" 
+            className="text-blue-950 bg-white hover:bg-blue-100 transition-colors duration-300 text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl"
+          >
+            <Eye className="mr-2 h-5 w-5" /> View Gallery
+          </Button>
+        </motion.div>
       </div>
-      <button className="flex gap-2.5 px-5 py-2.5 mt-32 mb-0 ml-3.5 max-w-full text-xl font-medium tracking-wide leading-none text-center bg-zinc-100 text-blue-950 w-[197px] max-md:mt-10 max-md:mb-2.5">
-        <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/9e5413b4977f556fdd7d767fd1f595dd234611c59de7da60d5b5b1455889029b?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="" className="object-contain shrink-0 aspect-[0.63] w-[22px]" />
-        <span className="grow shrink my-auto w-[122px]">View Gallery</span>
-      </button>
     </section>
   );
 };
