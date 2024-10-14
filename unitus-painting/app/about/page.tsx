@@ -7,6 +7,8 @@ import Hero from "@/components/about/Hero";
 import CommitmentToExcellence from "@/components/about/CommitmentToExcellence";
 import StatisticsSection from "@/components/about/StatisticsSection";
 import HistorySection from "@/components/about/HistorySection";
+import ExpertTeam from "@/components/about/ExpertTeam";
+
 const AboutPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -22,6 +24,7 @@ const AboutPage: React.FC = () => {
         <CommitmentToExcellence />
         <StatisticsSection />
         <HistorySection />
+        <ExpertTeam />
 
       </main>
 
