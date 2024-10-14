@@ -2,13 +2,20 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, Instagram, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link'; // Import Link from Next.js
 
 type HeaderProps = {
   openingHours: string;
 };
 
 const Header: React.FC<HeaderProps> = ({ openingHours }) => {
-  const navItems = ["Home", "About Us", "Services", "Blog", "Contact Us"];
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "About Us", href: "/about" },
+    { label: "Services", href: "/services" }, // Link to the services page
+    { label: "Blog", href: "/blog" },
+    { label: "Contact Us", href: "/contact" },
+  ];
 
   return (
     <motion.header
@@ -93,7 +100,9 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                     index === 0 ? "text-white" : "text-neutral-800 hover:text-white"
                   }`}
                 >
-                  {item}
+                  <Link href={item.href}>
+                    {item.label}
+                  </Link>
                 </motion.div>
               ))}
             </div>
