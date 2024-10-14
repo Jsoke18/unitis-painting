@@ -1,49 +1,88 @@
 import React from 'react';
+import { Star } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
 
 const AboutUs: React.FC = () => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <section className="self-center mt-36 ml-12 w-full max-w-[1293px] max-md:mt-10 max-md:max-w-full">
-      <div className="flex gap-5 max-md:flex-col">
-        <div className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
-          <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/40bdd8d9e849a2ed648dd9efc17fb3b71e147b9339057819d1399c473abb5c78?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="About Us image" className="object-contain grow w-full aspect-[0.99] max-md:mt-10 max-md:max-w-full" />
-        </div>
-        <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
-          <div className="flex flex-col w-full max-md:mt-10 max-md:max-w-full">
-            <div className="flex gap-2.5 self-start px-5 py-2.5 text-lg font-medium tracking-wide bg-zinc-100 text-blue-950">
-              <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/a6541163e4bf1852241762a0c8ee1a22a288d858023b089b89e66e3285944b6d?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="" className="object-contain shrink-0 aspect-[0.85] w-[23px]" />
-              <div className="basis-auto">Expect The Best</div>
-            </div>
-            <h2 className="mt-7 text-4xl font-extrabold tracking-wide leading-none text-blue-950 max-md:max-w-full">
+    <section className="py-12 bg-white" ref={ref}>
+      <motion.div
+        className="container mx-auto px-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+      >
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+          <motion.div className="lg:w-1/2 h-[400px] lg:h-[600px]" variants={itemVariants}>
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/40bdd8d9e849a2ed648dd9efc17fb3b71e147b9339057819d1399c473abb5c78?apiKey=a05a9fe5da54475091abff9f564d40f8&"
+              alt="Unitus Painting Ltd. at work"
+              className="w-full h-full object-cover rounded-lg shadow-lg"
+            />
+          </motion.div>
+          <div className="lg:w-1/2 space-y-6">
+            <motion.div
+              className="inline-flex items-center px-3 py-1 bg-amber-100 rounded-full text-amber-600 text-sm font-medium"
+              variants={itemVariants}
+            >
+              <Star className="w-4 h-4 mr-2 text-amber-400" />
+              Expect The Best
+            </motion.div>
+            <motion.h2 className="text-4xl font-bold text-blue-950" variants={itemVariants}>
               We Deliver Quality and Excellence
-            </h2>
-            <p className="mt-5 text-xl tracking-wide leading-7 text-zinc-500 max-md:mr-1.5 max-md:max-w-full">
+            </motion.h2>
+            <motion.p className="text-lg text-gray-700 leading-relaxed mr-52" variants={itemVariants}>
               Unitus Painting Ltd. was founded in 2013. We are trusted professionals, offering high-quality painting services across Greater Vancouver, Fraser Valley, BC Interior, and Calgary.
-            </p>
-            <p className="mt-4 mr-14 text-xl tracking-wide leading-7 text-zinc-500 max-md:mr-2.5 max-md:max-w-full">
+            </motion.p>
+            <motion.p className="text-lg text-gray-700 leading-relaxed mr-52" variants={itemVariants}>
               With over 11 years of experience, we specialize in commercial, strata, and residential painting, while also offering services like caulking, wood replacement, power washing, and more. Our clients appreciate our professionalism, attention to detail, and competitive pricing.
-            </p>
-            <div className="mt-4 max-w-full w-[622px]">
-              <div className="flex gap-5 max-md:flex-col">
-                <div className="flex flex-col w-[34%] max-md:ml-0 max-md:w-full">
-                  <div className="flex flex-col grow items-center px-10 py-11 w-full font-extrabold tracking-wide text-center bg-zinc-100 max-md:px-5 max-md:mt-10">
-                    <div className="text-7xl leading-none text-amber-400 max-md:text-4xl">11</div>
-                    <div className="mt-7 text-xl leading-7 text-blue-950">Years Of <br /> Experience</div>
-                  </div>
-                </div>
-                <div className="flex flex-col ml-5 w-[66%] max-md:ml-0 max-md:w-full">
-                  <ul className="flex flex-col items-start self-stretch my-auto text-xl tracking-wide leading-none text-zinc-500 max-md:mt-10">
-                    <li className="self-stretch">- Complete painting and repair services</li>
-                    <li className="mt-4">- Skilled and qualified professionals</li>
-                    <li className="mt-5">- Full workmanship guarantee</li>
-                    <li className="mt-4">- Affordable and reliable</li>
-                    <li className="mt-6">- Exceptional customer service</li>
-                  </ul>
-                </div>
-              </div>
+            </motion.p>
+            <div className="flex items-start space-x-8">
+              <motion.div
+                className="bg-gray-100 p-8 rounded-lg text-center shadow-md mt-10"
+                variants={itemVariants}
+              >
+                <div className="text-5xl font-bold text-amber-400">11</div>
+                <div className="text-sm font-semibold text-blue-950 mt-2">Years Of<br />Experience</div>
+              </motion.div>
+              <motion.ul className="space-y-2 text-base text-gray-700 text-lg" variants={containerVariants}>
+                <motion.li className="flex items-center mt-10" variants={itemVariants}>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                  Complete painting and repair services
+                </motion.li>
+                <motion.li className="flex items-center" variants={itemVariants}>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                  Skilled and qualified professionals
+                </motion.li>
+                <motion.li className="flex items-center" variants={itemVariants}>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                  Full workmanship guarantee
+                </motion.li>
+                <motion.li className="flex items-center" variants={itemVariants}>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                  Affordable and reliable
+                </motion.li>
+                <motion.li className="flex items-center" variants={itemVariants}>
+                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                  Exceptional customer service
+                </motion.li>
+              </motion.ul>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };
