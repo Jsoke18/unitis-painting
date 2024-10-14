@@ -10,7 +10,7 @@ const ServicesPage: React.FC = () => {
     <main className="flex flex-col text-center text-white">
       <PageHeader
         title="Our Services"
-        backgroundImageSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/f28e1b37228e8ea5728b3fb2b09487e8a82965eaea67e7de42de8b4923c24dd6?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
+        backgroundImageSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/188256efd1fb49af755bc5633348461fe3fa53373c0cacee5a565376fb4be2f2?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
       />
     </main>
   );

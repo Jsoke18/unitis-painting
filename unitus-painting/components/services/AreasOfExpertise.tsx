@@ -44,7 +44,7 @@ const AreasOfExpertise: React.FC = () => {
   ];
 
   return (
-    <section className="flex flex-col items-center justify-center mt-10">
+    <section className="flex flex-col items-center justify-center mt-20">
       <h2 className="text-4xl font-bold mb-10">Our Expertise Areas</h2>
       <div className="flex justify-between gap-8 w-full max-w-screen-lg">
         {expertiseAreas.map((area) => (
