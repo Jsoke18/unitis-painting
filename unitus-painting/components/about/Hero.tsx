@@ -1,36 +1,28 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
-interface PageHeaderProps {
+interface HeroProps {
   title: string;
   backgroundImageSrc: string;
 }
 
-const ServicesPage: React.FC = () => {
+const Hero: React.FC<HeroProps> = ({ title, backgroundImageSrc }) => {
   return (
-    <main className="flex flex-col text-center text-white">
-      <PageHeader
-        title="Our Services"
-        backgroundImageSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/188256efd1fb49af755bc5633348461fe3fa53373c0cacee5a565376fb4be2f2?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
+    <header className="relative flex flex-col min-h-[617px] w-full">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${backgroundImageSrc})` }}
       />
-    </main>
-  );
-};
-
-const Hero: React.FC<PageHeaderProps> = ({ title, backgroundImageSrc }) => {
-  return (
-    <header className="relative flex flex-col min-h-[617px] max-md:text-4xl">
-      <img
-        loading="lazy"
-        src={backgroundImageSrc}
-        alt={title}
-        className="absolute inset-0 object-cover w-full h-full"
-      />
-      {/* Blue overlay */}
-      <div className="absolute inset-0 bg-blue-900 bg-opacity-70"></div>
-      <div className="relative z-10 flex flex-col justify-center items-center w-full h-full">
-        <h1 className="text-6xl font-extrabold tracking-wider leading-tight max-md:text-4xl">
+      <div className="absolute inset-0 bg-blue-900 bg-opacity-70" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-wider leading-tight text-white text-center px-4"
+        >
           {title}
-        </h1>
+        </motion.h1>
       </div>
     </header>
   );
