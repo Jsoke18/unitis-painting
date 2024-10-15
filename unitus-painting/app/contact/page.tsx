@@ -33,25 +33,25 @@ const ContactPage: React.FC = () => {
           <Card className="shadow-xl border-0 overflow-hidden">
             <CardHeader className="bg-navy-blue p-8">
               <motion.div variants={fadeIn}>
-                <CardTitle className="text-3xl font-bold mb-4 text-white">Contact Unitus Painting</CardTitle>
-                <p className="text-gray-200">
+                <CardTitle className="text-3xl font-bold mb-4 text-black">Contact Unitus Painting</CardTitle>
+                <p className="text-black">
                   We're here to assist with your residential, strata, or commercial painting projects.
                   Whether you need a quote, have questions, or want to book a consultation, contact our team today!
                 </p>
               </motion.div>
             </CardHeader>
-            <CardContent className="p-8 bg-white">
+            <CardContent className="p-8 bg-white text-black">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <motion.div className="md:col-span-2" variants={fadeIn}>
                   <form className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input placeholder="First Name" className="border-gray-300" />
-                      <Input placeholder="Last Name" className="border-gray-300" />
+                      <Input placeholder="First Name" className="border-gray-300 text-black" />
+                      <Input placeholder="Last Name" className="border-gray-300 text-black" />
                     </div>
-                    <Input type="email" placeholder="Email Address" className="border-gray-300" />
-                    <Input type="tel" placeholder="Phone Number" className="border-gray-300" />
-                    <Textarea placeholder="Your Message" className="border-gray-300" rows={5} />
-                    <Button type="submit" className="w-full bg-navy-blue hover:bg-blue-700 text-white transition-colors duration-300">
+                    <Input type="email" placeholder="Email Address" className="border-gray-300 text-black" />
+                    <Input type="tel" placeholder="Phone Number" className="border-gray-300 text-black" />
+                    <Textarea placeholder="Your Message" className="border-gray-300 text-black" rows={5} />
+                    <Button type="submit" className="w-full bg-navy-blue hover:bg-blue-700 text-black transition-colors duration-300 text-lg font-semibold py-3">
                       Send Message
                     </Button>
                   </form>
@@ -59,7 +59,7 @@ const ContactPage: React.FC = () => {
                 <motion.div className="space-y-8" variants={fadeIn}>
                   <div>
                     <h3 className="text-xl font-semibold text-navy-blue mb-4">Contact Information</h3>
-                    <div className="space-y-3 text-gray-700">
+                    <div className="space-y-3 text-black">
                       <motion.div className="flex items-center" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
                         <Phone className="text-navy-blue mr-3" size={20} />
                         <span>+1 604-716-4054</span>
@@ -76,7 +76,7 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-navy-blue mb-4">Business Hours</h3>
-                    <div className="space-y-2 text-gray-700">
+                    <div className="space-y-2 text-black">
                       <p>Monday - Friday: 6:00 AM - 8:00 PM</p>
                       <p>Saturday: 8:00 AM - 4:00 PM</p>
                       <p>Sunday: Closed</p>
