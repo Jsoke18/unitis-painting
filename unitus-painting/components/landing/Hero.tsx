@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 const Hero: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const Hero: React.FC = () => {
         />
         <div className="absolute inset-0 bg-blue-950 bg-opacity-70" />
       </motion.div>
-
+      
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
         <div className="max-w-2xl">
           <motion.div
@@ -36,7 +37,7 @@ const Hero: React.FC = () => {
               Serving Greater Vancouver, Fraser Valley, BC Interior, and Calgary
             </p>
           </motion.div>
-
+          
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -45,20 +46,22 @@ const Hero: React.FC = () => {
           >
             Professional Painting Services Across Canada
           </motion.h1>
-
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.9 }}
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 text-base font-semibold bg-amber-400 text-blue-950 rounded-md shadow-lg flex items-center space-x-2 transition-colors hover:bg-amber-300 mt-10"
-            >
-              <span>Explore Our Services</span>
-              <ChevronRight className="w-5 h-5" />
-            </motion.button>
+            <Link href="/services" passHref>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-3 text-base font-semibold bg-amber-400 text-blue-950 rounded-md shadow-lg flex items-center space-x-2 transition-colors hover:bg-amber-300 mt-10"
+              >
+                <span>Explore Our Services</span>
+                <ChevronRight className="w-5 h-5" />
+              </motion.button>
+            </Link>
           </motion.div>
         </div>
       </div>
