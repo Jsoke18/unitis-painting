@@ -23,8 +23,6 @@ const AboutPage: React.FC = () => {
           backgroundImageSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/188256efd1fb49af755bc5633348461fe3fa53373c0cacee5a565376fb4be2f2?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
         />
         
-        <VideoPlayer /> {/* Add the VideoPlayer component here */}
-
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -35,6 +33,9 @@ const AboutPage: React.FC = () => {
           <Separator />
           <StatisticsSection />
           <Separator />
+          <VideoPlayer /> {/* Add the VideoPlayer component here */}
+          <Separator />
+
           <HistorySection />
           <Separator />
           <ExpertTeam />

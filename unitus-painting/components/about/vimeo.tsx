@@ -18,14 +18,18 @@ const VideoPlayer: React.FC = () => {
             url="https://player.vimeo.com/video/1012957597"
             width="100%"
             height="100%"
-            controls
+            controls={true}
+            muted={false}
+            playing={false}
             config={{
               vimeo: {
                 playerOptions: {
                   responsive: true,
                   autoplay: false,
                   controls: true,
-                  background: true,
+                  background: false,
+                  muted: false,
+                  pip: true,
                 },
               },
             }}
