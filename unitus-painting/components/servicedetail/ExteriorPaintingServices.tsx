@@ -4,7 +4,7 @@ import ServiceDetailTemplate from './ServiceDetailsTemplate';
 const ExteriorPaintingService: React.FC = () => {
   const serviceData = {
     title: "Exterior Painting Services",
-    description: `Improve the look and protection of your property with our expert exterior painting services. Whether you're refreshing your home's exterior, reviving worn siding, or updating a larger commercial or industrial building, our skilled painters provide lasting, high-quality results.
+    description: `Improve the look and protection of your property with our exterior painting services. Whether you're refreshing your home's exterior, reviving worn siding, or updating a larger commercial or industrial building, our skilled painters provide lasting, high-quality results.
 
     We start with thorough surface preparation, cleaning, sanding, and priming to ensure the best paint adhesion. Using top-quality, weather-resistant paints, we protect your property from moisture, UV rays, and other environmental factors. Our color consultants work with you to choose the perfect shades, and our professional application ensures a smooth, flawless finish every time.
 

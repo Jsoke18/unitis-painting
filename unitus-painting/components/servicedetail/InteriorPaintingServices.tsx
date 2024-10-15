@@ -11,7 +11,7 @@ We begin by thoroughly preparing surfaces, filling holes, sanding, and priming t
 Our painters work efficiently, minimizing disruption while protecting your furniture and leaving your space clean and tidy. Customer satisfaction is our priority, and we're committed to exceeding your expectations with every project.
 
 Contact us today to bring new life to your interiors with our trusted painting services.`,
-    headerImage: "https://cdn.builder.io/api/v1/image/assets/TEMP/46bb151e5edeebbad62f39c28c06466c79b9b95212ba1d34a69c59dda16fc919?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
+    headerImage: "https://cdn.builder.io/api/v1/image/assets/TEMP/f49d2137ba497103f5e2d1de944646ea44988b473c6b22bfba7dfaa3369ee32f?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
     features: [
       { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/625ad905dffef56d9ab7bda7c135f4537a800c412ea8b79ccfe8b5cc3a764fe0?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8", text: "Expert Surface Preparation" },
       { icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/625ad905dffef56d9ab7bda7c135f4537a800c412ea8b79ccfe8b5cc3a764fe0?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8", text: "High-Quality Paint Products" },

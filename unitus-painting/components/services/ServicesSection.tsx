@@ -42,7 +42,7 @@ const services: Service[] = [
     title: 'Cabinet Painting',
     description:
       'Refresh your cabinetry with expert refinishing. Durable, custom finishes for any room.',
-      link: '/services/exterior-painting', // Add this line
+      link: '/services/cabinet-painting', // Add this line
 
   },
   {
@@ -50,7 +50,7 @@ const services: Service[] = [
     title: 'Line Painting',
     description:
       'Enhance parking safety and organization. Clear markings for efficient traffic flow.',
-      link: '/services/exterior-painting', // Add this line
+      link: '/services/line-painting', // Add this line
 
   },
   {
@@ -58,7 +58,7 @@ const services: Service[] = [
     title: 'Carpentry',
     description:
       'Skilled woodwork and repairs. Custom solutions for interior and exterior needs.',
-      link: '/services/exterior-painting', // Add this line
+      link: '/services/carpentry', // Add this line
 
   },
   {
@@ -66,7 +66,7 @@ const services: Service[] = [
     title: 'Power Washing',
     description:
       'Restore exterior surfaces to pristine condition. Effective cleaning for various materials.',
-      link: '/services/exterior-painting', // Add this line
+      link: '/services/power-washing', // Add this line
 
   },
   {
@@ -74,7 +74,7 @@ const services: Service[] = [
     title: 'Caulking',
     description:
       'Seal gaps and prevent damage. Precise application for energy efficiency.',
-      link: '/services/exterior-painting', // Add this line
+      link: '/services/caulking', // Add this line
 
   },
   {
