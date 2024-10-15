@@ -64,7 +64,7 @@ const CallToAction: React.FC<CallToActionProps> = ({ title, buttonText, imageSrc
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button className="bg-[#1D2440] text-white hover:bg-[#2A3454] transition-colors duration-300 rounded-full px-8 py-3 text-lg">
+              <Button className="bg-[#1D2440] text-white hover:bg-[#2A3454] transition-colors duration-300 rounded-full px-8 py-3 text-lg ml-4">
                 {buttonText}
               </Button>
             </motion.div>
