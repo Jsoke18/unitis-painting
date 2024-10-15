@@ -1,5 +1,6 @@
 import React from 'react';
-import StatisticsCard from './StatisticsCard';
+import { motion } from 'framer-motion';
+import { Card, CardContent } from "@/components/ui/card";
 
 const statisticsData = [
   {
@@ -19,9 +20,40 @@ const statisticsData = [
   }
 ];
 
+const StatisticsCard: React.FC<{
+  iconSrc: string;
+  value: string;
+  description: string;
+}> = ({ iconSrc, value, description }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <Card className="w-64 h-64 flex flex-col items-center justify-between p-6">
+        <img src={iconSrc} alt="" className="w-16 h-16 mb-4" />
+        <CardContent className="text-center">
+          <motion.h3 
+            className="text-2xl font-bold mb-2"
+            whileHover={{ scale: 1.1, color: "#3B82F6" }}
+          >
+            {value}
+          </motion.h3>
+          <p className="text-gray-600">{description}</p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
 const StatisticsSection: React.FC = () => {
   return (
-    <main className="flex flex-wrap gap-8 justify-center mt-14">
+    <motion.main 
+      className="flex flex-wrap gap-8 justify-center mt-14"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, staggerChildren: 0.1 }}
+    >
       {statisticsData.map((stat, index) => (
         <StatisticsCard
           key={index}
@@ -30,7 +62,7 @@ const StatisticsSection: React.FC = () => {
           description={stat.description}
         />
       ))}
-    </main>
+    </motion.main>
   );
 };
 
