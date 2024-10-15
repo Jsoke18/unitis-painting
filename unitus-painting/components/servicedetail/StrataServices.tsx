@@ -1,112 +1,258 @@
-import React from 'react';
-import { commercialServicesContent, ServiceItem, ProjectItem } from './StrataServiceContent';
+import React, { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronRight, Check, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import ReactPlayer from 'react-player';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { StrataServicesContent, ServiceItem, ProjectItem } from './StrataServiceContent';
 
-const Header: React.FC<{ title: string, image: string }> = ({ title, image }) => {
-  return (
-    <header className="flex relative flex-col -mb-px w-full text-6xl font-extrabold tracking-wider leading-tight text-center text-white min-h-[389px] max-md:max-w-full max-md:text-4xl">
-      <img loading="lazy" src={image} alt="Commercial building background" className="object-cover absolute inset-0 size-full" />
-      <div className="relative pt-48 pr-16 pb-40 pl-24 -mt-1 mr-11 w-full bg-blue-950 bg-opacity-80 max-md:px-5 max-md:pt-24 max-md:pb-28 max-md:max-w-full max-md:text-4xl">
-        {title}
-      </div>
-    </header>
-  );
+const fadeIn = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
 };
 
-const ServiceList: React.FC<{ services: ServiceItem[], title: string }> = ({ services, title }) => {
-  return (
-    <div className="flex flex-col grow min-h-[875px] max-md:mt-10">
-      <div className="flex w-full min-h-[42px]" />
-      <div className="flex flex-col mt-5 w-full min-h-[716px]">
-        <h3 className="flex items-center w-full min-h-[59px]">
-          <div className="flex overflow-hidden flex-col self-stretch my-auto max-w-[334px] w-[19px]">
-            <div className="flex overflow-hidden flex-col justify-center items-center min-h-[19px] w-[19px]">
-              <div className="flex w-full min-h-[19px]" />
-            </div>
-          </div>
-          <div className="self-stretch my-auto text-3xl font-bold tracking-wide leading-snug text-blue-950 w-[262px]">
-            {title}
-          </div>
-        </h3>
+const Header: React.FC<{ title: string; image: string }> = ({ title, image }) => (
+  <motion.header
+    className="relative w-full min-h-[389px] text-white"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 1 }}
+  >
+    <img src={image} alt="Commercial building background" className="absolute inset-0 object-cover w-full h-full" />
+    <div className="absolute inset-0 bg-blue-950 bg-opacity-80 flex items-center justify-center">
+      <motion.h1
+        className="text-6xl font-extrabold tracking-wider text-center px-4"
+        variants={fadeIn}
+        initial="initial"
+        animate="animate"
+      >
+        {title}
+      </motion.h1>
+    </div>
+  </motion.header>
+);
+
+const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ services, title }) => (
+  <Card className="w-full h-full flex flex-col">
+    <CardHeader className="pb-2">
+      <CardTitle className="text-3xl font-bold text-blue-950">{title}</CardTitle>
+    </CardHeader>
+    <CardContent className="flex-grow pt-4">
+      <ul className="space-y-4">
         {services.map((service, index) => (
-          <div key={index} className="flex items-center pb-5 mt-5 w-full min-h-[58px]">
-            <div className="flex overflow-hidden flex-col self-stretch my-auto max-w-[334px] w-[19px]">
-              <div className="flex overflow-hidden flex-col justify-center items-center min-h-[19px] w-[19px]">
-                <img loading="lazy" src={service.icon} alt={`${service.name} icon`} className="object-contain w-full aspect-square" />
+          <motion.li
+            key={index}
+            className="flex items-center space-x-3"
+            variants={fadeIn}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: index * 0.1 }}
+          >
+            <Check className="text-green-500 h-6 w-6 flex-shrink-0" />
+            <span className="text-zinc-700 text-lg leading-tight">{service.name}</span>
+          </motion.li>
+        ))}
+      </ul>
+    </CardContent>
+  </Card>
+);
+
+const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
+  <section className="mt-16">
+    <motion.h2
+      className="text-3xl font-extrabold text-blue-950 text-center mb-8"
+      variants={fadeIn}
+      initial="initial"
+      animate="animate"
+    >
+      {title}
+    </motion.h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {projects.map((project, index) => (
+        <motion.div
+          key={index}
+          variants={fadeIn}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: index * 0.1 }}
+          whileHover={{ 
+            scale: 1.05, 
+            rotate: 1,
+            transition: { 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 10 
+            }
+          }}
+          className="cursor-pointer"
+        >
+          <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-xl">
+            <CardContent className="p-0">
+              <img src={project.image} alt={project.title} className="w-full h-48 object-cover rounded-t-lg" />
+              <div className="p-4">
+                <h3 className="text-xl font-bold text-blue-950">{project.title}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
+  </section>
+);
+
+const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
+  <motion.section
+    className="bg-amber-400 py-16 mt-16"
+    variants={fadeIn}
+    initial="initial"
+    animate="animate"
+  >
+    <div className="container mx-auto flex items-center justify-center space-x-6">
+      <h2 className="text-3xl font-bold text-black">{title}</h2>
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Button variant="default" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+          {buttonText}
+          <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
+      </motion.div>
+    </div>
+  </motion.section>
+);
+
+
+const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [volume, setVolume] = useState(0.5);
+    const [muted, setMuted] = useState(true);
+    const [played, setPlayed] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const playerRef = useRef(null);
+  
+    const handlePlayPause = () => setIsPlaying(!isPlaying);
+    const handleVolumeChange = (newValue) => {
+      setVolume(newValue[0]);
+      setMuted(newValue[0] === 0);
+    };
+    const handleProgress = (state) => setPlayed(state.played);
+    const handleMuteToggle = () => setMuted(!muted);
+    const handleSeekChange = (newValue) => {
+      setPlayed(newValue[0]);
+      playerRef.current.seekTo(newValue[0]);
+    };
+  
+    const formatTime = (seconds) => {
+      const date = new Date(seconds * 1000);
+      const hh = date.getUTCHours();
+      const mm = date.getUTCMinutes();
+      const ss = date.getUTCSeconds().toString().padStart(2, "0");
+      if (hh) {
+        return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
+      }
+      return `${mm}:${ss}`;
+    };
+  
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="relative aspect-video">
+            <ReactPlayer
+              ref={playerRef}
+              url={videoSrc}
+              width="100%"
+              height="100%"
+              playing={isPlaying}
+              volume={volume}
+              muted={muted}
+              loop
+              progressInterval={1000}
+              onProgress={handleProgress}
+              onDuration={setDuration}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+              <div className="flex items-center justify-between mb-2">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handlePlayPause}
+                  className="text-white hover:bg-white/20"
+                >
+                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleMuteToggle}
+                    className="text-white hover:bg-white/20"
+                  >
+                    {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  </Button>
+                  <Slider
+                    className="w-24"
+                    value={[muted ? 0 : volume]}
+                    max={1}
+                    step={0.1}
+                    onValueChange={handleVolumeChange}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Slider
+                  className="flex-grow"
+                  value={[played]}
+                  max={1}
+                  step={0.001}
+                  onValueChange={handleSeekChange}
+                />
+                <span className="text-white text-sm">
+                  {formatTime(played * duration)} / {formatTime(duration)}
+                </span>
               </div>
             </div>
-            <div className="self-stretch pl-2.5 my-auto text-base tracking-wide text-zinc-500">
-              {service.name}
-            </div>
           </div>
-        ))}
-      </div>
+          <div className="p-6">
+            <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
+              Featured Project
+            </Badge>
+            <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
+            <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
+            <p className="text-gray-700 leading-relaxed">{description}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+  
+
+const StrataServiceDetails: React.FC = () => {
+  return (
+    <div className="bg-white">
+      <Header title={StrataServicesContent.headerTitle} image={StrataServicesContent.headerImage} />
+      <main className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <aside className="lg:col-span-1 h-full">
+            <ServiceList services={StrataServicesContent.services} title={StrataServicesContent.servicesTitle} />
+          </aside>
+          <section className="lg:col-span-2">
+            <FeaturedProject 
+              title="Staples in Burnaby: Exterior Power Washing and Repainting"
+              subtitle={StrataServicesContent.descriptionTitle}
+              description={StrataServicesContent.descriptionText}
+              videoSrc={StrataServicesContent.descriptionVideo}
+            />
+          </section>
+        </div>
+        <ProjectShowcase projects={StrataServicesContent.projects} title={StrataServicesContent.projectShowcaseTitle} />
+      </main>
+      <CallToAction title={StrataServicesContent.ctaTitle} buttonText={StrataServicesContent.ctaButtonText} />
     </div>
   );
 };
 
-const ProjectShowcase: React.FC<{ projects: ProjectItem[], title: string }> = ({ projects, title }) => {
-  return (
-    <section className="self-stretch mt-44 max-md:mt-10 max-md:max-w-full">
-      <h2 className="ml-4 text-3xl font-extrabold tracking-wide leading-loose text-center text-blue-950 max-md:ml-2.5">
-        {title}
-      </h2>
-      <div className="flex gap-5 mt-4 max-md:flex-col">
-        {projects.map((project, index) => (
-          <div key={index} className="flex flex-col w-3/12 max-md:ml-0 max-md:w-full">
-            <div className="flex flex-col grow px-6 pt-9 pb-14 text-2xl font-bold tracking-wide text-center border border-solid border-neutral-300 text-blue-950 max-md:px-5 max-md:mt-5">
-              <img loading="lazy" src={project.image} alt={project.title} className="object-contain w-full aspect-[1.33]" />
-              <div className="self-center mt-44 max-md:mt-10">{project.title}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-const CallToAction: React.FC<{ title: string, buttonText: string }> = ({ title, buttonText }) => {
-  return (
-    <section className="flex flex-col justify-center items-center px-16 py-16 mt-56 w-full bg-amber-400 max-md:px-5 max-md:mt-10 max-md:max-w-full">
-      <div className="flex flex-wrap gap-9 max-w-full w-[552px]">
-        <h2 className="flex-auto my-auto text-3xl tracking-tighter leading-none text-right text-black">
-          {title}
-        </h2>
-        <button className="px-14 py-2.5 text-lg tracking-tight leading-8 text-center text-gray-900 bg-white rounded-lg max-md:px-5">
-          {buttonText}
-        </button>
-      </div>
-    </section>
-  );
-};
-const StrataServices: React.FC = () => {
-    // Directly use the imported content
-    return (
-      <div className="flex overflow-hidden flex-col bg-white">
-        <Header title={commercialServicesContent.headerTitle} image={commercialServicesContent.headerImage} />
-        <main className="flex flex-col items-start px-14 mt-14 w-full max-md:px-5 max-md:mt-10 max-md:max-w-full">
-          <div className="ml-20 w-full max-w-[1349px] max-md:max-w-full">
-            <div className="flex gap-5 max-md:flex-col">
-              <aside className="flex flex-col w-[27%] max-md:ml-0 max-md:w-full">
-                <ServiceList services={commercialServicesContent.services} title={commercialServicesContent.servicesTitle} />
-              </aside>
-              <section className="flex flex-col ml-5 w-[73%] max-md:ml-0 max-md:w-full">
-                <div className="flex flex-col mt-20 tracking-wide max-md:mt-10 max-md:max-w-full">
-                  <img loading="lazy" src={commercialServicesContent.descriptionImage} alt="Commercial building services illustration" className="object-contain w-full aspect-[1.85] max-md:mr-2.5 max-md:max-w-full" />
-                  <h2 className="self-start mt-7 text-3xl font-extrabold leading-loose text-center text-blue-950 max-md:max-w-full">
-                    {commercialServicesContent.descriptionTitle}
-                  </h2>
-                  <p className="mt-6 text-xl leading-7 text-black max-md:max-w-full">
-                    {commercialServicesContent.descriptionText}
-                  </p>
-                </div>
-              </section>
-            </div>
-          </div>
-          <ProjectShowcase projects={commercialServicesContent.projects} title={commercialServicesContent.projectShowcaseTitle} />
-        </main>
-        <CallToAction title={commercialServicesContent.ctaTitle} buttonText={commercialServicesContent.ctaButtonText} />
-      </div>
-    );
-  };
-  
-  export default StrataServices;
+export default StrataServiceDetails;

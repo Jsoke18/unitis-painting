@@ -26,11 +26,15 @@ const AboutUs: React.FC = () => {
       >
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
           <motion.div className="lg:w-1/2 h-[400px] lg:h-[600px]" variants={itemVariants}>
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/40bdd8d9e849a2ed648dd9efc17fb3b71e147b9339057819d1399c473abb5c78?apiKey=a05a9fe5da54475091abff9f564d40f8&"
-              alt="Unitus Painting Ltd. at work"
-              className="w-full h-full object-cover rounded-lg shadow-lg"
-            />
+            <iframe
+              title="vimeo-player"
+              src="https://player.vimeo.com/video/1012957597"
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              allowFullScreen
+              className="rounded-lg shadow-lg"
+            ></iframe>
           </motion.div>
           <div className="lg:w-1/2 space-y-6">
             <motion.div
@@ -43,10 +47,10 @@ const AboutUs: React.FC = () => {
             <motion.h2 className="text-4xl font-bold text-blue-950" variants={itemVariants}>
               We Deliver Quality and Excellence
             </motion.h2>
-            <motion.p className="text-lg text-gray-700 leading-relaxed mr-52" variants={itemVariants}>
+            <motion.p className="text-lg text-gray-700 leading-relaxed" variants={itemVariants}>
               Unitus Painting Ltd. was founded in 2013. We are trusted professionals, offering high-quality painting services across Greater Vancouver, Fraser Valley, BC Interior, and Calgary.
             </motion.p>
-            <motion.p className="text-lg text-gray-700 leading-relaxed mr-52" variants={itemVariants}>
+            <motion.p className="text-lg text-gray-700 leading-relaxed" variants={itemVariants}>
               With over 11 years of experience, we specialize in commercial, strata, and residential painting, while also offering services like caulking, wood replacement, power washing, and more. Our clients appreciate our professionalism, attention to detail, and competitive pricing.
             </motion.p>
             <div className="flex items-start space-x-8">

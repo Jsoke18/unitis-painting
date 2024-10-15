@@ -30,7 +30,7 @@ const StatisticsCard: React.FC<{
       whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.95 }}
     >
-      <Card className="w-64 h-64 flex flex-col items-center justify-between p-6">
+      <Card className="w-64 h-64 flex flex-col items-center justify-between p-6 mt-32 mb-32">
         <img src={iconSrc} alt="" className="w-16 h-16 mb-4" />
         <CardContent className="text-center">
           <motion.h3 

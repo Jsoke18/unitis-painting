@@ -2,17 +2,18 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, Instagram, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link'; // Import Link from Next.js
+import Link from 'next/link';
 
 type HeaderProps = {
   openingHours: string;
+  pathname: string; // Add this prop to receive the current path
 };
 
-const Header: React.FC<HeaderProps> = ({ openingHours }) => {
+const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
-    { label: "Services", href: "/services" }, // Link to the services page
+    { label: "Services", href: "/services" },
     { label: "Blog", href: "/blog" },
     { label: "Contact Us", href: "/contact" },
   ];
@@ -92,19 +93,22 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
             className="flex"
           >
             <div className="flex text-base font-semibold tracking-wide">
-              {navItems.map((item, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
-                  className={`cursor-pointer px-6 py-4 transition-colors ${
-                    index === 0 ? "text-white" : "text-neutral-800 hover:text-white"
-                  }`}
-                >
-                  <Link href={item.href}>
-                    {item.label}
-                  </Link>
-                </motion.div>
-              ))}
+              {navItems.map((item, index) => {
+                const isActive = pathname === item.href;
+                return (
+                  <motion.div
+                    key={index}
+                    whileHover={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                    className={`cursor-pointer px-6 py-4 transition-colors ${
+                      isActive ? "text-white" : "text-neutral-800 hover:text-white"
+                    }`}
+                  >
+                    <Link href={item.href}>
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.nav>
           <motion.div

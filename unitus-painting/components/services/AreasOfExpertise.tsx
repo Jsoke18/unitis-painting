@@ -49,14 +49,14 @@ const AreasOfExpertise: React.FC = () => {
       description: 'Quality painting and repairs for homes and apartments. Revitalize your living space with expert care.',
       imageSrc: 'https://cdn.builder.io/api/v1/image/assets/TEMP/c64b6b1d6cc58d0edfa0d126db56a1f66cec314c83bdebac969ba5b68ea80532?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8',
       icon: <Home className="w-6 h-6 text-[#1C2752]" />,
-      link: "/"
+      link: "/services/residential"
     },
     {
       title: 'Strata & Condo Services',
       description: 'Various services for multi-unit residential complexes. Enhancing your property\'s value and appeal.',
       imageSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/6e19be2f4a6bd20a168cbe08a71d4f039386e8a6c28ab19994bc52980b28ee59?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
       icon: <Building2 className="w-6 h-6 text-[#1C2752]" />,
-      link: "/"
+      link: "/services/strata-services"
     },
     {
       title: 'Commercial Painting Services',
