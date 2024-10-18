@@ -1,6 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Footer: React.FC = () => {
+  const [userLocation, setUserLocation] = useState('Calgary, AB');
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          const closestLocation = getClosestLocation(latitude, longitude);
+          setUserLocation(closestLocation);
+        },
+        error => {
+          console.error("Error getting user location:", error);
+        }
+      );
+    } else {
+      console.log("Geolocation is not available in this browser.");
+    }
+  }, []);
+
+  const getClosestLocation = (lat: number, lon: number): string => {
+    const calgary = { lat: 51.0447, lon: -114.0719, name: "Calgary, AB" };
+    const vancouver = { lat: 49.2827, lon: -123.1207, name: "Vancouver, BC" };
+
+    const calcDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+      const R = 6371; // Earth's radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    };
+
+    const distToCalgary = calcDistance(lat, lon, calgary.lat, calgary.lon);
+    const distToVancouver = calcDistance(lat, lon, vancouver.lat, vancouver.lon);
+
+    return distToCalgary < distToVancouver ? calgary.name : vancouver.name;
+  };
+
   return (
     <footer className="flex flex-col pt-12 pr-5 pb-24 pl-20 w-full bg-blue-950 max-md:pl-5 max-md:max-w-full">
       <div className="flex gap-5 justify-between items-start self-center max-w-full tracking-wide text-white w-[1096px]">
@@ -21,7 +61,7 @@ const Footer: React.FC = () => {
           <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/0027d9ab16f556a4832e5175b1f06f381d2ee9eac1f4244b1155160eff7ac344?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="" className="object-contain shrink-0 aspect-square rounded-[100px] w-[68px]" />
           <div className="flex flex-col my-auto">
             <div className="self-start text-xl font-bold leading-tight">Location</div>
-            <div className="mt-3 text-lg">Calgary, AB</div>
+            <div className="mt-3 text-lg">{userLocation}</div>
           </div>
         </div>
       </div>
