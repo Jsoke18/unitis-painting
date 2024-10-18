@@ -5,7 +5,7 @@ const ContactInfo: React.FC = () => {
     {
       icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/7d8ee5b0123c4dd454057713d162a84ac767e9c75ccfc2dc27b11c60e73cfc46?apiKey=a05a9fe5da54475091abff9f564d40f8&",
       title: "Mail Us",
-      content: "support@unitispainting.com"
+      content: "info@unitispainting.com"
     },
     {
       icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/593cd582d27b84b24313b0d1b839b1b5187fd0d16dcd4a5b2a41a1a002429803?apiKey=a05a9fe5da54475091abff9f564d40f8&",

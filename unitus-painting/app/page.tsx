@@ -15,7 +15,7 @@ import Footer from "@/components/landing/Footer";
 const MainLayout: React.FC = () => {
   return (
     <div className="flex overflow-hidden flex-col bg-white">
-      <Header openingHours="06:00 to 20:00" />
+      <Header openingHours="8:00 to 5:00" />
       <main>
         <Hero />
         <AboutUs />

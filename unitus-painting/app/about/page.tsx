@@ -15,7 +15,7 @@ import VideoPlayer from "@/components/about/vimeo"; // Import the new VideoPlaye
 const AboutPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Header openingHours="06:00 to 20:00" />
+      <Header openingHours="08:00 to 5:00" />
       
       <main className="flex-grow">
         <Hero

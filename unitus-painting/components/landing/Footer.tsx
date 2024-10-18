@@ -9,12 +9,12 @@ const Footer: React.FC = () => {
           <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/462fdce2184de3c54aac76eca5ca77a1acf7fa701e04a0fe754ded5e17cf0af6?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="" className="object-contain shrink-0 aspect-square rounded-[100px] w-[68px]" />
           <div className="flex flex-col my-auto">
             <div className="self-start text-xl font-bold leading-tight">Mail Us</div>
-            <div className="mt-3 text-lg">support@unitispainting</div>
+            <div className="mt-3 text-lg">info@unitispainting</div>
           </div>
           <img loading="lazy" src="https://cdn.builder.io/api/v1/image/assets/TEMP/3e22c7e26f88d4f8a889aba91020b479e2f9dd2f1a7b4abd5cdac8c3e0c793b2?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="" className="object-contain shrink-0 aspect-square rounded-[100px] w-[68px]" />
           <div className="flex flex-col my-auto">
             <div className="self-start text-xl font-bold leading-tight">Call Us</div>
-            <div className="mt-3 text-lg">+01 569 896 654</div>
+            <div className="mt-3 text-lg">604-716-4054</div>
           </div>
         </div>
         <div className="flex gap-4">

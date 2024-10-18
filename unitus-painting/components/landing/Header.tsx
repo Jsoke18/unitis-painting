@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
       <div className="bg-gray-100 w-full py-3">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
           <div className="text-sm tracking-wide text-blue-950 font-medium">
-            Opening Hours: {openingHours}
+            Hours of Operation: {openingHours}
           </div>
           <div className="flex gap-6">
             {[Facebook, Twitter, Instagram].map((Icon, index) => (
@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
           />
           <div className="flex items-center gap-6">
             {[
-              { icon: Mail, label: 'Mail Us', value: 'support@unituspainting.com' },
+              { icon: Mail, label: 'Mail Us', value: 'info@unituspainting.com' },
               { icon: Phone, label: 'Call Us', value: '604-357-4787' },
             ].map(({ icon: Icon, label, value }, index) => (
               <motion.div

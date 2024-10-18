@@ -10,7 +10,7 @@ const CarpentryDetails: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Assuming you have a Header component */}
-      <Header openingHours="06:00 to 20:00" />
+      <Header openingHours="08:00 to 5:00" />
 
       {/* Main content */}
       <main className="flex-grow">
