@@ -63,6 +63,7 @@ const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ ser
     </CardContent>
   </Card>
 );
+
 const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
   <section className="mt-16">
     <motion.h2

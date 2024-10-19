@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from 'next/image'
 
 // Header Component
 interface HeaderProps {
@@ -40,11 +41,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
     <Card className="mx-auto mt-20 max-w-6xl shadow-lg">
       <CardContent className="p-8">
         <div className="flex flex-col md:flex-row gap-8">
-          <div className="md:w-2/5">
-            <Avatar className="w-full h-auto aspect-square">
-              <AvatarImage src={image} alt={`${name}'s portrait`} />
-              <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
+          <div className="md:w-2/5 relative">
+            <Image 
+              src={image} 
+              alt={`${name}'s portrait`} 
+              layout="responsive"
+              width={400}
+              height={400}
+              objectFit="cover"
+            />
           </div>
           <div className="md:w-3/5">
             <CardHeader className="p-0">
@@ -102,16 +107,16 @@ const NewsletterSection: React.FC = () => {
 // Main Component
 const MainComponent: React.FC = () => {
   const headerProps = {
-    name: "Bryce Cayer",
+    name: "Chris Mitchell",
     backgroundImage: "https://cdn.builder.io/api/v1/image/assets/TEMP/d91b7698f0139952b976e7e2b55ca4ece494875c8f0df88c83b39e517b572d54?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
   };
   const aboutProps = {
-    name: "Bryce Cayer",
-    title: "Founder, CEO, & Senior Project Manager",
-    description: "Having worked in the painting industry since 2006, Chris and Bryce founded Unitus Painting in 2013. Long before their business partnership began, Chris and Bryce were roommates living in Victoria during university finishing their degrees in commerce.  Co-incidentally after finishing university, both of them began working in the painting industry: Bryce with a painting company and Chris with a paint manufacturer. Today they successfully run operations at Unitus Painting. Bryce and his family currently reside in Maple Ridge, where he and his wife, Danielle, have three children:  Sidney, Autumn and baby Kasen (Bryce, Sidney and Kasen in photo). They also have a small chihuahua, Romeo,who is quite the character. When Bryce was asked why customers choose Unitus Painting over other companies, he answered “Our customers are busy people that value their time. Due to the systems we have developed and the importance we place on delivering a positive experience our clients feel at ease knowing that everything from the quoting stage to job completion will be done in a professional efficient manner.",
-    phone: "604-716-4054",
-    email: "bryce@unituspainting.com",
-    image: "https://cdn.builder.io/api/v1/image/assets/TEMP/4d0ff4655fbd2d991505c37d91dea0861c1b998ce00f74989885a0bf2fae9ae5?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
+    name: "Chris Mitchell",
+    title: "Founder, CFO, & Project Manager",
+    description: "Chris has been in the painting industry since graduating from Royal Roads University in 2006. Before becoming project manager, he worked as a sales representative for a local coatings company in specifying products and resolving issues for other painting contractors.  This experience has been invaluable, having first hand experience with the products we use, and the experience with troubleshooting difficult projects.  He also manages several behind-the-scene operations, including finance and maintaining company accreditations. Chris currently resides in Salmon Arm with his wife Ashly, son Jackson, and English bulldog, Maximus.  His passions include environmental consciousness and innovative technologies, with hopes of having an all-electric vehicle fleet in the coming years.  Through Unitus Painting, he has supported causes close to his heart, such as Autism, Pediatric Cancer, and local community youth sports teams.",
+    phone: "604-518-0763",
+    email: "chris@unituspainting.com",
+    image: "/photos/chris.webp"
   };
 
   return (

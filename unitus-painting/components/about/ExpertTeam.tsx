@@ -22,7 +22,7 @@ const expertsData: ExpertData[] = [
     name: "Chris Mitchell",
     role: "Founder, CFO & Project Manager",
     imageSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/527eb9fd150b2dc616b08704dd770335f6b0468c0406969ed0844a3022c06913?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
-    link: "/expert/chris-mitchell"
+    link: "/about/chris-mitchell"
   },
   {
     name: "Keith Yung",

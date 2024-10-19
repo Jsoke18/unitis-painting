@@ -3,7 +3,7 @@
 import React from "react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import MainComponent from "@/components/about/BryceDetail";
+import MainComponent from "@/components/about/ChrisDetail";
 
 
 const BrycePage: React.FC = () => {

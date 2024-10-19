@@ -53,37 +53,28 @@ const AboutUs: React.FC = () => {
             <motion.p className="text-lg text-gray-700 leading-relaxed" variants={itemVariants}>
               With over 11 years of experience, we specialize in commercial, strata, and residential painting, while also offering services like caulking, wood replacement, power washing, and more. Our clients appreciate our professionalism, attention to detail, and competitive pricing.
             </motion.p>
-            <div className="flex items-start space-x-8">
-              <motion.div
-                className="bg-gray-100 p-8 rounded-lg text-center shadow-md mt-10"
-                variants={itemVariants}
-              >
-                <div className="text-5xl font-bold text-amber-400">11</div>
-                <div className="text-sm font-semibold text-blue-950 mt-2">Years Of<br />Experience</div>
-              </motion.div>
-              <motion.ul className="space-y-2 text-base text-gray-700 text-lg" variants={containerVariants}>
-                <motion.li className="flex items-center mt-10" variants={itemVariants}>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
-                  Complete painting and repair services
-                </motion.li>
-                <motion.li className="flex items-center" variants={itemVariants}>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
-                  Skilled and qualified professionals
-                </motion.li>
-                <motion.li className="flex items-center" variants={itemVariants}>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
-                  Full workmanship guarantee
-                </motion.li>
-                <motion.li className="flex items-center" variants={itemVariants}>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
-                  Affordable and reliable
-                </motion.li>
-                <motion.li className="flex items-center" variants={itemVariants}>
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
-                  Exceptional customer service
-                </motion.li>
-              </motion.ul>
-            </div>
+            <motion.ul className="space-y-2 text-base text-gray-700 text-lg mt-6" variants={containerVariants}>
+              <motion.li className="flex items-center" variants={itemVariants}>
+                <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                Complete painting and repair services
+              </motion.li>
+              <motion.li className="flex items-center" variants={itemVariants}>
+                <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                Skilled and qualified professionals
+              </motion.li>
+              <motion.li className="flex items-center" variants={itemVariants}>
+                <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                Full workmanship guarantee
+              </motion.li>
+              <motion.li className="flex items-center" variants={itemVariants}>
+                <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                Affordable and reliable
+              </motion.li>
+              <motion.li className="flex items-center" variants={itemVariants}>
+                <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
+                Exceptional customer service
+              </motion.li>
+            </motion.ul>
           </div>
         </div>
       </motion.div>
