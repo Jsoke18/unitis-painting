@@ -62,7 +62,7 @@ const ContactPage: React.FC = () => {
                     <div className="space-y-3 text-black">
                       <motion.div className="flex items-center" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
                         <Phone className="text-navy-blue mr-3" size={20} />
-                        <span>+1 604-716-4054</span>
+                        <span>604-357-4787</span>
                       </motion.div>
                       <motion.div className="flex items-center" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
                         <Mail className="text-navy-blue mr-3" size={20} />
