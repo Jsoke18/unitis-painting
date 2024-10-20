@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
@@ -12,8 +13,6 @@ type HeaderProps = {
 const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showEmailOptions, setShowEmailOptions] = useState(false);
-
-  const isLandingPage = pathname === '/';
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -134,8 +133,8 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
           <nav className="flex">
             <div className="flex text-base font-semibold tracking-wide">
               {navItems.map((item, index) => {
-                const isActive = pathname === item.href;
                 const isOpen = openDropdown === item.label;
+                const isActive = pathname === item.href;
                 return (
                   <div
                     key={index}
@@ -171,11 +170,9 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
                           transition={{ duration: 0.2 }}
                           className="absolute top-full left-0 bg-white shadow-md py-2 min-w-[200px] max-h-[400px] overflow-y-auto"
                         >
-                          {item.children.map((child, childIndex) => (
+                          {item.children.map((child: any, childIndex: number) => (
                             <Link key={childIndex} href={child.href}>
-                              <div
-                                className="px-6 py-2 text-neutral-800 hover:text-blue-950 hover:bg-gray-100"
-                              >
+                              <div className="px-6 py-2 text-neutral-800 hover:text-blue-950 hover:bg-gray-100">
                                 {child.label}
                               </div>
                             </Link>
@@ -198,16 +195,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
     </>
   );
 
-  return isLandingPage ? (
-    <motion.header
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="flex flex-col bg-white relative z-20 shadow-md"
-    >
-      <HeaderContent />
-    </motion.header>
-  ) : (
+  return (
     <header className="flex flex-col bg-white relative z-20 shadow-md">
       <HeaderContent />
     </header>

@@ -232,8 +232,7 @@ const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
 
 const ResidentalPage: React.FC = () => {
   return (
-    <div className="bg-white">
-      <Header title={ResidentalContent.headerTitle} image={ResidentalContent.headerImage} />
+    <div className="bg-white mt-24">
       <main className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <aside className="lg:col-span-1 h-full">
