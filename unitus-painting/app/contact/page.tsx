@@ -35,8 +35,7 @@ const ContactPage: React.FC = () => {
               <motion.div variants={fadeIn}>
                 <CardTitle className="text-3xl font-bold mb-4 text-black">Contact Unitus Painting</CardTitle>
                 <p className="text-black">
-                  We're here to assist with your residential, strata, or commercial painting projects.
-                  Whether you need a quote, have questions, or want to book a consultation, contact our team today!
+                  For any inquiries, questions or commendations, please call: 604-357-4787 or fill out the following form.
                 </p>
               </motion.div>
             </CardHeader>
@@ -64,22 +63,29 @@ const ContactPage: React.FC = () => {
                         <Phone className="text-navy-blue mr-3" size={20} />
                         <span>604-357-4787</span>
                       </motion.div>
-                      <motion.div className="flex items-center" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
-                        <Mail className="text-navy-blue mr-3" size={20} />
-                        <span>info@unituspainting.com</span>
-                      </motion.div>
-                      <motion.div className="flex items-center" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
-                        <MapPin className="text-navy-blue mr-3" size={20} />
-                        <span>123 Paint Street, Colorful City, ST 12345</span>
-                      </motion.div>
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-navy-blue mb-4">Business Hours</h3>
-                    <div className="space-y-2 text-black">
-                      <p>Monday - Friday: 6:00 AM - 8:00 PM</p>
-                      <p>Saturday: 8:00 AM - 4:00 PM</p>
-                      <p>Sunday: Closed</p>
+                    <h3 className="text-xl font-semibold text-navy-blue mb-4">Our Addresses</h3>
+                    <div className="space-y-4 text-black">
+                      <motion.div className="flex items-start" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <MapPin className="text-navy-blue mr-3 mt-1 flex-shrink-0" size={20} />
+                        <div>
+                          <p className="font-semibold">Unitus Painting Ltd. (Head office)</p>
+                          <p>PO Box 21126</p>
+                          <p>Maple Ridge Square RPO</p>
+                          <p>Maple Ridge, BC V2X 1P7</p>
+                        </div>
+                      </motion.div>
+                      <motion.div className="flex items-start" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <MapPin className="text-navy-blue mr-3 mt-1 flex-shrink-0" size={20} />
+                        <div>
+                          <p className="font-semibold">Unitus Painting Ltd. (Calgary)</p>
+                          <p>PO Box 81041</p>
+                          <p>RPO Lake Bonavista</p>
+                          <p>Calgary, AB T2J 7C9</p>
+                        </div>
+                      </motion.div>
                     </div>
                   </div>
                 </motion.div>
