@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 type HeaderProps = {
   openingHours: string;
-  pathname: string; // Add this prop to receive the current path
+  pathname: string;
 };
 
 const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
@@ -15,6 +15,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
     { label: "About Us", href: "/about" },
     { label: "Services", href: "/services" },
     { label: "Areas Served", href: "/areas-served" },
+    { label: "Our Approach", href: "/our-approach" },
     { label: "Warranty", href: "/warranty" },
     { label: "Blog", href: "/blog" },
     { label: "Contact Us", href: "/contact" },
@@ -53,14 +54,16 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
       {/* Main header */}
       <div className="bg-white py-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
-          <motion.img
-            initial={{ x: -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/9b68ca45052d057c3539f5259eaebc8fc853392e2bc5d444f2225c9e4d6265ec?apiKey=a05a9fe5da54475091abff9f564d40f8&"
-            alt="Unitus Painting Ltd. logo"
-            className="w-[220px] h-auto"
-          />
+          <Link href="/">
+            <motion.img
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/9b68ca45052d057c3539f5259eaebc8fc853392e2bc5d444f2225c9e4d6265ec?apiKey=a05a9fe5da54475091abff9f564d40f8&"
+              alt="Unitus Painting Ltd. logo"
+              className="w-[220px] h-auto cursor-pointer"
+            />
+          </Link>
           <div className="flex items-center gap-6">
             {[
               { icon: Mail, label: 'Mail Us', value: 'info@unituspainting.com' },
