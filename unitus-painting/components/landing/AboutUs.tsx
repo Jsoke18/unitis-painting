@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
+import ReactPlayer from 'react-player/vimeo';
 
 const AboutUs: React.FC = () => {
   const ref = React.useRef(null);
@@ -25,16 +26,21 @@ const AboutUs: React.FC = () => {
         animate={isInView ? "visible" : "hidden"}
       >
         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-          <motion.div className="lg:w-1/2 h-[400px] lg:h-[600px]" variants={itemVariants}>
-            <iframe
-              title="vimeo-player"
-              src="https://player.vimeo.com/video/1012957597"
+          <motion.div className="lg:w-1/2 h-[400px] lg:h-[600px] relative" variants={itemVariants}>
+            <ReactPlayer
+              url="https://vimeo.com/1012957597"
               width="100%"
               height="100%"
-              frameBorder="0"
-              allowFullScreen
-              className="rounded-lg shadow-lg"
-            ></iframe>
+              controls={true}
+              config={{
+                vimeo: {
+                  playerOptions: {
+                    responsive: true,
+                  },
+                },
+              }}
+              className="rounded-lg shadow-lg absolute top-0 left-0"
+            />
           </motion.div>
           <div className="lg:w-1/2 space-y-6">
             <motion.div

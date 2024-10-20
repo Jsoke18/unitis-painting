@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from 'next/image';
 import keithYungImage from '../../public/photos/keith-yung.png';
 
 // Floating Quick Info Component
@@ -71,11 +71,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
       <Card className="mx-auto max-w-6xl shadow-lg">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-2/5">
-              <Avatar className="w-full h-auto aspect-square">
-                <AvatarImage src={keithYungImage.src} alt={`${name}'s portrait`} />
-                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-              </Avatar>
+            <div className="md:w-2/5 relative">
+              <Image 
+                src={keithYungImage}
+                alt={`${name}'s portrait`}
+                layout="responsive"
+                width={400}
+                height={400}
+                objectFit="cover"
+              />
             </div>
             <div className="md:w-3/5">
               <CardHeader className="p-0">
@@ -107,7 +111,6 @@ const NewsletterSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the email to your backend
     console.log('Subscribing email:', email);
     toast({
       title: "Subscribed!",
@@ -157,7 +160,7 @@ const MainComponent: React.FC = () => {
   const aboutProps = {
     name: "Keith Yung",
     title: "Project Manager",
-    description: "Keith, carrying our newest Unitus team member, Ollie, while he and his wife,Nancy, create a swing on-the-go for daughter, Frankie  As a proud papa, he would be happy to fill you in on their developments and share a pic or two : )) Keith brings to the table a unique passion and focus.  His communication and motivational skills, together with a desire to serve, make him a key team player. He understands the importance of a satisfied customer.",
+    description: "Keith, carrying our newest Unitus team member, Ollie, while he and his wife, Nancy, create a swing on-the-go for daughter, Frankie. As a proud papa, he would be happy to fill you in on their developments and share a pic or two :) Keith brings to the table a unique passion and focus. His communication and motivational skills, together with a desire to serve, make him a key team player. He understands the importance of a satisfied customer.",
     phone: "604-202-6407",
     email: "keith@unituspainting.com"
   };

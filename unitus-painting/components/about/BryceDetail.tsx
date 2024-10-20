@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from 'next/image';
 import YouTubeStylePlayer from './YoutubeStylePlayer';
 
 // Floating Quick Info Component
@@ -69,14 +69,18 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="mx-auto mt-40 max-w-6xl shadow-lg">
+      <Card className="mx-auto mt-20 max-w-6xl shadow-lg">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-2/5">
-              <Avatar className="w-full h-auto aspect-square">
-                <AvatarImage src={image} alt={`${name}'s portrait`} />
-                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-              </Avatar>
+            <div className="md:w-2/5 relative">
+              <Image 
+                src={image}
+                alt={`${name}'s portrait`}
+                width={400}
+                height={400}
+                layout="responsive"
+                objectFit="cover"
+              />
             </div>
             <div className="md:w-3/5">
               <CardHeader className="p-0">
@@ -87,11 +91,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
               <div className="mt-6 space-y-2">
                 <div className="flex items-center">
                   <span className="font-semibold text-blue-950 w-20">Phone:</span>
-                  <span className="text-zinc-700">{phone}</span>
+                  <a href={`tel:${phone}`} className="flex items-center text-zinc-700">
+                    <Phone size={16} className="mr-2" /> {phone}
+                  </a>
                 </div>
                 <div className="flex items-center">
                   <span className="font-semibold text-blue-950 w-20">Email:</span>
-                  <span className="text-zinc-700">{email}</span>
+                  <a href={`mailto:${email}`} className="flex items-center text-zinc-700">
+                    <Mail size={16} className="mr-2" /> {email}
+                  </a>
                 </div>
               </div>
             </div>
@@ -108,7 +116,6 @@ const NewsletterSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the email to your backend
     console.log('Subscribing email:', email);
     toast({
       title: "Subscribed!",
@@ -155,7 +162,7 @@ const NewsletterSection: React.FC = () => {
 
 // Main Component
 const MainComponent: React.FC = () => {
-  const aboutProps = {
+  const bryceProps = {
     name: "Bryce Cayer",
     title: "Founder, CEO, & Senior Project Manager",
     description: "Having worked in the painting industry since 2006, Chris and Bryce founded Unitus Painting in 2013. Long before their business partnership began, Chris and Bryce were roommates living in Victoria during university finishing their degrees in commerce. Co-incidentally after finishing university, both of them began working in the painting industry: Bryce with a painting company and Chris with a paint manufacturer. Today they successfully run operations at Unitus Painting. Bryce and his family currently reside in Maple Ridge, where he and his wife, Danielle, have three children: Sidney, Autumn and baby Kasen (Bryce, Sidney and Kasen in photo). They also have a small chihuahua, Romeo, who is quite the character. When Bryce was asked why customers choose Unitus Painting over other companies, he answered \"Our customers are busy people that value their time. Due to the systems we have developed and the importance we place on delivering a positive experience our clients feel at ease knowing that everything from the quoting stage to job completion will be done in a professional efficient manner.\"",
@@ -167,9 +174,9 @@ const MainComponent: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <YouTubeStylePlayer url="/videos/meet-the-manager-bryce.mp4" />
-      <AboutSection {...aboutProps} />
+      <AboutSection {...bryceProps} />
       <NewsletterSection />
-      <FloatingQuickInfo {...aboutProps} />
+      <FloatingQuickInfo {...bryceProps} />
     </div>
   );
 };

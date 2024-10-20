@@ -2,29 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Image from 'next/image'
-
-// Header Component
-interface HeaderProps {
-  name: string;
-  backgroundImage: string;
-}
-
-const Header: React.FC<HeaderProps> = ({ name, backgroundImage }) => {
-  return (
-    <header className="relative w-full h-[458px] flex items-center justify-center text-white">
-      <div 
-        className="absolute inset-0 bg-cover bg-center" 
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      />
-      <div className="absolute inset-0 bg-blue-950/80" />
-      <h1 className="relative z-10 text-6xl font-extrabold tracking-wider text-center max-w-4xl mx-auto leading-tight">
-        {name}
-      </h1>
-    </header>
-  );
-};
 
 // About Section Component
 interface AboutSectionProps {
@@ -106,10 +84,6 @@ const NewsletterSection: React.FC = () => {
 
 // Main Component
 const MainComponent: React.FC = () => {
-  const headerProps = {
-    name: "Chris Mitchell",
-    backgroundImage: "https://cdn.builder.io/api/v1/image/assets/TEMP/d91b7698f0139952b976e7e2b55ca4ece494875c8f0df88c83b39e517b572d54?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
-  };
   const aboutProps = {
     name: "Chris Mitchell",
     title: "Founder, CFO, & Project Manager",
@@ -121,7 +95,6 @@ const MainComponent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header {...headerProps} />
       <AboutSection {...aboutProps} />
       <NewsletterSection />
     </div>

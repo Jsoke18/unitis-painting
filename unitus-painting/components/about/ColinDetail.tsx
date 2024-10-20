@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from 'next/image';
 import YouTubeStylePlayer from './YoutubeStylePlayer';
 import ColinImage from '../../public/photos/colin.png';
 
@@ -60,7 +60,7 @@ interface AboutSectionProps {
   description: string;
   phone: string;
   email: string;
-  image: string;
+  image: StaticImageData;
 }
 
 const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, phone, email, image }) => {
@@ -70,14 +70,18 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="mx-auto mt-40 max-w-6xl shadow-lg">
+      <Card className="mx-auto mt-20 max-w-6xl shadow-lg">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-2/5">
-              <Avatar className="w-full h-auto aspect-square">
-              <AvatarImage src={ColinImage.src} alt={`${name}'s portrait`} />
-              <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-              </Avatar>
+            <div className="md:w-2/5 relative">
+              <Image 
+                src={image}
+                alt={`${name}'s portrait`}
+                layout="responsive"
+                width={400}
+                height={400}
+                objectFit="cover"
+              />
             </div>
             <div className="md:w-3/5">
               <CardHeader className="p-0">
@@ -109,7 +113,6 @@ const NewsletterSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the email to your backend
     console.log('Subscribing email:', email);
     toast({
       title: "Subscribed!",
@@ -159,10 +162,10 @@ const MainComponent: React.FC = () => {
   const aboutProps = {
     name: "Colin Atkinson",
     title: "Project Manager",
-    description: "A seasoned project manager with over two decades of experience, Colin has spent the better part of his career in the painting industry.  Since obtaining his BA from the University of Victoria, he has worked with a number of leading painting companies, working collaboratively with commercial and residential clients to meet their needs in an efficient and customer-focused manner.  With a solutions-oriented approach and an easy-going demeanor, Colin is committed to the best outcomes for Unitus Painting's customers.  Colin lives in New Westminster with his wife of nearly 20 years, Jen, his son Connor and their cat Gouda (like the cheese).  In his spare time, he is a passionate sports fan, a volunteer basketball coach, a coffee connoisseur, a voracious reader, and a world traveller.  \"",
+    description: "A seasoned project manager with over two decades of experience, Colin has spent the better part of his career in the painting industry. Since obtaining his BA from the University of Victoria, he has worked with a number of leading painting companies, working collaboratively with commercial and residential clients to meet their needs in an efficient and customer-focused manner. With a solutions-oriented approach and an easy-going demeanor, Colin is committed to the best outcomes for Unitus Painting's customers. Colin lives in New Westminster with his wife of nearly 20 years, Jen, his son Connor and their cat Gouda (like the cheese). In his spare time, he is a passionate sports fan, a volunteer basketball coach, a coffee connoisseur, a voracious reader, and a world traveller.",
     phone: "604-315-4116",
     email: "colin@unituspainting.com",
-    image: "https://cdn.builder.io/api/v1/image/assets/TEMP/4d0ff4655fbd2d991505c37d91dea0861c1b998ce00f74989885a0bf2fae9ae5?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
+    image: ColinImage
   };
 
   return (

@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from 'next/image';
 import YouTubeStylePlayer from './YoutubeStylePlayer';
 
 // Floating Quick Info Component
@@ -69,14 +69,18 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="mx-auto mt-40 max-w-6xl shadow-lg">
+      <Card className="mx-auto mt-20 max-w-6xl shadow-lg">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-2/5">
-              <Avatar className="w-full h-auto aspect-square">
-                <AvatarImage src={image} alt={`${name}'s portrait`} />
-                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-              </Avatar>
+            <div className="md:w-2/5 relative">
+              <Image 
+                src={image}
+                alt={`${name}'s portrait`}
+                width={400}
+                height={400}
+                layout="responsive"
+                objectFit="cover"
+              />
             </div>
             <div className="md:w-3/5">
               <CardHeader className="p-0">
@@ -87,11 +91,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
               <div className="mt-6 space-y-2">
                 <div className="flex items-center">
                   <span className="font-semibold text-blue-950 w-20">Phone:</span>
-                  <span className="text-zinc-700">{phone}</span>
+                  <a href={`tel:${phone}`} className="flex items-center text-zinc-700">
+                    <Phone size={16} className="mr-2" /> {phone}
+                  </a>
                 </div>
                 <div className="flex items-center">
                   <span className="font-semibold text-blue-950 w-20">Email:</span>
-                  <span className="text-zinc-700">{email}</span>
+                  <a href={`mailto:${email}`} className="flex items-center text-zinc-700">
+                    <Mail size={16} className="mr-2" /> {email}
+                  </a>
                 </div>
               </div>
             </div>
@@ -108,7 +116,6 @@ const NewsletterSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the email to your backend
     console.log('Subscribing email:', email);
     toast({
       title: "Subscribed!",
@@ -158,10 +165,10 @@ const MainComponent: React.FC = () => {
   const aboutProps = {
     name: "Tony Balazs",
     title: "Project Manager",
-    description: "Working in Vancouver’s painting industry for the past 16 years, Tony has an extensive knowledge in coatings of all types.  As an Account Development Manager at Dulux/PPG Paints. he has built many lasting relationships with leading paint contractors. He's adept at product recommendations, paint application/performance and colour needs. At Unitus, Tony looks forward to new relationships and providing second-to-none customer service. He, his wife Julia, and daughter Zoey, can be seen out in their neighbourhood enjoying all that Vancouver's Fairview area and Granville Island has to offer.",
+    description: "Working in Vancouver's painting industry for the past 16 years, Tony has an extensive knowledge in coatings of all types. As an Account Development Manager at Dulux/PPG Paints. he has built many lasting relationships with leading paint contractors. He's adept at product recommendations, paint application/performance and colour needs. At Unitus, Tony looks forward to new relationships and providing second-to-none customer service. He, his wife Julia, and daughter Zoey, can be seen out in their neighbourhood enjoying all that Vancouver's Fairview area and Granville Island has to offer.",
     phone: "604-727-6787",
     email: "tony@unituspainting.com",
-    image: "https://cdn.builder.io/api/v1/image/assets/TEMP/765e8b96e602ceb349572b150a35fec30f2ac8ecd359320856f421735adbd718?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
+    image: "https://cdn.builder.io/api/v1/image/assets/TEMP/3da8d9d953149e442f735f85f3a2f8f359fcf9d934895b7bc78df1dc21125129?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
   };
 
   return (

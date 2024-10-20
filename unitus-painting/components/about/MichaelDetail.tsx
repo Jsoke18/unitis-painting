@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
+import Image from 'next/image';
 
 // Floating Quick Info Component
 const FloatingQuickInfo: React.FC<{ name: string; title: string; phone: string; email: string }> = ({ name, title, phone, email }) => {
@@ -58,23 +58,28 @@ interface AboutSectionProps {
   description: string;
   phone: string;
   email: string;
+  image: string;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, phone, email }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, phone, email, image }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="mx-auto max-w-6xl shadow-lg">
+      <Card className="mx-auto mt-20 max-w-6xl shadow-lg">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-2/5">
-              <Avatar className="w-full h-auto aspect-square">
-                <AvatarImage src="https://cdn.builder.io/api/v1/image/assets/TEMP/1614588dec73992d594aa34099aaf2a59503d4115a4d534b76fd10e1f9f0d194?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8" alt={`${name}'s portrait`} />
-                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-              </Avatar>
+            <div className="md:w-2/5 relative">
+              <Image 
+                src={image}
+                alt={`${name}'s portrait`}
+                width={400}
+                height={400}
+                layout="responsive"
+                objectFit="cover"
+              />
             </div>
             <div className="md:w-3/5">
               <CardHeader className="p-0">
@@ -85,11 +90,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({ name, title, description, p
               <div className="mt-6 space-y-2">
                 <div className="flex items-center">
                   <span className="font-semibold text-blue-950 w-20">Phone:</span>
-                  <span className="text-zinc-700">{phone}</span>
+                  <a href={`tel:${phone}`} className="flex items-center text-zinc-700">
+                    <Phone size={16} className="mr-2" /> {phone}
+                  </a>
                 </div>
                 <div className="flex items-center">
                   <span className="font-semibold text-blue-950 w-20">Email:</span>
-                  <span className="text-zinc-700">{email}</span>
+                  <a href={`mailto:${email}`} className="flex items-center text-zinc-700">
+                    <Mail size={16} className="mr-2" /> {email}
+                  </a>
                 </div>
               </div>
             </div>
@@ -106,7 +115,6 @@ const NewsletterSection: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the email to your backend
     console.log('Subscribing email:', email);
     toast({
       title: "Subscribed!",
@@ -153,19 +161,20 @@ const NewsletterSection: React.FC = () => {
 
 // Main Component
 const MainComponent: React.FC = () => {
-  const aboutProps = {
+  const michaelProps = {
     name: "Michael Powell",
     title: "Project Manager",
-    description: "Checking out a job at Science World. A sales and marketing background from corporate America, more than 12 years in commercial painting, and a desire to conduct win/win business,allows Mike to comfortably develop and build relationships. A passionate cyclist and wanabe drone piolot keep him occupied in beautiful BC : ))",
+    description: "Checking out a job at Science World. A sales and marketing background from corporate America, more than 12 years in commercial painting, and a desire to conduct win/win business, allows Mike to comfortably develop and build relationships. A passionate cyclist and wannabe drone pilot keep him occupied in beautiful BC : ))",
     phone: "604-202-6407",
-    email: "keith@unituspainting.com"
+    email: "keith@unituspainting.com",
+    image: "https://cdn.builder.io/api/v1/image/assets/TEMP/1614588dec73992d594aa34099aaf2a59503d4115a4d534b76fd10e1f9f0d194?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <AboutSection {...aboutProps} />
+    <div className="min-h-screen bg-gray-50">
+      <AboutSection {...michaelProps} />
       <NewsletterSection />
-      <FloatingQuickInfo {...aboutProps} />
+      <FloatingQuickInfo {...michaelProps} />
     </div>
   );
 };
