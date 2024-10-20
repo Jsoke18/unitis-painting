@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { motion, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import { motion } from "framer-motion";
 
 type ProjectCardProps = {
   image: string;
@@ -11,29 +11,8 @@ type ProjectCardProps = {
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ image, title }) => {
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
-
   return (
-    <motion.div
-      ref={ref}
-      animate={controls}
-      initial="hidden"
-      variants={{
-        visible: { opacity: 1, y: 0 },
-        hidden: { opacity: 0, y: 50 }
-      }}
-      transition={{ duration: 0.5 }}
-    >
+    <Link href="/project-gallery">
       <Card className="overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
         <CardContent className="p-0">
           <img src={image} alt={title} className="w-full h-64 object-cover" />
@@ -42,7 +21,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ image, title }) => {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </Link>
   );
 };
 
@@ -71,13 +50,15 @@ const RecentProjects: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <Button 
-            variant="secondary" 
-            size="lg" 
-            className="text-blue-950 bg-white hover:bg-blue-100 transition-colors duration-300 text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl"
-          >
-            <Eye className="mr-2 h-5 w-5" /> View Gallery
-          </Button>
+          <Link href="/project-gallery">
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="text-blue-950 bg-white hover:bg-blue-100 transition-colors duration-300 text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl"
+            >
+              <Eye className="mr-2 h-5 w-5" /> View Gallery
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>
