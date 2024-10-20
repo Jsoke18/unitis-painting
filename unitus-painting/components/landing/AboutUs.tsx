@@ -1,7 +1,38 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { Star } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
-import ReactPlayer from 'react-player/vimeo';
+
+const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
+
+const VideoPlayer: React.FC = () => {
+  return (
+    <div className="w-full h-full flex items-center mt-8">
+      <div className="aspect-w-16 aspect-h-9 w-full mt-6">
+        <ReactPlayer
+          url="https://player.vimeo.com/video/836294434"
+          width="100%"
+          height="100%"
+          controls={true}
+          muted={false}
+          playing={false}
+          config={{
+            vimeo: {
+              playerOptions: {
+                responsive: true,
+                autoplay: false,
+                controls: true,
+                background: false,
+                muted: false,
+                pip: true,
+              },
+            },
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 const AboutUs: React.FC = () => {
   const ref = React.useRef(null);
@@ -25,24 +56,11 @@ const AboutUs: React.FC = () => {
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
       >
-        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-          <motion.div className="lg:w-1/2 h-[400px] lg:h-[600px] relative" variants={itemVariants}>
-            <ReactPlayer
-              url="https://vimeo.com/1012957597"
-              width="100%"
-              height="100%"
-              controls={true}
-              config={{
-                vimeo: {
-                  playerOptions: {
-                    responsive: true,
-                  },
-                },
-              }}
-              className="rounded-lg shadow-lg absolute top-0 left-0"
-            />
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+          <motion.div className="lg:w-1/2 flex items-center" variants={itemVariants}>
+            <VideoPlayer />
           </motion.div>
-          <div className="lg:w-1/2 space-y-6">
+          <div className="lg:w-1/2 space-y-6 flex flex-col justify-center py-4">
             <motion.div
               className="inline-flex items-center px-3 py-1 bg-amber-100 rounded-full text-amber-600 text-sm font-medium"
               variants={itemVariants}
