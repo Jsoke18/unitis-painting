@@ -1,9 +1,26 @@
-'use client'
+'use client';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPinIcon } from 'lucide-react';
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import Map from 'react-map-gl';
+
+// You'll need to replace this with your actual Mapbox access token
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoiam9zaHNva2UiLCJhIjoiY20yaHV1Ym85MGg5czJpcHZpeW9jenE2YSJ9.dQL_m4RdWh4gRjR144s-ww';
+
+const LocationMap = ({ longitude, latitude, zoom }) => (
+  <Map
+    mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
+    initialViewState={{
+      longitude,
+      latitude,
+      zoom
+    }}
+    style={{width: '100%', height: 300}}
+    mapStyle="mapbox://styles/mapbox/streets-v11"
+  />
+);
 
 const AreasServedPage = () => {
   return (
@@ -26,7 +43,8 @@ const AreasServedPage = () => {
                 <p>PO Box 21126</p>
                 <p>Maple Ridge Square RPO</p>
                 <p>Maple Ridge, BC V2X 1P7</p>
-                <p className="mt-4">Serving the Greater Vancouver Area and Fraser Valley</p>
+                <p className="mt-4 mb-4">Serving the Greater Vancouver Area and Fraser Valley</p>
+                <LocationMap longitude={-122.5976} latitude={49.2194} zoom={9} />
               </CardContent>
             </Card>
 
@@ -42,7 +60,8 @@ const AreasServedPage = () => {
                 <p>PO Box 81041</p>
                 <p>RPO Lake Bonavista</p>
                 <p>Calgary, AB T2J 7C9</p>
-                <p className="mt-4">Serving Calgary and surrounding areas</p>
+                <p className="mt-4 mb-4">Serving Calgary and surrounding areas</p>
+                <LocationMap longitude={-114.0719} latitude={51.0447} zoom={9} />
               </CardContent>
             </Card>
           </div>
