@@ -15,7 +15,7 @@ const ServicesPage: React.FC = () => {
       className="flex flex-col text-center text-white"
     >
       <Hero
-        title="Our Services"
+        title="Explore Our Services"
         backgroundImageSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/f28e1b37228e8ea5728b3fb2b09487e8a82965eaea67e7de42de8b4923c24dd6?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
       />
     </motion.main>
@@ -43,7 +43,7 @@ const Hero: React.FC<PageHeaderProps> = ({ title, backgroundImageSrc }) => {
         whileInView={{ opacity: 0.7 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="absolute inset-0 bg-blue-900"
+        className="absolute inset-0 bg-blue-900 bg-opacity-80"
       ></motion.div>
       <div className="relative z-10 flex items-center justify-center w-full h-full">
         <motion.h1
