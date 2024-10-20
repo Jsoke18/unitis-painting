@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Facebook, Twitter, Instagram, Phone, Mail } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Facebook, Twitter, Instagram, Phone, Mail, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -10,13 +10,36 @@ type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
   const navItems = [
     { label: "Home", href: "/" },
-    { label: "About Us", href: "/about" },
-    { label: "Services", href: "/services" },
+    {
+      label: "About Us",
+      href: "/about",
+      children: [
+        { label: "Our Approach", href: "/our-approach" },
+        { label: "Warranty", href: "/warranty" },
+      ],
+    },
+    {
+      label: "Services",
+      href: "/services",
+      children: [
+        { label: "Cabinet Painting", href: "/services/cabinet-painting" },
+        { label: "Carpentry", href: "/services/carpentry" },
+        { label: "Caulking", href: "/services/caulking" },
+        { label: "Commercial Services", href: "/services/commercial-services" },
+        { label: "Exterior Painting", href: "/services/exterior-painting" },
+        { label: "Interior Painting", href: "/services/interior-painting" },
+        { label: "Line Painting", href: "/services/line-painting" },
+        { label: "Power Washing", href: "/services/power-washing" },
+        { label: "Repair", href: "/services/repair" },
+        { label: "Residential", href: "/services/residential" },
+        { label: "Strata Services", href: "/services/strata-services" },
+      ],
+    },
     { label: "Areas Served", href: "/areas-served" },
-    { label: "Our Approach", href: "/our-approach" },
-    { label: "Warranty", href: "/warranty" },
     { label: "Blog", href: "/blog" },
     { label: "Contact Us", href: "/contact" },
   ];
@@ -100,18 +123,57 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
             <div className="flex text-base font-semibold tracking-wide">
               {navItems.map((item, index) => {
                 const isActive = pathname === item.href;
+                const isOpen = openDropdown === item.label;
                 return (
-                  <motion.div
+                  <div
                     key={index}
-                    whileHover={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
-                    className={`cursor-pointer px-6 py-4 transition-colors ${
-                      isActive ? "text-white" : "text-neutral-800 hover:text-white"
-                    }`}
+                    className="relative"
+                    onMouseEnter={() => item.children && setOpenDropdown(item.label)}
+                    onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <Link href={item.href}>
-                      {item.label}
-                    </Link>
-                  </motion.div>
+                    <motion.div
+                      whileHover={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                      className={`cursor-pointer px-6 py-4 transition-colors ${
+                        isActive ? "text-white" : "text-neutral-800 hover:text-white"
+                      } flex items-center`}
+                    >
+                      <Link href={item.href}>
+                        {item.label}
+                      </Link>
+                      {item.children && (
+                        <motion.div
+                          initial={false}
+                          animate={{ rotate: isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="ml-1"
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                    <AnimatePresence>
+                      {item.children && isOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full left-0 bg-white shadow-md py-2 min-w-[200px] max-h-[400px] overflow-y-auto"
+                        >
+                          {item.children.map((child, childIndex) => (
+                            <Link key={childIndex} href={child.href}>
+                              <motion.div
+                                whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                                className="px-6 py-2 text-neutral-800 hover:text-blue-950"
+                              >
+                                {child.label}
+                              </motion.div>
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 );
               })}
             </div>
