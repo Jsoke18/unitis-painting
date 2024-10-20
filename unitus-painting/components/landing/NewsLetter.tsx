@@ -1,32 +1,70 @@
 "use client";
-import React from 'react';
 
-const Newsletter: React.FC = () => {
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const GetQuote: React.FC = () => {
   return (
-    <section className="flex flex-col justify-center items-center px-16 py-28 mt-24 w-full bg-amber-400 max-md:px-5 max-md:pt-24 max-md:mt-10 max-md:max-w-full">
-      <div className="ml-6 w-full max-w-[1200px] max-md:max-w-full">
-        <div className="flex gap-5 max-md:flex-col">
-          <div className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
-            <div className="flex flex-col grow tracking-wide text-blue-950 max-md:mt-10 max-md:max-w-full">
-              <h2 className="self-start text-3xl font-extrabold leading-snug">Subscribe To Our Blog</h2>
-              <p className="mt-4 text-lg font-semibold leading-7 max-md:max-w-full">
-                Stay updated with the latest painting trends, tips, and our project showcases. Get expert insights for your commercial and residential painting needs.
-              </p>
-            </div>
+    <section className="bg-amber-400 py-20 mt-24">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row items-center justify-between">
+          <div className="md:w-1/2 mb-8 md:mb-0">
+            <h2 className="text-3xl font-extrabold text-blue-950 mb-4">
+              Get a Free Quote Today
+            </h2>
+            <p className="text-lg text-blue-950 mb-6">
+              Ready to transform your space? Whether it's a residential, commercial, strata, or hospitality we're here to bring your vision to life. Get a personalized quote for your painting needs.
+            </p>
+            <ul className="list-disc list-inside text-blue-950">
+              <li>Expert consultation</li>
+              <li>Tailored solutions for your project</li>
+              <li>Competitive pricing</li>
+              <li>Quick response time</li>
+            </ul>
           </div>
-          <div className="flex flex-col ml-5 w-6/12 max-md:ml-0 max-md:w-full">
-            <form className="flex flex-wrap text-blue-950 max-md:mt-10 max-md:max-w-full">
-              <label htmlFor="email" className="sr-only">Enter your email address</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter your email address"
-                className="flex overflow-hidden flex-col grow shrink-0 text-lg border-l-2 border-white basis-0 border-y-2 w-fit px-6 py-7 max-md:px-5"
-                required
-              />
-              <button type="submit" className="flex overflow-hidden flex-col text-xl font-semibold text-center whitespace-nowrap bg-white border-2 border-white border-solid px-9 py-7 max-md:px-5">
-                Subscribe
-              </button>
+          <div className="md:w-1/2 max-w-md">
+            <form className="bg-white p-6 rounded-lg shadow-md">
+              <div className="mb-4">
+                <Input
+                  type="text"
+                  placeholder="Your Name"
+                  className="w-full"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <Input
+                  type="email"
+                  placeholder="Your Email"
+                  className="w-full"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <Input
+                  type="tel"
+                  placeholder="Your Phone"
+                  className="w-full"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select Project Type</option>
+                  <option value="residential">Residential</option>
+                  <option value="commercial">Commercial</option>
+                  <option value="strata">Strata</option>
+                  <option value="strata">Other</option>
+
+                </select>
+              </div>
+              <Button type="submit" className="w-full bg-blue-950 text-white hover:bg-blue-800">
+                Get Your Free Quote
+              </Button>
             </form>
           </div>
         </div>
@@ -35,4 +73,4 @@ const Newsletter: React.FC = () => {
   );
 };
 
-export default Newsletter;
+export default GetQuote;

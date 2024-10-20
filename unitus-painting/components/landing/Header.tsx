@@ -51,7 +51,6 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
     { name: 'Gmail', url: 'https://mail.google.com/mail/?view=cm&fs=1&to=info@unituspainting.com' },
     { name: 'Outlook', url: 'https://outlook.live.com/mail/0/deeplink/compose?to=info@unituspainting.com' },
     { name: 'Yahoo', url: 'https://compose.mail.yahoo.com/?to=info@unituspainting.com' },
-    { name: 'Default Email Client', url: 'mailto:info@unituspainting.com' },
   ];
 
   const HeaderContent = () => (

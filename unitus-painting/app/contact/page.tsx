@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, MapPin } from "lucide-react";
 
 const ContactPage: React.FC = () => {
   const fadeIn = {
@@ -59,9 +59,18 @@ const ContactPage: React.FC = () => {
                   <div>
                     <h3 className="text-xl font-semibold text-navy-blue mb-4">Contact Information</h3>
                     <div className="space-y-3 text-black">
-                      <motion.div className="flex items-center" whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                      <motion.div 
+                        className="flex items-center" 
+                        whileHover={{ x: 5 }} 
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
                         <Phone className="text-navy-blue mr-3" size={20} />
-                        <span>604-357-4787</span>
+                        <a 
+                          href="tel:604-357-4787" 
+                          className="hover:text-navy-blue transition-colors duration-300"
+                        >
+                          604-357-4787
+                        </a>
                       </motion.div>
                     </div>
                   </div>

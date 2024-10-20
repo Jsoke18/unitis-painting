@@ -36,7 +36,7 @@ const VideoPlayer: React.FC = () => {
       <div className="relative z-10 flex items-center justify-center h-full text-white">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">Learn More About Unitis Painting</h1>
-          <p className="text-xl md:text-2xl mb-8">Innovating for a better tomorrow</p>
+          <p className="text-xl md:text-2xl mb-8">Ready to Get Started? Click the button below</p>
           <button className="bg-blue-900 hover:bg-amber-400 text-white font-bold py-2 px-4 rounded">
             Learn More
           </button>

@@ -32,9 +32,7 @@ const VideoPlayer: React.FC = () => {
       </div>
     </div>
   );
-};
-
-const AboutUs: React.FC = () => {
+};const AboutUs: React.FC = () => {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
@@ -62,11 +60,13 @@ const AboutUs: React.FC = () => {
           </motion.div>
           <div className="lg:w-1/2 space-y-6 flex flex-col justify-center py-4">
             <motion.div
-              className="inline-flex items-center px-3 py-1 bg-amber-100 rounded-full text-amber-600 text-sm font-medium"
+              className="inline-block"
               variants={itemVariants}
             >
-              <Star className="w-4 h-4 mr-2 text-amber-400" />
-              Expect The Best
+              <span className="inline-flex items-center px-3 py-1 bg-amber-100 rounded-full text-amber-600 text-sm font-medium">
+                <Star className="w-4 h-4 mr-2 text-amber-400" />
+                Expect The Best
+              </span>
             </motion.div>
             <motion.h2 className="text-4xl font-bold text-blue-950" variants={itemVariants}>
               We Deliver Quality and Excellence
