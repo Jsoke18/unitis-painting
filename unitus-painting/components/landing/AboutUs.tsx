@@ -7,10 +7,10 @@ const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 
 const VideoPlayer: React.FC = () => {
   return (
-    <div className="w-full h-full flex items-center mt-8">
+    <div className="w-full h-full flex items-center mt-6">
       <div className="aspect-w-16 aspect-h-9 w-full mt-6">
         <ReactPlayer
-          url="https://player.vimeo.com/video/836294434"
+          url="https://player.vimeo.com/video/1012957597"
           width="100%"
           height="100%"
           controls={true}

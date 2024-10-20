@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
@@ -32,15 +32,25 @@ const NotableClients: React.FC = () => {
     triggerOnce: true,
     threshold: 0.1,
   });
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inView) {
       controls.start("visible");
     }
   }, [controls, inView]);
 
-  // Double the client list to create a seamless loop
-  const doubledClients = [...clients, ...clients];
+  useEffect(() => {
+    const updateWidth = () => {
+      const logoWidth = 192; // 48px * 4 (w-48)
+      const gap = 32; // 8px * 4 (space-x-8)
+      setContainerWidth((logoWidth + gap) * clients.length);
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -81,10 +91,12 @@ const NotableClients: React.FC = () => {
         </motion.h2>
         <motion.div
           variants={itemVariants}
-          className="relative h-32"
+          className="relative h-32 overflow-hidden"
         >
           <motion.div
-            animate={{ x: "-100%" }}
+            animate={{
+              x: [-containerWidth, -containerWidth * 2],
+            }}
             transition={{
               x: {
                 repeat: Infinity,
@@ -94,11 +106,11 @@ const NotableClients: React.FC = () => {
               },
             }}
             className="flex space-x-8 absolute"
+            style={{ width: `${containerWidth * 3}px` }}
           >
-            {doubledClients.map((client, index) => (
+            {[...clients, ...clients, ...clients].map((client, index) => (
               <motion.div
                 key={index}
-                variants={itemVariants}
                 className="flex-shrink-0 flex items-center justify-center w-48 h-32 bg-white rounded-lg shadow-sm p-4"
               >
                 <img

@@ -14,6 +14,8 @@ const Header: React.FC<HeaderProps> = ({ openingHours, pathname }) => {
     { label: "Home", href: "/" },
     { label: "About Us", href: "/about" },
     { label: "Services", href: "/services" },
+    { label: "Areas Served", href: "/areas-served" },
+    { label: "Warranty", href: "/warranty" },
     { label: "Blog", href: "/blog" },
     { label: "Contact Us", href: "/contact" },
   ];
