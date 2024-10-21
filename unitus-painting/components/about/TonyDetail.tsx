@@ -173,7 +173,7 @@ const MainComponent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <YouTubeStylePlayer url="/videos/meet-the-manager-bryce.mp4" />
+      <YouTubeStylePlayer url="https://storage.googleapis.com/unitis-videos/Meet%20the%20Manager%20-%20Tony%20Final.mp4" />
       <AboutSection {...aboutProps} />
       <NewsletterSection />
       <FloatingQuickInfo {...aboutProps} />
