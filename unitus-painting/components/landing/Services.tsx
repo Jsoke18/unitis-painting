@@ -42,7 +42,7 @@ const services: Service[] = [
     icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/6063ad228250655345711f681d6b31e4523ef155d6ed94a7a76a8dd4a1b2ec50?apiKey=a05a9fe5da54475091abff9f564d40f8&",
     label: "RESIDENTIAL",
     content: {
-      title: "About Our Residential Services",
+      title: "Residential Services",
       description:
         "Transform your home with Unitus Painting Ltd.'s expert residential painting services. Whether you're refreshing a single room or giving your entire home a makeover, our experienced painters deliver high-quality, long-lasting results. We ensure minimal disruption to your daily life while creating a space that feels fresh and vibrant.",
       imageSrc:

@@ -25,8 +25,7 @@ const clients = [
   { src: "/photos/Public_Storage_Logo.svg.png", alt: "Public Storage" },
   { src: "/photos/Rancho-Management.png", alt: "Rancho Management" },
 ];
-
-const NotableClients: React.FC = () => {
+const NotableClients = () => {
   const controls = useAnimation();
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -80,9 +79,9 @@ const NotableClients: React.FC = () => {
       initial="hidden"
       animate={controls}
       variants={sectionVariants}
-      className="mt-10 py-16 mb-20 px-4 sm:px-6 lg:px-8 bg-white overflow-hidden"
+      className="mt-10 py-16 mb-20 overflow-hidden bg-white"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[100vw] mx-auto">
         <motion.h2
           variants={itemVariants}
           className="text-4xl font-extrabold text-center text-blue-950 mb-32"
@@ -95,7 +94,7 @@ const NotableClients: React.FC = () => {
         >
           <motion.div
             animate={{
-              x: [-containerWidth, -containerWidth * 2],
+              x: [0, -containerWidth],
             }}
             transition={{
               x: {
@@ -106,9 +105,9 @@ const NotableClients: React.FC = () => {
               },
             }}
             className="flex space-x-8 absolute"
-            style={{ width: `${containerWidth * 3}px` }}
+            style={{ width: `${containerWidth * 2}px` }}
           >
-            {[...clients, ...clients, ...clients].map((client, index) => (
+            {[...clients, ...clients].map((client, index) => (
               <motion.div
                 key={index}
                 className="flex-shrink-0 flex items-center justify-center w-48 h-32 bg-white rounded-lg shadow-sm p-4"
