@@ -178,7 +178,7 @@ const ContactPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="shadow-2xl border-0 overflow-hidden">
+          <Card className="shadow-2xl border-0 overflow-hidden mt-24">
             <CardHeader className="bg-gradient-to-r from-navy-blue to-blue-700 p-8">
               <CardTitle className="text-4xl font-bold mb-4 text-black">
                 Get in Touch

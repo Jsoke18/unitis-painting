@@ -18,7 +18,7 @@ const Hero = () => {
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex flex-col justify-center h-full pt-20 pb-16">
           {/* Glass Card Container */}
-          <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl max-w-3xl">
+          <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl max-w-3xl mt-20">
             {/* Location Badge */}
             <div className="inline-flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-full px-4 py-2.5 mb-8">
               <MapPin className="w-5 h-5 text-amber-400" />
