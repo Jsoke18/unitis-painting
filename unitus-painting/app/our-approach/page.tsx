@@ -40,7 +40,8 @@ const itemVariants = {
 };
 
 const OurApproach = () => {
-  const [activeStep, setActiveStep] = useState(null);
+  const [activeStep, setActiveStep] = useState<number | null>(null);
+
 
   const processSteps = [
     {

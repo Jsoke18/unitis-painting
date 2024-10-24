@@ -1,6 +1,6 @@
 // app/api/upload/route.ts
 import { NextResponse } from 'next/server';
-import { uploadImage } from '@/lib/storageService';
+import { uploadImage } from '@/lib/StorageService';
 
 export async function POST(request: Request) {
   try {
