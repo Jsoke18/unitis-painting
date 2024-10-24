@@ -13,7 +13,7 @@ import VideoPlayer from "@/components/about/vimeo";
 const AboutPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Header openingHours="08:00 to 5:00" />
+      <Header openingHours="8:00 am - 5:00 pm"/>
       
       <div className="-mt-1"> {/* Negative margin to remove any potential gap */}
         <VideoPlayer />

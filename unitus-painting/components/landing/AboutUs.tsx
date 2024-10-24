@@ -10,7 +10,7 @@ const VideoPlayer: React.FC = () => {
     <div className="w-full h-full flex items-center mt-6">
       <div className="aspect-w-16 aspect-h-9 w-full mt-6">
         <ReactPlayer
-          url="https://player.vimeo.com/video/1012957597"
+          url="https://player.vimeo.com/video/1022728432?h=644ac9b33f"
           width="100%"
           height="100%"
           controls={true}

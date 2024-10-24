@@ -26,7 +26,7 @@ const LocationMap = ({ longitude, latitude, zoom }) => (
 const AreasServedPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header openingHours="8:00 am - 5:00 pm"/>
       <main className="flex-grow bg-gray-100 py-12">
         <div className="container mx-auto px-4 mt-24 mb-24">
           <h1 className="text-4xl font-bold text-center mb-20">

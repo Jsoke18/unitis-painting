@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 interface Feature {
   icon: string;
@@ -12,7 +13,7 @@ interface Feature {
 interface ServiceDetailTemplateProps {
   title: string;
   description: string;
-  headerImage: string;
+  videoUrl: string;
   features: Feature[];
   serviceImage: string;
 }
@@ -24,7 +25,7 @@ const AnimatedSection: React.FC<{ children: React.ReactNode }> = ({ children }) 
     threshold: 0.1,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inView) {
       controls.start('visible');
     }
@@ -51,10 +52,143 @@ const AnimatedSection: React.FC<{ children: React.ReactNode }> = ({ children }) 
     </motion.div>
   );
 };
+const HeroSection: React.FC<{ title: string; videoUrl: string }> = ({ title, videoUrl }) => {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const generateBackground = () => (
+    <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800">
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `repeating-linear-gradient(
+              45deg,
+              white,
+              white 1px,
+              transparent 1px,
+              transparent 20px
+            )`
+          }}
+        />
+        <div 
+          className="absolute inset-0 opacity-50"
+          style={{
+            background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%)'
+          }}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <header className="relative w-full h-[80vh] overflow-hidden">
+      {/* Video or Background */}
+      {videoUrl ? (
+        <video 
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover scale-105"
+          autoPlay 
+          muted={isMuted}
+          loop 
+          playsInline
+        >
+          <source src={videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      ) : generateBackground()}
+
+      {/* Semi-transparent overlay for better contrast */}
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Content Container with Enhanced Glass Effect */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="relative text-center w-full max-w-4xl mx-auto"
+        >
+          {/* Enhanced Glass Container */}
+          <div className="relative px-8 py-12 rounded-3xl overflow-hidden">
+            {/* Enhanced Glass Effect Layers */}
+            <div className="absolute inset-0 backdrop-blur-md bg-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/5 to-transparent" />
+            <div className="absolute inset-0 border border-white/10 rounded-3xl" />
+            
+            {/* Content with enhanced contrast */}
+            <div className="relative z-10">
+              <h1 className="text-6xl md:text-7xl font-extrabold text-white mb-6 leading-tight [text-shadow:_2px_2px_8px_rgb(0_0_0_/_50%)]">
+                {title}
+              </h1>
+              <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto [text-shadow:_1px_1px_4px_rgb(0_0_0_/_50%)]">
+                Transform your property with our professional painting services
+              </p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Button 
+                  size="lg"
+                  className="bg-amber-400 text-blue-950 hover:bg-amber-500 transition-colors duration-300 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl font-semibold"
+                >
+                  Get Free Quote
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Video Controls */}
+      {videoUrl && (
+        <div className="absolute bottom-8 right-8 flex space-x-4">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={togglePlay}
+            className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/60 transition-colors duration-200"
+          >
+            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleMute}
+            className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/60 transition-colors duration-200"
+          >
+            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          </motion.button>
+        </div>
+      )}
+    </header>
+  );
+};
+
 const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
   title,
   description,
-  headerImage,
+  videoUrl,
   features,
   serviceImage,
 }) => {
@@ -78,21 +212,11 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
       },
     },
   };
+
   return (
     <main className="flex flex-col items-center w-full bg-white">
-      {/* Header */}
-      <header className="relative w-full h-[60vh] overflow-hidden">
-        <img
-          src={headerImage}
-          alt={`${title} background`}
-          className="object-cover w-full h-full"
-        />
-        <div className="absolute inset-0 bg-blue-950 bg-opacity-60 flex items-center justify-center">
-          <h1 className="text-5xl font-extrabold text-white text-center px-4">
-            {title}
-          </h1>
-        </div>
-      </header>
+      {/* Enhanced Hero Section */}
+      <HeroSection title={title} videoUrl={videoUrl} />
 
       {/* About Section */}
       <AnimatedSection>
@@ -105,7 +229,7 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="text-lg text-gray-700 leading-relaxed"
+            className="text-lg text-gray-700 leading-relaxed whitespace-pre-line"
           >
             {description}
           </motion.p>
@@ -119,7 +243,7 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
             <div className="space-y-6">
               {features.map((feature, index) => (
                 <motion.div key={index} variants={itemVariants}>
-                  <Card>
+                  <Card className="transition-all duration-300 hover:shadow-lg">
                     <CardContent className="flex items-center p-4">
                       <img
                         src={feature.icon}
@@ -147,12 +271,12 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
       {/* Call to Action */}
       <section className="w-full bg-amber-400 py-6 mt-36">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-row items-center justify-center space-x-4">
+          <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
             <motion.h2
               variants={itemVariants}
-              className="text-2xl font-bold text-blue-950"
+              className="text-2xl font-bold text-blue-950 text-center md:text-left"
             >
-              Ready to get started?
+              Ready to transform your property?
             </motion.h2>
             <motion.div 
               variants={itemVariants}
@@ -160,8 +284,8 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
             >
               <motion.div variants={buttonVariants}>
                 <Button
-                  size="default"
-                  className="bg-white text-blue-950 hover:bg-gray-100 transition-colors duration-200"
+                  size="lg"
+                  className="bg-white text-blue-950 hover:bg-gray-100 transition-colors duration-200 px-8"
                 >
                   Get a Quote
                 </Button>
@@ -171,7 +295,7 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
         </div>
       </section>
 
-      {/* Dark blue footer strip */}
+      {/* Footer Strip */}
       <div className="w-full bg-blue-950 h-4"></div>
     </main>
   );

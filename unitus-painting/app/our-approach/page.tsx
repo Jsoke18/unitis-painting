@@ -89,7 +89,7 @@ const OurApproach = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
+      <Header openingHours="8:00 am - 5:00 pm"/>
       
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-amber-100 via-white to-blue-100 pt-32 pb-20 px-4">

@@ -32,7 +32,7 @@ const WarrantyPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header openingHours="8:00 am - 5:00 pm"/>
       <main className="flex-grow bg-gray-100 pt-32"> {/* Increased top padding */}
         <motion.div
           className="container mx-auto px-4 py-24 max-w-3xl" /* Increased vertical padding */

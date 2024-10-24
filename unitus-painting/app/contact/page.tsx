@@ -170,7 +170,7 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <Header openingHours="06:00 to 20:00" />
+      <Header openingHours="8:00 am - 5:00 pm" />
       
       <main className="flex-grow container mx-auto px-4 py-12">
         <motion.div
