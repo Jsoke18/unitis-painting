@@ -108,7 +108,7 @@ const ProjectGallery: React.FC = () => {
                     `px-6 py-3 text-lg font-medium rounded-lg transition-all duration-200 focus:outline-none
                     ${
                       selected
-                        ? "bg-indigo-600 text-white shadow-md"
+                        ? "bg-blue-900 text-white shadow-md"
                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                     }`
                   }
@@ -143,7 +143,7 @@ const ProjectGallery: React.FC = () => {
                     </AspectRatio>
                     <CardContent className="p-6 flex-grow flex flex-col justify-between">
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-indigo-600 transition-colors duration-200">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-900 transition-colors duration-200">
                           {project.title}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed">
@@ -151,7 +151,7 @@ const ProjectGallery: React.FC = () => {
                         </p>
                       </div>
                       <div className="mt-4 pt-4 border-t border-gray-100">
-                        <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-full">
+                        <span className="inline-block px-3 py-1 bg-indigo-50 text-blue-900 text-sm font-medium rounded-full">
                           {project.category}
                         </span>
                       </div>

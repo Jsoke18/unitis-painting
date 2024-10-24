@@ -1,14 +1,22 @@
-'use client'
+"use client";
+
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Header from "@/components/landing/Header";
-import Footer from "@/components/landing/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Phone, MapPin, Send, Loader2, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import dynamic from "next/dynamic";
+
+const Header = dynamic(() => import("@/components/landing/Header"), {
+  ssr: false,
+});
+
+const Footer = dynamic(() => import("@/components/landing/Footer"), {
+  ssr: false,
+});
 
 interface FormData {
   firstName: string;
@@ -34,7 +42,7 @@ const ContactPage: React.FC = () => {
   const { toast } = useToast();
 
   const formatPhoneNumber = (value: string): string => {
-    const phone = value.replace(/\D/g, '');
+    const phone = value.replace(/\D/g, "");
     if (phone.length <= 3) return phone;
     if (phone.length <= 6) return `(${phone.slice(0, 3)}) ${phone.slice(3)}`;
     return `(${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6, 10)}`;
@@ -45,14 +53,14 @@ const ContactPage: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     let formattedValue = value;
-    
-    if (name === 'phone') {
+
+    if (name === "phone") {
       formattedValue = formatPhoneNumber(value);
     }
-    
-    setFormData(prev => ({ ...prev, [name]: formattedValue }));
+
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
     if (errors[name as keyof FormData]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -102,8 +110,8 @@ const ContactPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       setSubmitted(true);
       toast({
         title: "Message Sent Successfully!",
@@ -171,7 +179,7 @@ const ContactPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Header openingHours="8:00 am - 5:00 pm" />
-      
+
       <main className="flex-grow container mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -184,13 +192,14 @@ const ContactPage: React.FC = () => {
                 Get in Touch
               </CardTitle>
               <p className="text-black text-lg">
-                Have a question or ready to transform your space? We're here to help!
+                Have a question or ready to transform your space? We're here to
+                help!
               </p>
             </CardHeader>
-            
+
             <CardContent className="p-8 bg-white">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <motion.div 
+                <motion.div
                   className="md:col-span-2"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -199,11 +208,19 @@ const ContactPage: React.FC = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        { name: "firstName", label: "First Name", placeholder: "John" },
-                        { name: "lastName", label: "Last Name", placeholder: "Doe" },
+                        {
+                          name: "firstName",
+                          label: "First Name",
+                          placeholder: "John",
+                        },
+                        {
+                          name: "lastName",
+                          label: "Last Name",
+                          placeholder: "Doe",
+                        },
                       ].map((field) => (
                         <div key={field.name} className="space-y-2">
-                          <label 
+                          <label
                             htmlFor={field.name}
                             className="text-sm font-medium text-gray-700"
                           >
@@ -216,9 +233,19 @@ const ContactPage: React.FC = () => {
                             onChange={handleChange}
                             placeholder={field.placeholder}
                             className={`border-gray-300 focus:ring-2 focus:ring-navy-blue focus:border-transparent
-                              ${errors[field.name as keyof FormData] ? 'border-red-500' : ''}`}
-                            aria-invalid={!!errors[field.name as keyof FormData]}
-                            aria-describedby={errors[field.name as keyof FormData] ? `${field.name}-error` : undefined}
+                              ${
+                                errors[field.name as keyof FormData]
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
+                            aria-invalid={
+                              !!errors[field.name as keyof FormData]
+                            }
+                            aria-describedby={
+                              errors[field.name as keyof FormData]
+                                ? `${field.name}-error`
+                                : undefined
+                            }
                           />
                           <AnimatePresence>
                             {errors[field.name as keyof FormData] && (
@@ -237,13 +264,22 @@ const ContactPage: React.FC = () => {
                       ))}
                     </div>
 
-                    {/* Email and Phone Fields */}
                     {[
-                      { name: "email", label: "Email Address", type: "email", placeholder: "john@example.com" },
-                      { name: "phone", label: "Phone Number", type: "tel", placeholder: "(123) 456-7890" },
+                      {
+                        name: "email",
+                        label: "Email Address",
+                        type: "email",
+                        placeholder: "john@example.com",
+                      },
+                      {
+                        name: "phone",
+                        label: "Phone Number",
+                        type: "tel",
+                        placeholder: "(123) 456-7890",
+                      },
                     ].map((field) => (
                       <div key={field.name} className="space-y-2">
-                        <label 
+                        <label
                           htmlFor={field.name}
                           className="text-sm font-medium text-gray-700"
                         >
@@ -257,9 +293,17 @@ const ContactPage: React.FC = () => {
                           onChange={handleChange}
                           placeholder={field.placeholder}
                           className={`border-gray-300 focus:ring-2 focus:ring-navy-blue focus:border-transparent
-                            ${errors[field.name as keyof FormData] ? 'border-red-500' : ''}`}
+                            ${
+                              errors[field.name as keyof FormData]
+                                ? "border-red-500"
+                                : ""
+                            }`}
                           aria-invalid={!!errors[field.name as keyof FormData]}
-                          aria-describedby={errors[field.name as keyof FormData] ? `${field.name}-error` : undefined}
+                          aria-describedby={
+                            errors[field.name as keyof FormData]
+                              ? `${field.name}-error`
+                              : undefined
+                          }
                         />
                         <AnimatePresence>
                           {errors[field.name as keyof FormData] && (
@@ -277,9 +321,8 @@ const ContactPage: React.FC = () => {
                       </div>
                     ))}
 
-                    {/* Message Field */}
                     <div className="space-y-2">
-                      <label 
+                      <label
                         htmlFor="message"
                         className="text-sm font-medium text-gray-700"
                       >
@@ -292,9 +335,11 @@ const ContactPage: React.FC = () => {
                         onChange={handleChange}
                         placeholder="How can we help you?"
                         className={`border-gray-300 focus:ring-2 focus:ring-navy-blue focus:border-transparent min-h-[120px]
-                          ${errors.message ? 'border-red-500' : ''}`}
+                          ${errors.message ? "border-red-500" : ""}`}
                         aria-invalid={!!errors.message}
-                        aria-describedby={errors.message ? 'message-error' : undefined}
+                        aria-describedby={
+                          errors.message ? "message-error" : undefined
+                        }
                       />
                       <AnimatePresence>
                         {errors.message && (
@@ -315,9 +360,11 @@ const ContactPage: React.FC = () => {
                       type="submit"
                       className={`w-full transition-all duration-300 text-lg font-semibold py-3 rounded-full
                         flex items-center justify-center space-x-2
-                        ${submitted 
-                          ? 'bg-green-500 hover:bg-green-600' 
-                          : 'bg-amber-400 hover:bg-amber-500'} 
+                        ${
+                          submitted
+                            ? "bg-green-500 hover:bg-green-600"
+                            : "bg-amber-400 hover:bg-amber-500"
+                        } 
                         text-navy-blue`}
                       disabled={isSubmitting || submitted}
                     >
@@ -352,7 +399,7 @@ const ContactPage: React.FC = () => {
                       Contact Information
                     </h3>
                     <div className="space-y-6">
-                      {contactInfo.map((info, index) => (
+                      {contactInfo.map((info) => (
                         <motion.div
                           key={info.title}
                           className="flex items-start p-4 rounded-lg hover:bg-gray-50 transition-colors duration-300"
@@ -373,84 +420,17 @@ const ContactPage: React.FC = () => {
                 </motion.div>
               </div>
             </CardContent>
-            </Card>
-          
-          {/* Add Business Hours Section */}
+          </Card>
+
           <motion.div
-            className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-          >
-            <Card className="col-span-full md:col-span-3">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div>
-                    <h3 className="text-xl font-semibold text-navy-blue mb-4">
-                      Business Hours
-                    </h3>
-                    <div className="space-y-2">
-                      {[
-                        { day: "Monday - Friday", hours: "06:00 - 20:00" },
-                        { day: "Saturday", hours: "08:00 - 16:00" },
-                        { day: "Sunday", hours: "Closed" }
-                      ].map((schedule) => (
-                        <div 
-                          key={schedule.day}
-                          className="flex justify-between items-center text-gray-600"
-                        >
-                          <span className="font-medium">{schedule.day}</span>
-                          <span>{schedule.hours}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-navy-blue mb-4">
-                      Service Areas
-                    </h3>
-                    <div className="space-y-2 text-gray-600">
-                      <p>British Columbia</p>
-                      <ul className="list-disc list-inside pl-4 space-y-1">
-                        <li>Greater Vancouver</li>
-                        <li>Fraser Valley</li>
-                        <li>Sea to Sky Corridor</li>
-                      </ul>
-                      <p className="mt-4">Alberta</p>
-                      <ul className="list-disc list-inside pl-4 space-y-1">
-                        <li>Calgary Metropolitan Area</li>
-                        <li>Rocky View County</li>
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-xl font-semibold text-navy-blue mb-4">
-                      Emergency Service
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      24/7 emergency service available for our contracted clients.
-                    </p>
-                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <p className="text-amber-800 font-medium">
-                        Emergency Contact:
-                      </p>
-                      <a 
-                        href="tel:604-357-4787"
-                        className="text-amber-800 hover:text-navy-blue transition-colors duration-300 font-bold"
-                      >
-                        604-357-4787
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          ></motion.div>
         </motion.div>
       </main>
-      
+
       <Footer />
     </div>
   );
