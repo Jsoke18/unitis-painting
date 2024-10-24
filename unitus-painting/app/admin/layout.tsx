@@ -1,0 +1,145 @@
+// app/admin/layout.tsx
+"use client";
+import React, { useState } from 'react';
+import {
+  LayoutDashboard,
+  FileEdit,
+  Users,
+  Settings,
+  MenuIcon,
+  Bell,
+  User,
+} from 'lucide-react';
+import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from 'antd';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const { Header, Sider, Content } = Layout;
+
+interface MenuItem {
+  key: string;
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+}
+
+const menuItems: MenuItem[] = [
+  {
+    key: 'dashboard',
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: 'Dashboard',
+    href: '/admin'
+  },
+  {
+    key: 'pages',
+    icon: <FileEdit className="w-4 h-4" />,
+    label: 'Pages',
+    href: '/admin/pages'
+  },
+  {
+    key: 'users',
+    icon: <Users className="w-4 h-4" />,
+    label: 'Users',
+    href: '/admin/users'
+  },
+  {
+    key: 'settings',
+    icon: <Settings className="w-4 h-4" />,
+    label: 'Settings',
+    href: '/admin/settings'
+  },
+];
+
+const userMenuItems = [
+  {
+    key: 'profile',
+    label: 'Profile',
+  },
+  {
+    key: 'logout',
+    label: 'Logout',
+    danger: true,
+  },
+];
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed}
+        className="border-r border-gray-200"
+        style={{ background: colorBgContainer }}
+      >
+        <div className="p-4 flex items-center justify-between border-b border-gray-200">
+          <Link href="/admin">
+            <h1 className={`text-xl font-bold transition-all duration-200 ${collapsed ? 'scale-0' : 'scale-100'}`}>
+              Admin CMS
+            </h1>
+          </Link>
+        </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[pathname.split('/')[2] || 'dashboard']}
+          items={menuItems.map(item => ({
+            key: item.key,
+            icon: item.icon,
+            label: (
+              <Link href={item.href}>
+                {item.label}
+              </Link>
+            ),
+          }))}
+          className="border-none"
+        />
+      </Sider>
+      <Layout>
+        <Header 
+          style={{ 
+            padding: '0 24px',
+            background: colorBgContainer,
+          }}
+          className="flex items-center justify-between border-b border-gray-200"
+        >
+          <Button
+            type="text"
+            icon={<MenuIcon className="w-4 h-4" />}
+            onClick={() => setCollapsed(!collapsed)}
+          />
+          <div className="flex items-center gap-4">
+            <Badge count={5} size="small">
+              <Button type="text" icon={<Bell className="w-4 h-4" />} />
+            </Badge>
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+              <Button type="text" className="flex items-center gap-2">
+                <Avatar size="small" icon={<User className="w-4 h-4" />} />
+                <span>Admin User</span>
+              </Button>
+            </Dropdown>
+          </div>
+        </Header>
+        <Content className="p-6">
+          <div
+            style={{
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            {children}
+          </div>
+        </Content>
+      </Layout>
+    </Layout>
+  );
+}
