@@ -1,5 +1,5 @@
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, Play } from 'lucide-react';
 import Link from 'next/link';
 
 // Data structure for each expert
@@ -55,6 +55,23 @@ const expertsData: ExpertData[] = [
     link: "/about/michael-powell"
   }
 ];
+
+// Video Section Component
+const VideoSection: React.FC = () => (
+  <div className="relative w-full max-w-5xl mx-auto mb-20">
+    <div className="relative pb-[56.25%] rounded-xl overflow-hidden shadow-2xl">
+      <iframe
+        src="https://player.vimeo.com/video/1022728557?h=7d8f904fc9&title=0&byline=0&portrait=0"
+        className="absolute top-0 left-0 w-full h-full"
+        frameBorder="0"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none rounded-xl" />
+  </div>
+);
+
 // Expert Card Component
 const ExpertCard: React.FC<ExpertData> = ({ name, role, imageSrc, link }) => (
   <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl w-full max-w-sm">
@@ -82,12 +99,28 @@ const ExpertTeam: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <div className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6">
+            <Play className="w-4 h-4 text-blue-600 mr-2" />
+            <span className="text-sm font-medium text-blue-600">Watch Our Story</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-6 leading-tight">
+            The People Behind Our Success
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12">
+            Get to know our team and see how we work together to deliver exceptional results for our clients.
+          </p>
+          
+          {/* Video Section */}
+          <VideoSection />
+        </div>
+
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6">
             <User className="w-4 h-4 text-blue-600 mr-2" />
             <span className="text-sm font-medium text-blue-600">Our Team</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-6 leading-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-6 leading-tight">
             Meet Our Experts
-          </h1>
+          </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Our people are fully qualified with all types of services whether it's commercial, residential, or industrial. You'll get top-notch service every time.
           </p>
