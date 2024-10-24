@@ -1,69 +1,97 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Tag, message, List, Tooltip, Popconfirm, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, UploadOutlined, LoadingOutlined } from '@ant-design/icons';
-import dynamic from 'next/dynamic';
-import { useBlogStore, BlogPost } from '@/lib/blogService';
-import type { UploadChangeParam } from 'antd/es/upload';
-import type { RcFile, UploadFile } from 'antd/es/upload/interface';
+import React, { useState } from "react";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Space,
+  Tag,
+  message,
+  List,
+  Tooltip,
+  Popconfirm,
+  Upload,
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  TagsOutlined,
+  UploadOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import dynamic from "next/dynamic";
+import { useBlogStore, BlogPost } from "@/lib/blogService";
+import type { UploadChangeParam } from "antd/es/upload";
+import type { RcFile, UploadFile } from "antd/es/upload/interface";
 
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-import 'react-quill/dist/quill.snow.css';
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 // Image Upload Component
-const ImageUpload: React.FC<{ value?: string; onChange?: (url: string) => void }> = ({ value, onChange }) => {
+const ImageUpload: React.FC<{
+  value?: string;
+  onChange?: (url: string) => void;
+}> = ({ value, onChange }) => {
   const [loading, setLoading] = useState(false);
 
   const beforeUpload = (file: RcFile) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      message.error('You can only upload image files!');
+      message.error("You can only upload image files!");
       return false;
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
-      message.error('Image must be smaller than 2MB!');
+      message.error("Image must be smaller than 2MB!");
       return false;
     }
     return true;
   };
 
   const handleChange = (info: UploadChangeParam<UploadFile>) => {
-    if (info.file.status === 'uploading') {
+    if (info.file.status === "uploading") {
       setLoading(true);
       return;
     }
-    if (info.file.status === 'done') {
+    if (info.file.status === "done") {
       setLoading(false);
       onChange?.(info.file.response.url);
-      message.success('Image uploaded successfully');
+      message.success("Image uploaded successfully");
     }
-    if (info.file.status === 'error') {
+    if (info.file.status === "error") {
       setLoading(false);
-      message.error('Image upload failed');
+      message.error("Image upload failed");
     }
   };
 
   return (
     <Upload
-      name="file"
-      listType="picture-card"
-      className="avatar-uploader"
-      showUploadList={false}
-      action="/api/upload"
-      beforeUpload={beforeUpload}
-      onChange={handleChange}
-    >
-      {value ? (
-        <img src={value} alt="featured" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      ) : (
-        <div>
-          {loading ? <LoadingOutlined /> : <PlusOutlined />}
-          <div style={{ marginTop: 8 }}>Upload</div>
-        </div>
-      )}
-    </Upload>
+    name="file"
+    listType="picture-card"
+    className="avatar-uploader"
+    showUploadList={false}
+    action="/api/upload"
+    beforeUpload={beforeUpload}
+    onChange={handleChange}
+  >
+    {value ? (
+      <img
+        src={value}
+        alt="featured"
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    ) : (
+      <div className="upload-placeholder">
+        {loading ? <LoadingOutlined /> : <PlusOutlined />}
+        <div style={{ marginTop: 8 }}>Upload</div>
+      </div>
+    )}
+  </Upload>
   );
 };
 
@@ -72,19 +100,27 @@ const BlogCMS = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  const [content, setContent] = useState('');
-  const [newCategory, setNewCategory] = useState('');
+  const [content, setContent] = useState("");
+  const [newCategory, setNewCategory] = useState("");
   const [selectedRows, setSelectedRows] = useState<BlogPost[]>([]);
-  
-  const { posts, categories, addPost, updatePost, deletePost, addCategory, deleteCategory } = useBlogStore();
+
+  const {
+    posts,
+    categories,
+    addPost,
+    updatePost,
+    deletePost,
+    addCategory,
+    deleteCategory,
+  } = useBlogStore();
 
   // Table column definitions
   const columns = [
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-      width: '25%',
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      width: "25%",
       sorter: (a: BlogPost, b: BlogPost) => a.title.localeCompare(b.title),
       render: (text: string) => (
         <Tooltip title={text}>
@@ -93,68 +129,70 @@ const BlogCMS = () => {
       ),
     },
     {
-      title: 'Category',
-      dataIndex: 'category',
-      key: 'category',
-      width: '15%',
-      filters: categories.map(cat => ({ text: cat, value: cat })),
-      onFilter: (value: string | number | boolean, record: BlogPost) => record.category === value,
-      render: (category: string) => (
-        <Tag color="blue">{category}</Tag>
-      ),
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      width: "15%",
+      filters: categories.map((cat) => ({ text: cat, value: cat })),
+      onFilter: (value: string | number | boolean, record: BlogPost) =>
+        record.category === value,
+      render: (category: string) => <Tag color="blue">{category}</Tag>,
     },
     {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      width: '15%',
-      sorter: (a: BlogPost, b: BlogPost) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      width: "15%",
+      sorter: (a: BlogPost, b: BlogPost) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime(),
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Image',
-      dataIndex: 'image',
-      key: 'image',
-      width: '10%',
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      width: "10%",
       render: (image: string) => (
-        <img 
-          src={image} 
-          alt="thumbnail" 
+        <img
+          src={image}
+          alt="thumbnail"
           className="w-16 h-16 object-cover rounded"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = '/placeholder.jpg'; // Add a placeholder image
+            target.src = "/placeholder.jpg"; // Add a placeholder image
           }}
         />
       ),
     },
     {
-      title: 'Read Time',
-      dataIndex: 'readTime',
-      key: 'readTime',
-      width: '10%',
+      title: "Read Time",
+      dataIndex: "readTime",
+      key: "readTime",
+      width: "10%",
     },
     {
-      title: 'Tags',
-      dataIndex: 'tags',
-      key: 'tags',
-      width: '20%',
+      title: "Tags",
+      dataIndex: "tags",
+      key: "tags",
+      width: "20%",
       render: (tags: string[]) => (
         <div className="flex flex-wrap gap-1">
-          {tags.map(tag => (
-            <Tag key={tag} color="green">{tag}</Tag>
+          {tags.map((tag) => (
+            <Tag key={tag} color="green">
+              {tag}
+            </Tag>
           ))}
         </div>
       ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      width: '15%',
+      title: "Actions",
+      key: "actions",
+      width: "15%",
       render: (_: any, record: BlogPost) => (
         <Space>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
             title="Edit post"
@@ -166,11 +204,7 @@ const BlogCMS = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button 
-              danger 
-              icon={<DeleteOutlined />}
-              title="Delete post"
-            />
+            <Button danger icon={<DeleteOutlined />} title="Delete post" />
           </Popconfirm>
         </Space>
       ),
@@ -183,7 +217,7 @@ const BlogCMS = () => {
     setContent(post.content);
     form.setFieldsValue({
       ...post,
-      tags: post.tags.join(', ')
+      tags: post.tags.join(", "),
     });
     setIsModalOpen(true);
   };
@@ -191,21 +225,21 @@ const BlogCMS = () => {
   const handleDelete = async (postId: number) => {
     try {
       deletePost(postId);
-      message.success('Post deleted successfully');
+      message.success("Post deleted successfully");
     } catch (error) {
-      message.error('Failed to delete post');
+      message.error("Failed to delete post");
     }
   };
 
   const handleBulkDelete = () => {
     Modal.confirm({
       title: `Delete ${selectedRows.length} posts?`,
-      content: 'This action cannot be undone.',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
+      content: "This action cannot be undone.",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
       onOk() {
-        selectedRows.forEach(post => deletePost(post.id));
+        selectedRows.forEach((post) => deletePost(post.id));
         setSelectedRows([]);
         message.success(`${selectedRows.length} posts deleted successfully`);
       },
@@ -218,28 +252,31 @@ const BlogCMS = () => {
       const postData = {
         ...values,
         content,
-        tags: values.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean),
-        author: 'John Smith', // In a real app, this would come from auth context
+        tags: values.tags
+          .split(",")
+          .map((tag: string) => tag.trim())
+          .filter(Boolean),
+        author: "John Smith", // In a real app, this would come from auth context
       };
 
       if (editingPost) {
         updatePost({ ...postData, id: editingPost.id, date: editingPost.date });
-        message.success('Post updated successfully');
+        message.success("Post updated successfully");
       } else {
         addPost(postData);
-        message.success('Post created successfully');
+        message.success("Post created successfully");
       }
-      
+
       handleModalClose();
     } catch (error) {
-      console.error('Form submission error:', error);
-      message.error('Please check your input and try again');
+      console.error("Form submission error:", error);
+      message.error("Please check your input and try again");
     }
   };
 
   const handleModalClose = () => {
     form.resetFields();
-    setContent('');
+    setContent("");
     setIsModalOpen(false);
     setEditingPost(null);
   };
@@ -248,36 +285,38 @@ const BlogCMS = () => {
   const handleAddCategory = () => {
     const trimmedCategory = newCategory.trim();
     if (!trimmedCategory) {
-      message.error('Category name cannot be empty');
+      message.error("Category name cannot be empty");
       return;
     }
-    
+
     if (categories.includes(trimmedCategory)) {
-      message.error('Category already exists');
+      message.error("Category already exists");
       return;
     }
 
     if (trimmedCategory.length > 30) {
-      message.error('Category name is too long');
+      message.error("Category name is too long");
       return;
     }
 
     addCategory(trimmedCategory);
-    setNewCategory('');
-    message.success('Category added successfully');
+    setNewCategory("");
+    message.success("Category added successfully");
   };
 
   const handleDeleteCategory = (category: string) => {
-    const postsInCategory = posts.filter(post => post.category === category).length;
+    const postsInCategory = posts.filter(
+      (post) => post.category === category
+    ).length;
     Modal.confirm({
-      title: 'Delete Category',
+      title: "Delete Category",
       content: `This will affect ${postsInCategory} posts. They will be marked as "Uncategorized". Continue?`,
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
       onOk() {
         deleteCategory(category);
-        message.success('Category deleted successfully');
+        message.success("Category deleted successfully");
       },
     });
   };
@@ -295,9 +334,7 @@ const BlogCMS = () => {
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold mb-2">Blog Management</h1>
-          <p className="text-gray-600">
-            Manage your blog posts and categories
-          </p>
+          <p className="text-gray-600">Manage your blog posts and categories</p>
         </div>
         <Space>
           <Button
@@ -320,11 +357,7 @@ const BlogCMS = () => {
       {selectedRows.length > 0 && (
         <div className="mb-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
           <span>{selectedRows.length} posts selected</span>
-          <Button 
-            danger 
-            icon={<DeleteOutlined />}
-            onClick={handleBulkDelete}
-          >
+          <Button danger icon={<DeleteOutlined />} onClick={handleBulkDelete}>
             Delete Selected
           </Button>
         </div>
@@ -336,16 +369,16 @@ const BlogCMS = () => {
         dataSource={posts}
         rowKey="id"
         rowSelection={rowSelection}
-        pagination={{ 
+        pagination={{
           pageSize: 10,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} posts`
+          showTotal: (total) => `Total ${total} posts`,
         }}
       />
 
       {/* Post Edit/Create Modal */}
       <Modal
-        title={editingPost ? 'Edit Post' : 'Create New Post'}
+        title={editingPost ? "Edit Post" : "Create New Post"}
         open={isModalOpen}
         onOk={handleModalOk}
         onCancel={handleModalClose}
@@ -355,12 +388,12 @@ const BlogCMS = () => {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{ readTime: '5 min read' }}
+          initialValues={{ readTime: "5 min read" }}
         >
           <Form.Item
             name="image"
             label="Featured Image"
-            rules={[{ required: true, message: 'Please upload an image!' }]}
+            rules={[{ required: true, message: "Please upload an image!" }]}
             tooltip="Upload a featured image for your blog post"
           >
             <ImageUpload />
@@ -370,8 +403,8 @@ const BlogCMS = () => {
             name="title"
             label="Title"
             rules={[
-              { required: true, message: 'Please input the title!' },
-              { max: 100, message: 'Title is too long!' }
+              { required: true, message: "Please input the title!" },
+              { max: 100, message: "Title is too long!" },
             ]}
           >
             <Input />
@@ -380,10 +413,10 @@ const BlogCMS = () => {
           <Form.Item
             name="category"
             label="Category"
-            rules={[{ required: true, message: 'Please select a category!' }]}
+            rules={[{ required: true, message: "Please select a category!" }]}
           >
             <Select>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <Select.Option key={category} value={category}>
                   {category}
                 </Select.Option>
@@ -395,8 +428,8 @@ const BlogCMS = () => {
             name="excerpt"
             label="Excerpt"
             rules={[
-              { required: true, message: 'Please input the excerpt!' },
-              { max: 300, message: 'Excerpt is too long!' }
+              { required: true, message: "Please input the excerpt!" },
+              { max: 300, message: "Excerpt is too long!" },
             ]}
           >
             <Input.TextArea rows={4} />
@@ -407,11 +440,11 @@ const BlogCMS = () => {
             required
             tooltip="Rich text editor for the main content of your post"
           >
-            <ReactQuill 
-              theme="snow" 
-              value={content} 
+            <ReactQuill
+              theme="snow"
+              value={content}
               onChange={setContent}
-              style={{ height: '200px', marginBottom: '50px' }}
+              style={{ height: "200px", marginBottom: "50px" }}
             />
           </Form.Item>
 
@@ -420,19 +453,23 @@ const BlogCMS = () => {
             label="Tags"
             tooltip="Comma-separated list of tags"
             rules={[
-              { required: true, message: 'Please input at least one tag!' },
-              { 
+              { required: true, message: "Please input at least one tag!" },
+              {
                 validator: (_, value) => {
-                  const tags = value.split(',').map((tag: string) => tag.trim());
+                  const tags = value
+                    .split(",")
+                    .map((tag: string) => tag.trim());
                   if (tags.some((tag: string) => tag.length > 20)) {
-                    return Promise.reject('Tags must be less than 20 characters');
+                    return Promise.reject(
+                      "Tags must be less than 20 characters"
+                    );
                   }
                   return Promise.resolve();
-                }
-              }
+                },
+              },
             ]}
           >
-            <Input.TextArea 
+            <Input.TextArea
               rows={2}
               placeholder="Enter tags separated by commas (e.g., painting, renovation, tips)"
             />
@@ -441,15 +478,15 @@ const BlogCMS = () => {
           <Form.Item
             name="readTime"
             label="Read Time"
-            rules={[{ required: true, message: 'Please input the read time!' }]}
+            rules={[{ required: true, message: "Please input the read time!" }]}
           >
             <Input />
           </Form.Item>
         </Form>
       </Modal>
 
-    {/* Category Management Modal */}
-    <Modal
+      {/* Category Management Modal */}
+      <Modal
         title="Manage Categories"
         open={isCategoryModalOpen}
         onCancel={() => setIsCategoryModalOpen(false)}
@@ -458,15 +495,15 @@ const BlogCMS = () => {
         <div className="mb-4">
           <Input.Group compact>
             <Input
-              style={{ width: 'calc(100% - 100px)' }}
+              style={{ width: "calc(100% - 100px)" }}
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
               placeholder="New category name"
               maxLength={30}
               onPressEnter={handleAddCategory}
             />
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={handleAddCategory}
               disabled={!newCategory.trim()}
             >
@@ -474,10 +511,10 @@ const BlogCMS = () => {
             </Button>
           </Input.Group>
         </div>
-        
+
         <List
           dataSource={categories}
-          renderItem={category => (
+          renderItem={(category) => (
             <List.Item
               actions={[
                 <Popconfirm
@@ -488,17 +525,15 @@ const BlogCMS = () => {
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                  />
-                </Popconfirm>
+                  <Button danger icon={<DeleteOutlined />} />
+                </Popconfirm>,
               ]}
             >
               <div className="flex items-center gap-2">
                 <Tag color="blue">{category}</Tag>
                 <span className="text-gray-500">
-                  ({posts.filter(post => post.category === category).length} posts)
+                  ({posts.filter((post) => post.category === category).length}{" "}
+                  posts)
                 </span>
               </div>
             </List.Item>
