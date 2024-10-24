@@ -12,21 +12,18 @@ import Link from "next/link";
 import debounce from "lodash/debounce";
 
 const BlogPage = () => {
-  // State management
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
-  // Get store data and functions
-  const { posts = [], categories = [], hydrate } = useBlogStore();
+  const { posts = [], categories = [] } = useBlogStore();
 
-  // Handle hydration on mount
+  // Handle mounting
   useEffect(() => {
-    hydrate();
-    setIsHydrated(true);
-  }, [hydrate]);
+    setMounted(true);
+  }, []);
 
   // Combine All with other categories
   const allCategories = ["All", ...categories];
@@ -87,7 +84,7 @@ const BlogPage = () => {
   };
 
   // Loading state
-  if (!isHydrated) {
+  if (!mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

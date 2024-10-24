@@ -1,13 +1,71 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Tag, message, List, Tooltip, Popconfirm } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Select, Space, Tag, message, List, Tooltip, Popconfirm, Upload } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, TagsOutlined, UploadOutlined, LoadingOutlined } from '@ant-design/icons';
 import dynamic from 'next/dynamic';
 import { useBlogStore, BlogPost } from '@/lib/blogService';
+import type { UploadChangeParam } from 'antd/es/upload';
+import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
+
+// Image Upload Component
+const ImageUpload: React.FC<{ value?: string; onChange?: (url: string) => void }> = ({ value, onChange }) => {
+  const [loading, setLoading] = useState(false);
+
+  const beforeUpload = (file: RcFile) => {
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      message.error('You can only upload image files!');
+      return false;
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must be smaller than 2MB!');
+      return false;
+    }
+    return true;
+  };
+
+  const handleChange = (info: UploadChangeParam<UploadFile>) => {
+    if (info.file.status === 'uploading') {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === 'done') {
+      setLoading(false);
+      onChange?.(info.file.response.url);
+      message.success('Image uploaded successfully');
+    }
+    if (info.file.status === 'error') {
+      setLoading(false);
+      message.error('Image upload failed');
+    }
+  };
+
+  return (
+    <Upload
+      name="file"
+      listType="picture-card"
+      className="avatar-uploader"
+      showUploadList={false}
+      action="/api/upload"
+      beforeUpload={beforeUpload}
+      onChange={handleChange}
+    >
+      {value ? (
+        <img src={value} alt="featured" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      ) : (
+        <div>
+          {loading ? <LoadingOutlined /> : <PlusOutlined />}
+          <div style={{ marginTop: 8 }}>Upload</div>
+        </div>
+      )}
+    </Upload>
+  );
+};
 
 const BlogCMS = () => {
   const [form] = Form.useForm();
@@ -52,6 +110,23 @@ const BlogCMS = () => {
       width: '15%',
       sorter: (a: BlogPost, b: BlogPost) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       render: (date: string) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: 'Image',
+      dataIndex: 'image',
+      key: 'image',
+      width: '10%',
+      render: (image: string) => (
+        <img 
+          src={image} 
+          alt="thumbnail" 
+          className="w-16 h-16 object-cover rounded"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/placeholder.jpg'; // Add a placeholder image
+          }}
+        />
+      ),
     },
     {
       title: 'Read Time',
@@ -157,6 +232,7 @@ const BlogCMS = () => {
       
       handleModalClose();
     } catch (error) {
+      console.error('Form submission error:', error);
       message.error('Please check your input and try again');
     }
   };
@@ -282,6 +358,15 @@ const BlogCMS = () => {
           initialValues={{ readTime: '5 min read' }}
         >
           <Form.Item
+            name="image"
+            label="Featured Image"
+            rules={[{ required: true, message: 'Please upload an image!' }]}
+            tooltip="Upload a featured image for your blog post"
+          >
+            <ImageUpload />
+          </Form.Item>
+
+          <Form.Item
             name="title"
             label="Title"
             rules={[
@@ -360,22 +445,11 @@ const BlogCMS = () => {
           >
             <Input />
           </Form.Item>
-
-          <Form.Item
-            name="image"
-            label="Image URL"
-            rules={[
-              { required: true, message: 'Please input the image URL!' },
-              { type: 'url', message: 'Please enter a valid URL!' }
-            ]}
-          >
-            <Input placeholder="https://example.com/image.jpg" />
-          </Form.Item>
         </Form>
       </Modal>
 
-      {/* Category Management Modal */}
-      <Modal
+    {/* Category Management Modal */}
+    <Modal
         title="Manage Categories"
         open={isCategoryModalOpen}
         onCancel={() => setIsCategoryModalOpen(false)}
@@ -431,6 +505,25 @@ const BlogCMS = () => {
           )}
         />
       </Modal>
+
+      {/* Style for Image Upload */}
+      <style jsx global>{`
+        .avatar-uploader .ant-upload {
+          width: 200px;
+          height: 200px;
+        }
+        .ant-upload-select-picture-card i {
+          font-size: 32px;
+          color: #999;
+        }
+        .ant-upload-select-picture-card .ant-upload-text {
+          margin-top: 8px;
+          color: #666;
+        }
+        .ant-form-item-has-error .ant-upload {
+          border-color: #ff4d4f;
+        }
+      `}</style>
     </div>
   );
 };

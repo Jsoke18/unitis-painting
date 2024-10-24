@@ -1,6 +1,6 @@
 // lib/blogService.ts
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface BlogPost {
   id: number;
@@ -25,7 +25,6 @@ interface BlogStore {
   addCategory: (category: string) => void;
   deleteCategory: (category: string) => void;
   getPost: (id: number) => BlogPost | undefined;
-  hydrate: () => void;
 }
 
 const initialState = {
@@ -38,50 +37,71 @@ export const useBlogStore = create<BlogStore>()(
   persist(
     (set, get) => ({
       ...initialState,
-      hydrate: () => {
-        const stored = localStorage.getItem('blog-storage');
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            set(parsed.state);
-          } catch (e) {
-            console.error('Failed to hydrate store:', e);
-          }
-        }
-      },
+      posts: [],
+      categories: ["Commercial", "Residential", "Maintenance", "Color Selection", "Painting Tips"],
+      isLoading: false,
+
       getPost: (id: number) => {
         const state = get();
         return state.posts.find(post => post.id === id);
       },
-      addPost: (post) => set((state) => ({
-        posts: [...state.posts, {
-          ...post,
-          id: Date.now(),
-          date: new Date().toISOString().split('T')[0]
-        }]
-      })),
-      updatePost: (updatedPost) => set((state) => ({
-        posts: state.posts.map(post => 
-          post.id === updatedPost.id ? updatedPost : post
-        )
-      })),
-      deletePost: (id) => set((state) => ({
-        posts: state.posts.filter(post => post.id !== id)
-      })),
-      addCategory: (category) => set((state) => ({
-        categories: [...state.categories, category]
-      })),
-      deleteCategory: (category) => set((state) => ({
-        categories: state.categories.filter(c => c !== category),
-        posts: state.posts.map(post => ({
-          ...post,
-          category: post.category === category ? 'Uncategorized' : post.category
-        }))
-      }))
+
+      addPost: (post) => {
+        set((state) => {
+          const newPost = {
+            ...post,
+            id: Date.now(),
+            date: new Date().toISOString().split('T')[0]
+          };
+          return {
+            posts: [...state.posts, newPost]
+          };
+        });
+      },
+
+      updatePost: (updatedPost) => {
+        set((state) => ({
+          posts: state.posts.map(post => 
+            post.id === updatedPost.id ? updatedPost : post
+          )
+        }));
+      },
+
+      deletePost: (id) => {
+        set((state) => ({
+          posts: state.posts.filter(post => post.id !== id)
+        }));
+      },
+
+      addCategory: (category) => {
+        set((state) => ({
+          categories: [...state.categories, category]
+        }));
+      },
+
+      deleteCategory: (category) => {
+        set((state) => ({
+          categories: state.categories.filter(c => c !== category),
+          posts: state.posts.map(post => ({
+            ...post,
+            category: post.category === category ? 'Uncategorized' : post.category
+          }))
+        }));
+      }
     }),
     {
       name: 'blog-storage',
-      skipHydration: true
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        posts: state.posts,
+        categories: state.categories
+      })
     }
   )
 );
+
+// Optional: Add this if you want to debug the store
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  window.store = useBlogStore;
+}
