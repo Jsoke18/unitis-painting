@@ -13,7 +13,6 @@ const ServicesPage: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-white">
       {/* Assuming you have a Header component */}
       <Header openingHours="06:00 to 20:00" />
-
       {/* Main content */}
       <main className="flex-grow">
         <Hero
@@ -24,11 +23,7 @@ const ServicesPage: React.FC = () => {
         <AreasOfExpertise />
 
         <ServicesSection />
-        <CallToAction
-          title="Paint. Restore. Maintain."
-          buttonText="Contact Us"
-          imageSrc="https://cdn.builder.io/api/v1/image/assets/TEMP/f80c6b62c406c9d2e90191d2aedfae25c9e648d696588f47daa95e8bace08592?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
-       />
+       
       </main>
 
       {/* Assuming you have a Footer component */}

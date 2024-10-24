@@ -25,15 +25,21 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    key: 'dashboard',
+    key: 'blogs',
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: 'Dashboard',
+    label: 'Blogs',
     href: '/admin'
   },
   {
+    key: 'projects',
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: 'Projects',
+    href: '/admin/projects'
+  },
+  {
     key: 'pages',
-    icon: <FileEdit className="w-4 h-4" />,
-    label: 'Pages',
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: 'Edit Pages',
     href: '/admin/pages'
   },
   {
@@ -41,12 +47,6 @@ const menuItems: MenuItem[] = [
     icon: <Users className="w-4 h-4" />,
     label: 'Users',
     href: '/admin/users'
-  },
-  {
-    key: 'settings',
-    icon: <Settings className="w-4 h-4" />,
-    label: 'Settings',
-    href: '/admin/settings'
   },
 ];
 
@@ -118,15 +118,17 @@ export default function AdminLayout({
             onClick={() => setCollapsed(!collapsed)}
           />
           <div className="flex items-center gap-4">
-            <Badge count={5} size="small">
-              <Button type="text" icon={<Bell className="w-4 h-4" />} />
-            </Badge>
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <Button type="text" className="flex items-center gap-2">
-                <Avatar size="small" icon={<User className="w-4 h-4" />} />
-                <span>Admin User</span>
-              </Button>
-            </Dropdown>
+
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+  <Button type="text" className="flex items-center gap-2">
+    <Avatar 
+      size="small" 
+      icon={<User className="w-full h-full" />} 
+      className="flex items-center justify-center"
+    />
+    <span>Admin User</span>
+  </Button>
+</Dropdown>
           </div>
         </Header>
         <Content className="p-6">

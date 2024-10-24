@@ -37,14 +37,14 @@ const LatestNews: React.FC = () => {
     {
       title: "Understanding Elastomeric Coating: How it Differs from Traditional Latex Paint",
       content: "When it comes to protecting and beautifying your home or commercial property in Calgary, Okanagan or Vancouver Lower Mainland choosing...",
-      image: "/api/placeholder/800/600",
+      image: "https://storage.googleapis.com/unitis-videos/blog-images/1729785113673.webp",
       author: "Unitui Painting",
       date: "Aug 29, 2024"
     },
     {
       title: "The Ultimate Guide to Painting Vinyl Siding in Calgary, Kelowna, & Vancouver Lower",
       content: "When it comes to enhancing the curb appeal of your home, few projects make as big an impact as painting your vinyl siding. Whether your...",
-      image: "/api/placeholder/800/600",
+      image: "https://storage.googleapis.com/unitis-videos/blog-images/1729785505374.webp",
       author: "Unitui Painting",
       date: "Aug 22"
     }
