@@ -98,7 +98,7 @@ const BlogPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header openingHours="8:00 am - 5:00 pm" />
       
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-blue-800 pt-32 pb-16">

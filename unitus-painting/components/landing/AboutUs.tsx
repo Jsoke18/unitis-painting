@@ -7,20 +7,18 @@ const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 
 const VideoPlayer: React.FC = () => {
   return (
-    <div className="w-full h-full flex items-center mt-6">
-      <div className="aspect-w-16 aspect-h-9 w-full mt-6">
+    <div className="w-full relative pt-[56.25%]">
+      <div className="absolute top-0 left-0 right-0 bottom-0">
         <ReactPlayer
           url="https://player.vimeo.com/video/1022728432?h=644ac9b33f"
           width="100%"
           height="100%"
           controls={true}
-          muted={false}
           playing={false}
           config={{
             vimeo: {
               playerOptions: {
                 responsive: true,
-                autoplay: false,
                 controls: true,
                 background: false,
                 muted: false,
@@ -28,11 +26,14 @@ const VideoPlayer: React.FC = () => {
               },
             },
           }}
+          style={{ position: 'absolute', top: 0, left: 0 }}
         />
       </div>
     </div>
   );
-};const AboutUs: React.FC = () => {
+};
+
+const AboutUs: React.FC = () => {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
@@ -55,7 +56,10 @@ const VideoPlayer: React.FC = () => {
         animate={isInView ? "visible" : "hidden"}
       >
         <div className="flex flex-col lg:flex-row items-center gap-8">
-          <motion.div className="lg:w-1/2 flex items-center" variants={itemVariants}>
+          <motion.div 
+            className="lg:w-1/2 w-full"
+            variants={itemVariants}
+          >
             <VideoPlayer />
           </motion.div>
           <div className="lg:w-1/2 space-y-6 flex flex-col justify-center py-4">

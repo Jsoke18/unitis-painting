@@ -1,6 +1,6 @@
 // app/admin/layout.tsx
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   LayoutDashboard,
   FileEdit,
@@ -9,10 +9,10 @@ import {
   MenuIcon,
   Bell,
   User,
-} from 'lucide-react';
-import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from 'antd';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+} from "lucide-react";
+import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from "antd";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const { Header, Sider, Content } = Layout;
 
@@ -25,39 +25,39 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
-    key: 'blogs',
+    key: "blogs",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: 'Blogs',
-    href: '/admin'
+    label: "Blogs",
+    href: "/admin",
   },
   {
-    key: 'projects',
+    key: "projects",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: 'Projects',
-    href: '/admin/projects'
+    label: "Projects",
+    href: "/admin/projects",
   },
   {
-    key: 'pages',
+    key: "pages",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: 'Edit Pages',
-    href: '/admin/pages'
+    label: "Edit Pages",
+    href: "/admin/pages",
   },
   {
-    key: 'users',
+    key: "users",
     icon: <Users className="w-4 h-4" />,
-    label: 'Users',
-    href: '/admin/users'
+    label: "Users",
+    href: "/admin/users",
   },
 ];
 
 const userMenuItems = [
   {
-    key: 'profile',
-    label: 'Profile',
+    key: "profile",
+    label: "Profile",
   },
   {
-    key: 'logout',
-    label: 'Logout',
+    key: "logout",
+    label: "Logout",
     danger: true,
   },
 ];
@@ -74,40 +74,40 @@ export default function AdminLayout({
   } = theme.useToken();
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider 
-        trigger={null} 
-        collapsible 
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider
+        trigger={null}
+        collapsible
         collapsed={collapsed}
         className="border-r border-gray-200"
         style={{ background: colorBgContainer }}
       >
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           <Link href="/admin">
-            <h1 className={`text-xl font-bold transition-all duration-200 ${collapsed ? 'scale-0' : 'scale-100'}`}>
+            <h1
+              className={`text-xl font-bold transition-all duration-200 ${
+                collapsed ? "scale-0" : "scale-100"
+              }`}
+            >
               Admin CMS
             </h1>
           </Link>
         </div>
         <Menu
           mode="inline"
-          selectedKeys={[pathname.split('/')[2] || 'dashboard']}
-          items={menuItems.map(item => ({
+          selectedKeys={[pathname.split("/")[2] || "dashboard"]}
+          items={menuItems.map((item) => ({
             key: item.key,
             icon: item.icon,
-            label: (
-              <Link href={item.href}>
-                {item.label}
-              </Link>
-            ),
+            label: <Link href={item.href}>{item.label}</Link>,
           }))}
           className="border-none"
         />
       </Sider>
       <Layout>
-        <Header 
-          style={{ 
-            padding: '0 24px',
+        <Header
+          style={{
+            padding: "0 24px",
             background: colorBgContainer,
           }}
           className="flex items-center justify-between border-b border-gray-200"
@@ -118,17 +118,16 @@ export default function AdminLayout({
             onClick={() => setCollapsed(!collapsed)}
           />
           <div className="flex items-center gap-4">
-
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-  <Button type="text" className="flex items-center gap-2">
-    <Avatar 
-      size="small" 
-      icon={<User className="w-full h-full" />} 
-      className="flex items-center justify-center"
-    />
-    <span>Admin User</span>
-  </Button>
-</Dropdown>
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+              <Button type="text" className="flex items-center gap-2">
+                <Avatar
+                  size="small"
+                  icon={<User className="w-full h-full" />}
+                  className="flex items-center justify-center"
+                />
+                <span>Admin User</span>
+              </Button>
+            </Dropdown>
           </div>
         </Header>
         <Content className="p-6">
