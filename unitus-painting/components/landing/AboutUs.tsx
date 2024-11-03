@@ -57,7 +57,7 @@ const AboutUs: React.FC = () => {
       >
         <div className="flex flex-col lg:flex-row items-center gap-8">
           <motion.div 
-            className="lg:w-1/2 w-full"
+            className="lg:w-1/2 w-full mt-5"
             variants={itemVariants}
           >
             <VideoPlayer />
@@ -93,10 +93,6 @@ const AboutUs: React.FC = () => {
               <motion.li className="flex items-center" variants={itemVariants}>
                 <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
                 Full workmanship guarantee
-              </motion.li>
-              <motion.li className="flex items-center" variants={itemVariants}>
-                <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>
-                Affordable and reliable
               </motion.li>
               <motion.li className="flex items-center" variants={itemVariants}>
                 <div className="w-2 h-2 bg-amber-400 rounded-full mr-2"></div>

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+// Types
 type HeaderProps = {
   openingHours: string;
 };
@@ -21,30 +22,103 @@ type NavItem = {
   label: string;
   href: string;
   children?: NavItem[];
-};const QuoteRequestDialog = () => {
+};
+
+// Email service configurations
+const emailServices = [
+  { name: 'Gmail', url: 'https://mail.google.com/mail/?view=cm&fs=1&to=info@unituspainting.com' },
+  { name: 'Outlook', url: 'https://outlook.live.com/mail/0/deeplink/compose?to=info@unituspainting.com' },
+  { name: 'Yahoo', url: 'https://compose.mail.yahoo.com/?to=info@unituspainting.com' },
+];
+
+// Navigation items
+const navItems: NavItem[] = [
+  { label: "Home", href: "/" },
+  {
+    label: "About Us",
+    href: "/about",
+    children: [
+      { label: "Our Approach", href: "/our-approach" },
+      { label: "Warranty", href: "/warranty" },
+    ],
+  },
+  {
+    label: "Services",
+    href: "/services",
+    children: [
+      { label: "Cabinet Painting", href: "/services/cabinet-painting" },
+      { label: "Carpentry", href: "/services/carpentry" },
+      { label: "Caulking", href: "/services/caulking" },
+      { label: "Commercial Services", href: "/services/commercial-services" },
+      { label: "Exterior Painting", href: "/services/exterior-painting" },
+      { label: "Interior Painting", href: "/services/interior-painting" },
+      { label: "Line Painting", href: "/services/line-painting" },
+      { label: "Power Washing", href: "/services/power-washing" },
+      { label: "Repair", href: "/services/repair" },
+      { label: "Residential", href: "/services/residential" },
+      { label: "Strata Services", href: "/services/strata-services" },
+    ],
+  },
+  { label: "Areas Served", href: "/areas-served" },
+  { label: "Blog", href: "/blog" },
+  { label: "Project Gallery", href: "/project-gallery" },
+  { label: "Contact Us", href: "/contact" },
+];
+
+// Available services for quote request
+const services = [
+  { value: "interior", label: "Interior Painting" },
+  { value: "exterior", label: "Exterior Painting" },
+  { value: "cabinet", label: "Cabinet Painting" },
+  { value: "commercial", label: "Commercial Services" },
+  { value: "strata", label: "Strata Services" },
+  { value: "carpentry", label: "Carpentry" },
+  { value: "repair", label: "Repair" },
+  { value: "power-washing", label: "Power Washing" },
+  { value: "line-painting", label: "Line Painting" },
+  { value: "caulking", label: "Caulking" }
+];
+
+// Available locations
+const locations = [
+  { value: "vancouver", label: "Vancouver, BC" },
+  { value: "kelowna", label: "Kelowna, BC" },
+  { value: "calgary", label: "Calgary, AB" }
+];
+
+// Quote Request Dialog Component
+const QuoteRequestDialog = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    location: '',
+    projectType: 'residential',
+    timeline: '',
+    message: ''
+  });
 
-  const services = [
-    { value: "interior", label: "Interior Painting" },
-    { value: "exterior", label: "Exterior Painting" },
-    { value: "cabinet", label: "Cabinet Painting" },
-    { value: "commercial", label: "Commercial Services" },
-    { value: "strata", label: "Strata Services" },
-    { value: "carpentry", label: "Carpentry" },
-    { value: "repair", label: "Repair" },
-    { value: "power-washing", label: "Power Washing" },
-    { value: "line-painting", label: "Line Painting" },
-    { value: "caulking", label: "Caulking" }
-  ];
+  useEffect(() => {
+    // Handle body scroll lock when dialog is open
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
 
-  const locations = [
-    { value: "vancouver", label: "Vancouver, BC" },
-    { value: "kelowna", label: "Kelowna, BC" },
-    { value: "calgary", label: "Calgary, AB" }
-  ];
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [open]);
 
   const handleServiceToggle = (value: string) => {
     setSelectedServices(prev => 
@@ -64,11 +138,21 @@ type NavItem = {
     setIsSubmitting(false);
     setIsSubmitted(true);
     
-    // Reset form after 2 seconds
+    // Reset form after submission
     setTimeout(() => {
       setIsSubmitted(false);
       setOpen(false);
       setSelectedServices([]);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        location: '',
+        projectType: 'residential',
+        timeline: '',
+        message: ''
+      });
     }, 2000);
   };
 
@@ -83,7 +167,7 @@ type NavItem = {
             Get a Quote!
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
           <div className="flex flex-col items-center justify-center py-8">
             <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
               <Check className="w-6 h-6 text-green-600" />
@@ -108,7 +192,7 @@ type NavItem = {
           Get a Quote!
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Request a Free Quote</DialogTitle>
           <DialogDescription>
@@ -121,34 +205,64 @@ type NavItem = {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="John" required />
+                  <Input 
+                    id="firstName" 
+                    value={formData.firstName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                    placeholder="John" 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Doe" required />
+                  <Input 
+                    id="lastName" 
+                    value={formData.lastName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                    placeholder="Doe" 
+                    required 
+                  />
                 </div>
               </div>
 
               <div className="space-y-2 mt-4">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="john.doe@example.com" required />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="john.doe@example.com" 
+                  required 
+                />
               </div>
 
               <div className="space-y-2 mt-4">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="(604) 555-0123" required />
+                <Input 
+                  id="phone" 
+                  type="tel" 
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="(604) 555-0123" 
+                  required 
+                />
               </div>
 
               <div className="space-y-2 mt-4">
                 <Label htmlFor="location">Location</Label>
-                <Select required>
+                <Select 
+                  value={formData.location}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
+                  required
+                >
                   <SelectTrigger id="location" className="w-full">
                     <SelectValue placeholder="Select your city" />
                   </SelectTrigger>
                   <SelectContent>
                     {locations.map((location) => (
                       <SelectItem key={location.value} value={location.value}>
-                        <span className="font-medium">{location.label}</span>
+                        {location.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -157,7 +271,11 @@ type NavItem = {
 
               <div className="space-y-2 mt-4">
                 <Label>Service Type</Label>
-                <RadioGroup defaultValue="residential" className="grid grid-cols-3 gap-4">
+                <RadioGroup 
+                  value={formData.projectType}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, projectType: value }))}
+                  className="grid grid-cols-3 gap-4"
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="residential" id="residential" />
                     <Label htmlFor="residential">Residential</Label>
@@ -201,7 +319,10 @@ type NavItem = {
 
               <div className="space-y-2 mt-4">
                 <Label htmlFor="timeline">Preferred Timeline</Label>
-                <Select>
+                <Select
+                  value={formData.timeline}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, timeline: value }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="When do you need this done?" />
                   </SelectTrigger>
@@ -212,6 +333,17 @@ type NavItem = {
                     <SelectItem value="planning">Just Planning</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="message">Additional Details (Optional)</Label>
+                <Textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Tell us more about your project..."
+                  className="min-h-[100px]"
+                />
               </div>
             </CardContent>
           </Card>
@@ -238,6 +370,7 @@ type NavItem = {
   );
 };
 
+// Main Header Component (continued)
 const Header: React.FC<HeaderProps> = ({ openingHours }) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -267,45 +400,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [handleScroll]);
 
-  const navItems: NavItem[] = [
-    { label: "Home", href: "/" },
-    {
-      label: "About Us",
-      href: "/about",
-      children: [
-        { label: "Our Approach", href: "/our-approach" },
-        { label: "Warranty", href: "/warranty" },
-      ],
-    },
-    {
-      label: "Services",
-      href: "/services",
-      children: [
-        { label: "Cabinet Painting", href: "/services/cabinet-painting" },
-        { label: "Carpentry", href: "/services/carpentry" },
-        { label: "Caulking", href: "/services/caulking" },
-        { label: "Commercial Services", href: "/services/commercial-services" },
-        { label: "Exterior Painting", href: "/services/exterior-painting" },
-        { label: "Interior Painting", href: "/services/interior-painting" },
-        { label: "Line Painting", href: "/services/line-painting" },
-        { label: "Power Washing", href: "/services/power-washing" },
-        { label: "Repair", href: "/services/repair" },
-        { label: "Residential", href: "/services/residential" },
-        { label: "Strata Services", href: "/services/strata-services" },
-      ],
-    },
-    { label: "Areas Served", href: "/areas-served" },
-    { label: "Blog", href: "/blog" },
-    { label: "Project Gallery", href: "/project-gallery" },
-    { label: "Contact Us", href: "/contact" },
-  ];
-
-  const emailServices = [
-    { name: 'Gmail', url: 'https://mail.google.com/mail/?view=cm&fs=1&to=info@unituspainting.com' },
-    { name: 'Outlook', url: 'https://outlook.live.com/mail/0/deeplink/compose?to=info@unituspainting.com' },
-    { name: 'Yahoo', url: 'https://compose.mail.yahoo.com/?to=info@unituspainting.com' },
-  ];
-
+  // Helper function to check if a nav item is active
   const isActive = (item: NavItem) => {
     if (pathname === item.href) return true;
     if (item.children) {
@@ -314,6 +409,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
     return false;
   };
 
+  // Navigation Link Component
   const NavLink = ({ item }: { item: NavItem }) => {
     const active = isActive(item);
     const isOpen = openDropdown === item.label;
@@ -340,10 +436,10 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
   return (
     <>
       {/* Spacer div to prevent content jump */}
-      <div className="h-[142px]" />
+      <div style={{ paddingTop: '142px' }} />
       
-      {/* Fixed header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white transform-gpu">
+      {/* Fixed header container */}
+      <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white">
         {/* Top bar */}
         <motion.div 
           className="bg-gray-100 w-full overflow-hidden"
@@ -369,6 +465,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
               />
             </Link>
             <div className="flex items-center gap-6">
+              {/* Email Button */}
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -407,6 +504,8 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* Phone Button */}
               <Button
                 variant="ghost"
                 className="group text-blue-950 hover:bg-amber-100 rounded-full px-5 py-3 transition-all duration-300"
@@ -425,7 +524,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
         </div>
 
         {/* Navigation */}
-        <div className="bg-amber-400 w-full">
+        <div className="bg-amber-400">
           <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
             <nav className="flex">
               <div className="flex text-base font-semibold tracking-wide">
@@ -472,7 +571,21 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
             <QuoteRequestDialog />
           </div>
         </div>
-      </div>
+      </header>
+
+      {/* Style to prevent scrollbar shift */}
+      <style jsx global>{`
+        .dialog-open {
+          overflow: hidden !important;
+          padding-right: var(--scrollbar-width, 15px);
+        }
+
+        @media (max-width: 640px) {
+          .dialog-open {
+            padding-right: 0;
+          }
+        }
+      `}</style>
     </>
   );
 };
