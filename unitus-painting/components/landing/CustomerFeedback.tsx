@@ -1,22 +1,102 @@
-import React from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Phone } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Phone, Star, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
+// Types
 type TestimonialProps = {
   name: string;
   location: string;
   avatarSrc: string;
   content: string;
+  rating: number;
+  date: string;
 };
 
-const Testimonial: React.FC<TestimonialProps> = ({ name, location, avatarSrc, content }) => {
+type FormData = {
+  name: string;
+  email: string;
+  message: string;
+};
+
+// Sample data - Replace with your reviews.json import
+const reviewsData = {
+  testimonials: [
+    {
+      id: 1,
+      name: "David Thompson",
+      location: "North Vancouver, BC",
+      avatarSrc: "/avatar1.jpg",
+      content: "The cabinet painting service exceeded our expectations. The finish is flawless and has completely modernized our kitchen. Great value for money!",
+      rating: 5,
+      date: "2024-02-28"
+    },
+    {
+      id: 2,
+      name: "Sarah Johnson",
+      location: "West Vancouver, BC",
+      avatarSrc: "/avatar2.jpg",
+      content: "From start to finish, working with Unitus was a pleasure. They helped us choose the perfect colors and finished the job ahead of schedule. Highly recommend!",
+      rating: 5,
+      date: "2024-03-01"
+    },
+    {
+      id: 3,
+      name: "Michael Chen",
+      location: "Burnaby, BC",
+      avatarSrc: "/avatar3.jpg",
+      content: "Outstanding service! They transformed our home's exterior with their expertise. The crew was friendly and kept everything clean throughout the project.",
+      rating: 5,
+      date: "2024-01-20"
+    }
+  ],
+  stats: {
+    totalReviews: 156,
+    averageRating: 4.9,
+    featuredAvatars: [
+      "/avatar1.jpg",
+      "/avatar2.jpg",
+      "/avatar3.jpg"
+    ]
+  }
+};
+
+// Rating Stars Component
+const RatingStars: React.FC<{ rating: number }> = ({ rating }) => (
+  <div className="flex items-center space-x-0.5">
+    {[...Array(5)].map((_, i) => (
+      <Star 
+        key={i} 
+        className={cn(
+          "w-4 h-4",
+          i < rating 
+            ? "fill-amber-400 text-amber-400" 
+            : "fill-gray-200 text-gray-200"
+        )}
+      />
+    ))}
+  </div>
+);
+
+// Individual Testimonial Component
+const Testimonial: React.FC<TestimonialProps> = ({ 
+  name, 
+  location, 
+  avatarSrc, 
+  content,
+  rating,
+  date 
+}) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -43,16 +123,27 @@ const Testimonial: React.FC<TestimonialProps> = ({ name, location, avatarSrc, co
       <Card className="h-full">
         <CardContent className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center">
-              <Avatar className="h-12 w-12 mr-4">
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-12 w-12 border-2 border-amber-400">
                 <AvatarImage src={avatarSrc} alt={`${name}'s avatar`} />
+                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="text-lg font-semibold text-blue-950">{name}</h3>
                 <p className="text-sm text-zinc-500">{location}</p>
+                <div className="flex items-center mt-1">
+                  <RatingStars rating={rating} />
+                  <span className="text-xs text-zinc-500 ml-2">
+                    {new Date(date).toLocaleDateString('en-US', { 
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+          <Separator className="my-4" />
           <p className="text-zinc-700 leading-relaxed">{content}</p>
         </CardContent>
       </Card>
@@ -60,21 +151,170 @@ const Testimonial: React.FC<TestimonialProps> = ({ name, location, avatarSrc, co
   );
 };
 
-const CustomerFeedback: React.FC = () => {
-  const testimonial = {
-    name: "Nancy Luther",
-    location: "New York",
-    avatarSrc:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/ff58155191ecc29c3bdae3c79770d14291662ee44036e102c5629586e66e23a9?apiKey=a05a9fe5da54475091abff9f564d40f8&",
-    content:
-      "We have had several good experiences with Blue Collar team. Most recently, they replaced our 20-year-old HVAC system with a new, modern, and more efficient system & it worked fine.",
+// Contact Form Component
+const ContactForm: React.FC<{
+  formStatus: 'idle' | 'submitting' | 'success' | 'error';
+  onSubmit: (e: React.FormEvent) => void;
+}> = ({ formStatus, onSubmit }) => {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
   };
 
+  return (
+    <motion.form
+      onSubmit={onSubmit}
+      className="space-y-4"
+    >
+      <div className="grid grid-cols-1 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Your name"
+            required
+            className="bg-white"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Your email"
+            required
+            className="bg-white"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="message">Message</Label>
+          <Textarea
+            id="message"
+            value={formData.message}
+            onChange={handleChange}
+            placeholder="Tell us about your project..."
+            className="min-h-[100px] resize-none bg-white"
+            required
+          />
+        </div>
+      </div>
+
+      {formStatus === 'success' && (
+        <Alert className="bg-green-50 border-green-200">
+          <AlertDescription className="text-green-800">
+            Thanks for reaching out! We'll get back to you shortly.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {formStatus === 'error' && (
+        <Alert className="bg-red-50 border-red-200">
+          <AlertDescription className="text-red-800">
+            There was an error sending your message. Please try again.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full bg-blue-950 hover:bg-blue-900 text-white"
+        disabled={formStatus === 'submitting'}
+      >
+        {formStatus === 'submitting' ? (
+          <div className="flex items-center justify-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="mr-2"
+            >
+              ◌
+            </motion.div>
+            Sending...
+          </div>
+        ) : (
+          "Send Message"
+        )}
+      </Button>
+    </motion.form>
+  );
+};
+
+// Main Component
+const CustomerFeedback: React.FC = () => {
+  const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
+  const [autoplayEnabled, setAutoplayEnabled] = useState(true);
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const controls = useAnimation();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
+
+  const currentTestimonial = reviewsData.testimonials[currentTestimonialIndex];
+
+  const handlePrevTestimonial = () => {
+    setAutoplayEnabled(false);
+    setCurrentTestimonialIndex((prev) => 
+      prev === 0 ? reviewsData.testimonials.length - 1 : prev - 1
+    );
+    setTimeout(() => setAutoplayEnabled(true), 5000);
+  };
+
+  const handleNextTestimonial = () => {
+    setAutoplayEnabled(false);
+    setCurrentTestimonialIndex((prev) => 
+      prev === reviewsData.testimonials.length - 1 ? 0 : prev + 1
+    );
+    setTimeout(() => setAutoplayEnabled(true), 5000);
+  };
+
+  // Auto-rotate testimonials with cleanup
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (autoplayEnabled) {
+      timer = setInterval(() => {
+        setCurrentTestimonialIndex((prev) => 
+          prev === reviewsData.testimonials.length - 1 ? 0 : prev + 1
+        );
+      }, 5000);
+    }
+    return () => clearInterval(timer);
+  }, [autoplayEnabled]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormStatus('submitting');
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setFormStatus('success');
+      
+      // Reset form after success
+      setTimeout(() => {
+        setFormStatus('idle');
+      }, 3000);
+    } catch (error) {
+      setFormStatus('error');
+      setTimeout(() => {
+        setFormStatus('idle');
+      }, 3000);
+    }
+  };
 
   React.useEffect(() => {
     if (inView) {
@@ -83,147 +323,134 @@ const CustomerFeedback: React.FC = () => {
   }, [controls, inView]);
 
   return (
-    <section ref={ref} className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <section ref={ref} className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto">
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-          initial="hidden"
-          animate={controls}
-          variants={{
-            visible: { opacity: 1, y: 0 },
-            hidden: { opacity: 0, y: 50 },
-          }}
-          transition={{ duration: 0.5, staggerChildren: 0.2 }}
-        >
-          <motion.div
-            variants={{
-              visible: { opacity: 1, y: 0 },
-              hidden: { opacity: 0, y: 50 },
-            }}
-            className="space-y-6"
-          >
-            <Testimonial {...testimonial} />
-            <motion.div
-              className="flex gap-4"
-              variants={{
-                visible: { opacity: 1, x: 0 },
-                hidden: { opacity: 0, x: -20 },
-              }}
-            >
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/d03c5582e3a943fb5ffc8393127d6661bc87e59a268d765f7930fbbabfaf1bd8?apiKey=a05a9fe5da54475091abff9f564d40f8&"
-                  alt="Testimonial image 1"
-                />
-              </Avatar>
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/0b180addfa846bb6a5e0a2f39e401e298a6bfc880f26c6f084d45ffc93a0c45f?apiKey=a05a9fe5da54475091abff9f564d40f8&"
-                  alt="Testimonial image 2"
-                />
-              </Avatar>
-            </motion.div>
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Testimonials Section */}
+          <motion.div className="space-y-6">
+            <div>
+              <Badge variant="default" className="mb-4 bg-blue-950">
+                Testimonials
+              </Badge>
+              <h2 className="text-3xl font-bold text-blue-950">Our Customer Stories</h2>
+              <p className="text-zinc-500 mt-2">
+                {reviewsData.stats.totalReviews} verified reviews | {reviewsData.stats.averageRating} average rating
+              </p>
+            </div>
+
+            <div className="relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentTestimonialIndex}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Testimonial {...currentTestimonial} />
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="flex justify-center mt-6 space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handlePrevTestimonial}
+                  className="rounded-full hover:bg-blue-50"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleNextTestimonial}
+                  className="rounded-full hover:bg-blue-50"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex justify-center mt-4 space-x-2">
+                {reviewsData.testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setCurrentTestimonialIndex(index);
+                      setAutoplayEnabled(false);
+                      setTimeout(() => setAutoplayEnabled(true), 5000);
+                    }}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all duration-300",
+                      currentTestimonialIndex === index
+                        ? "bg-blue-950 w-4"
+                        : "bg-gray-300 hover:bg-gray-400"
+                    )}
+                    aria-label={`Go to review ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 bg-blue-50 rounded-lg p-4">
+              <p className="text-sm text-blue-950 font-medium mb-2">
+                Join our satisfied customers
+              </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="bg-blue-100 px-3 py-1 rounded-full">
+                    <span className="text-blue-950 font-semibold">{reviewsData.stats.totalReviews}+</span>
+                  </div>
+                  <span className="text-zinc-600">Happy Customers</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="bg-amber-100 px-3 py-1 rounded-full">
+                    <span className="text-amber-700 font-semibold">{reviewsData.stats.averageRating}</span>
+                  </div>
+                  <span className="text-zinc-600">Average Rating</span>
+                </div>
+              </div>
+            </div>
           </motion.div>
+
+          {/* Contact Form Section */}
           <motion.div
             variants={{
               visible: { opacity: 1, x: 0 },
               hidden: { opacity: 0, x: 50 },
             }}
-            className="bg-amber-400 rounded-lg shadow-lg overflow-hidden"
+            className="relative"
           >
-            <div className="p-8">
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white text-blue-950 mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Any Questions?
-              </div>
-              <h3 className="text-3xl font-bold text-blue-950 mb-4">
-                We're Here to Help
-              </h3>
-              <p className="text-blue-950 mb-6">
-                Have questions about your painting project? Need a quote or
-                assistance? Our team is ready to provide expert support. Contact
-                us:
-              </p>
-              <div className="flex items-center mb-8">
-                <div className="bg-white p-3 rounded-full mr-4">
-                  <Phone className="h-6 w-6 text-blue-950" />
+            <Card className="relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400 rounded-bl-full opacity-10" />
+              
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-blue-950">
+                  We're Here to Help
+                </CardTitle>
+                <CardDescription>
+                  Have questions about your painting project? Need a quote or assistance?
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <div className="flex items-center p-4 bg-blue-50 rounded-lg">
+                  <div className="bg-white p-3 rounded-full mr-4 shadow-sm">
+                    <Phone className="h-6 w-6 text-blue-950" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-950 font-medium">Call us directly</p>
+                    <p className="text-lg font-bold text-blue-950">604-357-4787</p>
+                  </div>
                 </div>
-                <span className="text-2xl font-bold text-white">
-                  604-357-4787
-                </span>
-              </div>
-              {/* Form Starts Here */}
-              <motion.form
-                variants={{
-                  visible: { opacity: 1, y: 0 },
-                  hidden: { opacity: 0, y: 20 },
-                }}
-                initial="hidden"
-                animate="visible"
-                transition={{ duration: 0.5 }}
-                className="space-y-4"
-              >
-                <div>
-                  <Label
-                    htmlFor="name"
-                    className="block text-blue-950 font-medium"
-                  >
-                    Name
-                  </Label>
-                  <Input
-                    type="text"
-                    id="name"
-                    placeholder="Your Name"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="email"
-                    className="block text-blue-950 font-medium"
-                  >
-                    Email
-                  </Label>
-                  <Input
-                    type="email"
-                    id="email"
-                    placeholder="Your Email"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="message"
-                    className="block text-blue-950 font-medium"
-                  >
-                    Message
-                  </Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Your Message"
-                    className="mt-1"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-blue-950 text-white hover:bg-blue-900"
-                >
-                  Send Message
-                </Button>
-              </motion.form>
-              {/* Form Ends Here */}
-            </div>
+
+                <Separator />
+                
+                <ContactForm 
+                  formStatus={formStatus}
+                  onSubmit={handleSubmit}
+                />
+              </CardContent>
+            </Card>
           </motion.div>
         </motion.div>
       </div>

@@ -1,0 +1,58 @@
+{
+    "testimonials": [
+      {
+        "id": 1,
+        "name": "Nancy Luther",
+        "location": "Vancouver, BC",
+        "avatarSrc": "https://cdn.builder.io/api/v1/image/assets/TEMP/ff58155191ecc29c3bdae3c79770d14291662ee44036e102c5629586e66e23a9?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "content": "We have had several good experiences with Unitus Painting team. They were professional, punctual, and delivered exceptional quality. The attention to detail was impressive.",
+        "rating": 5,
+        "date": "2024-02-15"
+      },
+      {
+        "id": 2,
+        "name": "Michael Chen",
+        "location": "Burnaby, BC",
+        "avatarSrc": "https://cdn.builder.io/api/v1/image/assets/TEMP/d03c5582e3a943fb5ffc8393127d6661bc87e59a268d765f7930fbbabfaf1bd8?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "content": "Outstanding service! They transformed our home's exterior with their expertise. The crew was friendly and kept everything clean throughout the project.",
+        "rating": 5,
+        "date": "2024-01-20"
+      },
+      {
+        "id": 3,
+        "name": "Sarah Johnson",
+        "location": "West Vancouver, BC",
+        "avatarSrc": "https://cdn.builder.io/api/v1/image/assets/TEMP/0b180addfa846bb6a5e0a2f39e401e298a6bfc880f26c6f084d45ffc93a0c45f?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "content": "From start to finish, working with Unitus was a pleasure. They helped us choose the perfect colors and finished the job ahead of schedule. Highly recommend!",
+        "rating": 5,
+        "date": "2024-03-01"
+      },
+      {
+        "id": 4,
+        "name": "David Thompson",
+        "location": "North Vancouver, BC",
+        "avatarSrc": "https://cdn.builder.io/api/v1/image/assets/TEMP/ff58155191ecc29c3bdae3c79770d14291662ee44036e102c5629586e66e23a9?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "content": "The cabinet painting service exceeded our expectations. The finish is flawless and has completely modernized our kitchen. Great value for money!",
+        "rating": 5,
+        "date": "2024-02-28"
+      },
+      {
+        "id": 5,
+        "name": "Emily Parker",
+        "location": "Richmond, BC",
+        "avatarSrc": "https://cdn.builder.io/api/v1/image/assets/TEMP/d03c5582e3a943fb5ffc8393127d6661bc87e59a268d765f7930fbbabfaf1bd8?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "content": "Professional, reliable, and excellent communication throughout the project. They handled our commercial space painting with minimal disruption to our business.",
+        "rating": 5,
+        "date": "2024-01-15"
+      }
+    ],
+    "stats": {
+      "totalReviews": 156,
+      "averageRating": 4.9,
+      "featuredAvatars": [
+        "https://cdn.builder.io/api/v1/image/assets/TEMP/d03c5582e3a943fb5ffc8393127d6661bc87e59a268d765f7930fbbabfaf1bd8?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "https://cdn.builder.io/api/v1/image/assets/TEMP/0b180addfa846bb6a5e0a2f39e401e298a6bfc880f26c6f084d45ffc93a0c45f?apiKey=a05a9fe5da54475091abff9f564d40f8&",
+        "https://cdn.builder.io/api/v1/image/assets/TEMP/ff58155191ecc29c3bdae3c79770d14291662ee44036e102c5629586e66e23a9?apiKey=a05a9fe5da54475091abff9f564d40f8&"
+      ]
+    }
+  }
