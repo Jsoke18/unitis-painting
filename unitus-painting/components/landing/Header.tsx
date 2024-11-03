@@ -213,8 +213,6 @@ type NavItem = {
                   </SelectContent>
                 </Select>
               </div>
-
-             
             </CardContent>
           </Card>
 

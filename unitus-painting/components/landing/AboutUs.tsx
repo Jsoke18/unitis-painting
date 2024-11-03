@@ -10,7 +10,7 @@ const VideoPlayer: React.FC = () => {
     <div className="w-full relative pt-[56.25%]">
       <div className="absolute top-0 left-0 right-0 bottom-0">
         <ReactPlayer
-          url="https://player.vimeo.com/video/1022728432?h=644ac9b33f"
+          url="https://player.vimeo.com/video/1025605255"
           width="100%"
           height="100%"
           controls={true}
