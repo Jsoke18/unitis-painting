@@ -93,21 +93,25 @@ const Services: React.FC = () => {
       transition={{ duration: 0.5 }}
     >
       <div className="flex flex-col items-center max-w-6xl w-full">
-        <motion.div
-          className="flex gap-2.5 px-4 py-2 text-sm md:text-base font-medium tracking-wide text-center bg-zinc-100 text-blue-950 rounded-full"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/2fb1571042200156160d3ff53ccaf903449ecdb9924e0162bf226193ecaf3fb8?apiKey=a05a9fe5da54475091abff9f564d40f8&"
-            alt=""
-            className="object-contain w-5 h-5"
-          />
-          <div>View All Services</div>
-        </motion.div>
+        <Link href="/services" passHref legacyBehavior>
+          <motion.a
+            className="flex gap-2.5 px-4 py-2 text-sm md:text-base font-medium tracking-wide text-center bg-zinc-100 text-blue-950 rounded-full cursor-pointer hover:bg-zinc-200 transition-colors duration-300"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <img
+              loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/2fb1571042200156160d3ff53ccaf903449ecdb9924e0162bf226193ecaf3fb8?apiKey=a05a9fe5da54475091abff9f564d40f8&"
+              alt=""
+              className="object-contain w-5 h-5"
+            />
+            <div>View All Services</div>
+          </motion.a>
+        </Link>
         <motion.h2
           className="mt-6 md:mt-8 text-2xl md:text-4xl font-extrabold tracking-wide text-center text-blue-950"
           initial={{ opacity: 0, y: 20 }}

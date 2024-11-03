@@ -1,8 +1,15 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Mail, Phone } from 'lucide-react';
+import { ChevronDown, Mail, Phone, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,6 +21,223 @@ type NavItem = {
   label: string;
   href: string;
   children?: NavItem[];
+};const QuoteRequestDialog = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+
+  const services = [
+    { value: "interior", label: "Interior Painting" },
+    { value: "exterior", label: "Exterior Painting" },
+    { value: "cabinet", label: "Cabinet Painting" },
+    { value: "commercial", label: "Commercial Services" },
+    { value: "strata", label: "Strata Services" },
+    { value: "carpentry", label: "Carpentry" },
+    { value: "repair", label: "Repair" },
+    { value: "power-washing", label: "Power Washing" },
+    { value: "line-painting", label: "Line Painting" },
+    { value: "caulking", label: "Caulking" }
+  ];
+
+  const locations = [
+    { value: "vancouver", label: "Vancouver, BC" },
+    { value: "kelowna", label: "Kelowna, BC" },
+    { value: "calgary", label: "Calgary, AB" }
+  ];
+
+  const handleServiceToggle = (value: string) => {
+    setSelectedServices(prev => 
+      prev.includes(value)
+        ? prev.filter(service => service !== value)
+        : [...prev, value]
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setIsSubmitting(false);
+    setIsSubmitted(true);
+    
+    // Reset form after 2 seconds
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setOpen(false);
+      setSelectedServices([]);
+    }, 2000);
+  };
+
+  if (isSubmitted) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="default" 
+            className="px-8 py-4 text-center bg-blue-950 text-white hover:bg-blue-900 transition-all duration-300 transform hover:scale-105"
+          >
+            Get a Quote!
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
+              <Check className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Request Submitted!</h3>
+            <p className="text-gray-500 text-center">
+              Thank you for your interest. We'll get back to you within 24 hours.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button 
+          variant="default" 
+          className="px-8 py-4 text-center bg-blue-950 text-white hover:bg-blue-900 transition-all duration-300 transform hover:scale-105"
+        >
+          Get a Quote!
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Request a Free Quote</DialogTitle>
+          <DialogDescription>
+            Fill out the form below and our team will get back to you within 24 hours with a customized quote.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" placeholder="John" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" placeholder="Doe" required />
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" placeholder="john.doe@example.com" required />
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input id="phone" type="tel" placeholder="(604) 555-0123" required />
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="location">Location</Label>
+                <Select required>
+                  <SelectTrigger id="location" className="w-full">
+                    <SelectValue placeholder="Select your city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map((location) => (
+                      <SelectItem key={location.value} value={location.value}>
+                        <span className="font-medium">{location.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label>Service Type</Label>
+                <RadioGroup defaultValue="residential" className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="residential" id="residential" />
+                    <Label htmlFor="residential">Residential</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="commercial" id="commercial" />
+                    <Label htmlFor="commercial">Commercial</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="strata" id="strata" />
+                    <Label htmlFor="strata">Strata</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label className="block mb-2">Services Needed (Select all that apply)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {services.map((service) => (
+                    <div key={service.value} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={service.value}
+                        checked={selectedServices.includes(service.value)}
+                        onChange={() => handleServiceToggle(service.value)}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-950 focus:ring-blue-950"
+                      />
+                      <Label 
+                        htmlFor={service.value}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {service.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                {selectedServices.length === 0 && (
+                  <p className="text-sm text-red-500 mt-1">Please select at least one service</p>
+                )}
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="timeline">Preferred Timeline</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="When do you need this done?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asap">As Soon As Possible</SelectItem>
+                    <SelectItem value="1month">Within 1 Month</SelectItem>
+                    <SelectItem value="3months">Within 3 Months</SelectItem>
+                    <SelectItem value="planning">Just Planning</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+             
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || selectedServices.length === 0}
+              className="w-full sm:w-auto"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Request"
+              )}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 const Header: React.FC<HeaderProps> = ({ openingHours }) => {
@@ -247,12 +471,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                 ))}
               </div>
             </nav>
-            <Button 
-              variant="default" 
-              className="px-8 py-4 text-center bg-blue-950 text-white hover:bg-blue-900 transition-all duration-300 transform hover:scale-105"
-            >
-              Get a Quote!
-            </Button>
+            <QuoteRequestDialog />
           </div>
         </div>
       </div>
