@@ -3,7 +3,7 @@ import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Phone, Star, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { Phone, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import reviewsData from '@/public/data/reviews.json';
 
 // Types
 type TestimonialProps = {
@@ -27,48 +28,6 @@ type FormData = {
   name: string;
   email: string;
   message: string;
-};
-
-// Sample data - Replace with your reviews.json import
-const reviewsData = {
-  testimonials: [
-    {
-      id: 1,
-      name: "David Thompson",
-      location: "North Vancouver, BC",
-      avatarSrc: "/avatar1.jpg",
-      content: "The cabinet painting service exceeded our expectations. The finish is flawless and has completely modernized our kitchen. Great value for money!",
-      rating: 5,
-      date: "2024-02-28"
-    },
-    {
-      id: 2,
-      name: "Sarah Johnson",
-      location: "West Vancouver, BC",
-      avatarSrc: "/avatar2.jpg",
-      content: "From start to finish, working with Unitus was a pleasure. They helped us choose the perfect colors and finished the job ahead of schedule. Highly recommend!",
-      rating: 5,
-      date: "2024-03-01"
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      location: "Burnaby, BC",
-      avatarSrc: "/avatar3.jpg",
-      content: "Outstanding service! They transformed our home's exterior with their expertise. The crew was friendly and kept everything clean throughout the project.",
-      rating: 5,
-      date: "2024-01-20"
-    }
-  ],
-  stats: {
-    totalReviews: 156,
-    averageRating: 4.9,
-    featuredAvatars: [
-      "/avatar1.jpg",
-      "/avatar2.jpg",
-      "/avatar3.jpg"
-    ]
-  }
 };
 
 // Rating Stars Component
@@ -409,7 +368,7 @@ const CustomerFeedback: React.FC = () => {
                   <span className="text-zinc-600">Average Rating</span>
                 </div>
               </div>
-            </div>
+              </div>
           </motion.div>
 
           {/* Contact Form Section */}
