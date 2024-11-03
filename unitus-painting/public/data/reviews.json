@@ -29,8 +29,11 @@
       }
     ],
     "stats": {
-      "totalReviews": 156,
+      "totalProjects": 4000,
+      "yearsInBusiness": 15,
+      "serviceAreas": 12,
       "averageRating": 4.9,
+      "customerSatisfaction": 98,
       "featuredAvatars": [
         "/avatar1.jpg",
         "/avatar2.jpg",

@@ -284,19 +284,21 @@ const CustomerFeedback: React.FC = () => {
   return (
     <section ref={ref} className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto">
-        <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Testimonials Section */}
           <motion.div className="space-y-6">
             <div>
               <Badge variant="default" className="mb-4 bg-blue-950">
-                Testimonials
+                Customer Stories
               </Badge>
-              <h2 className="text-3xl font-bold text-blue-950">Our Customer Stories</h2>
-              <p className="text-zinc-500 mt-2">
-                {reviewsData.stats.totalReviews} verified reviews | {reviewsData.stats.averageRating} average rating
+              <h2 className="text-3xl font-bold text-blue-950">
+                What Our Clients Say
+              </h2>
+              <p className="text-zinc-600 mt-2">
+                Read authentic experiences from our valued customers
               </p>
             </div>
-
+  
             <div className="relative">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -309,7 +311,7 @@ const CustomerFeedback: React.FC = () => {
                   <Testimonial {...currentTestimonial} />
                 </motion.div>
               </AnimatePresence>
-
+  
               <div className="flex justify-center mt-6 space-x-2">
                 <Button
                   variant="outline"
@@ -328,7 +330,7 @@ const CustomerFeedback: React.FC = () => {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
-
+  
               <div className="flex justify-center mt-4 space-x-2">
                 {reviewsData.testimonials.map((_, index) => (
                   <button
@@ -349,28 +351,41 @@ const CustomerFeedback: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            <div className="mt-8 bg-blue-50 rounded-lg p-4">
-              <p className="text-sm text-blue-950 font-medium mb-2">
-                Join our satisfied customers
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="bg-blue-100 px-3 py-1 rounded-full">
-                    <span className="text-blue-950 font-semibold">{reviewsData.stats.totalReviews}+</span>
+  
+            {/* Simple Stats Section */}
+            <div className="mt-8 bg-blue-50 rounded-lg p-6">
+              <div className="grid grid-cols-2 gap-6">
+                {/* Left side - Projects Stats */}
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-blue-100 px-3 py-1 rounded-full">
+                      <span className="text-blue-950 font-semibold">4000+</span>
+                    </div>
+                    <span className="text-zinc-600">Projects Completed</span>
                   </div>
-                  <span className="text-zinc-600">Happy Customers</span>
+                  <p className="text-sm text-zinc-500">
+                    Serving Greater Vancouver since 2009
+                  </p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="bg-amber-100 px-3 py-1 rounded-full">
-                    <span className="text-amber-700 font-semibold">{reviewsData.stats.averageRating}</span>
+  
+                {/* Right side - Rating Stats */}
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-amber-100 px-3 py-1 rounded-full">
+                      <span className="text-amber-700 font-semibold">4.9</span>
+                    </div>
+                    <div className="flex items-center">
+                      <RatingStars rating={4.9} />
+                    </div>
                   </div>
-                  <span className="text-zinc-600">Average Rating</span>
+                  <p className="text-sm text-zinc-500">
+                    Average Customer Rating
+                  </p>
                 </div>
               </div>
-              </div>
+            </div>
           </motion.div>
-
+  
           {/* Contact Form Section */}
           <motion.div
             variants={{
@@ -390,7 +405,7 @@ const CustomerFeedback: React.FC = () => {
                   Have questions about your painting project? Need a quote or assistance?
                 </CardDescription>
               </CardHeader>
-
+  
               <CardContent className="space-y-6">
                 <div className="flex items-center p-4 bg-blue-50 rounded-lg">
                   <div className="bg-white p-3 rounded-full mr-4 shadow-sm">
@@ -401,7 +416,7 @@ const CustomerFeedback: React.FC = () => {
                     <p className="text-lg font-bold text-blue-950">604-357-4787</p>
                   </div>
                 </div>
-
+  
                 <Separator />
                 
                 <ContactForm 
