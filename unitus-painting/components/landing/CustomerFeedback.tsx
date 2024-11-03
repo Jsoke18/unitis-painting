@@ -295,7 +295,7 @@ const CustomerFeedback: React.FC = () => {
                 What Our Clients Say
               </h2>
               <p className="text-zinc-600 mt-2">
-                Read authentic experiences from our valued customers
+                Read experiences from our valued customers
               </p>
             </div>
   
@@ -364,7 +364,7 @@ const CustomerFeedback: React.FC = () => {
                     <span className="text-zinc-600">Projects Completed</span>
                   </div>
                   <p className="text-sm text-zinc-500">
-                    Serving Greater Vancouver since 2009
+                    Serving Calgary, Kewlona, and the Greater Vancouver since 2009
                   </p>
                 </div>
   

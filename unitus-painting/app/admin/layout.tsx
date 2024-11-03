@@ -1,4 +1,3 @@
-// app/admin/layout.tsx
 "use client";
 import React, { useState } from "react";
 import {
@@ -9,6 +8,7 @@ import {
   MenuIcon,
   Bell,
   User,
+  MessageSquare,
 } from "lucide-react";
 import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from "antd";
 import Link from "next/link";
@@ -41,6 +41,12 @@ const menuItems: MenuItem[] = [
     icon: <LayoutDashboard className="w-4 h-4" />,
     label: "Edit Pages",
     href: "/admin/pages",
+  },
+  {
+    key: "reviews",
+    icon: <MessageSquare className="w-4 h-4" />,
+    label: "Reviews",
+    href: "/admin/reviews",
   },
   {
     key: "users",

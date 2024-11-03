@@ -1,43 +1,43 @@
 {
-    "testimonials": [
-      {
-        "id": 1,
-        "name": "David Thompson",
-        "location": "North Vancouver, BC",
-        "avatarSrc": "/avatar1.jpg",
-        "content": "The cabinet painting service exceeded our expectations. The finish is flawless and has completely modernized our kitchen. Great value for money!",
-        "rating": 5,
-        "date": "2024-02-28"
-      },
-      {
-        "id": 2,
-        "name": "Sarah Johnson",
-        "location": "West Vancouver, BC",
-        "avatarSrc": "/avatar2.jpg",
-        "content": "From start to finish, working with Unitus was a pleasure. They helped us choose the perfect colors and finished the job ahead of schedule. Highly recommend!",
-        "rating": 5,
-        "date": "2024-03-01"
-      },
-      {
-        "id": 3,
-        "name": "Michael Chen",
-        "location": "Burnaby, BC",
-        "avatarSrc": "/avatar3.jpg",
-        "content": "Outstanding service! They transformed our home's exterior with their expertise. The crew was friendly and kept everything clean throughout the project.",
-        "rating": 5,
-        "date": "2024-01-20"
-      }
-    ],
-    "stats": {
-      "totalProjects": 4000,
-      "yearsInBusiness": 15,
-      "serviceAreas": 12,
-      "averageRating": 4.9,
-      "customerSatisfaction": 98,
-      "featuredAvatars": [
-        "/avatar1.jpg",
-        "/avatar2.jpg",
-        "/avatar3.jpg"
-      ]
+  "testimonials": [
+    {
+      "id": 1,
+      "name": "test Thompson",
+      "location": "North Vancouver, BC",
+      "avatarSrc": "/avatar1.jpg",
+      "content": "The cabinet painting service exceeded our expectations. The finish is flawless and has completely modernized our kitchen. Great value for money!",
+      "rating": 5,
+      "date": "2024-02-28"
+    },
+    {
+      "id": 2,
+      "name": "Sarah Johnson",
+      "location": "West Vancouver, BC",
+      "avatarSrc": "/avatar2.jpg",
+      "content": "From start to finish, working with Unitus was a pleasure. They helped us choose the perfect colors and finished the job ahead of schedule. Highly recommend!",
+      "rating": 5,
+      "date": "2024-03-01"
+    },
+    {
+      "id": 3,
+      "name": "Michael Chen",
+      "location": "Burnaby, BC",
+      "avatarSrc": "/avatar3.jpg",
+      "content": "Outstanding service! They transformed our home's exterior with their expertise. The crew was friendly and kept everything clean throughout the project.",
+      "rating": 5,
+      "date": "2024-01-20"
     }
+  ],
+  "stats": {
+    "totalProjects": 4000,
+    "yearsInBusiness": 15,
+    "serviceAreas": 12,
+    "averageRating": 5,
+    "customerSatisfaction": 100,
+    "featuredAvatars": [
+      "/avatar1.jpg",
+      "/avatar2.jpg",
+      "/avatar3.jpg"
+    ]
   }
+}
