@@ -1,7 +1,7 @@
 // app/blog/[id]/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,15 +12,14 @@ import Footer from "@/components/landing/Footer";
 
 const BlogPost = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
-  const [isHydrated, setIsHydrated] = useState(false);
-  const { posts, hydrate } = useBlogStore();
+  const { posts, hydrate, hasHydrated } = useBlogStore();
 
   useEffect(() => {
     hydrate();
-    setIsHydrated(true);
   }, [hydrate]);
 
-  if (!isHydrated) {
+  // Wait for hydration to complete
+  if (!hasHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -37,12 +36,12 @@ const BlogPost = ({ params }: { params: { id: string } }) => {
   if (!post) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header openingHours="8:00 am - 5:00 pm" />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Post Not Found</h1>
           <p className="text-gray-600 mb-8">The post you're looking for doesn't exist or has been removed.</p>
           <Link href="/blog">
-            <Button icon={<ArrowLeft />}>
+            <Button type="primary" icon={<ArrowLeft />}>
               Back to Blog
             </Button>
           </Link>
@@ -66,13 +65,13 @@ const BlogPost = ({ params }: { params: { id: string } }) => {
     } else {
       // Fallback - copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      // You might want to show a toast notification here
+      message.success('Link copied to clipboard!');
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header openingHours="8:00 am - 5:00 pm" />
       <main className="pt-8 pb-16">
         {/* Back Button */}
         <div className="container mx-auto px-4 mb-8">
@@ -134,7 +133,11 @@ const BlogPost = ({ params }: { params: { id: string } }) => {
 
           {/* Content */}
           <div 
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 
+              prose-a:text-blue-600 prose-strong:text-gray-900 prose-img:rounded-xl prose-img:shadow-lg
+              prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
+              prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:p-4
+              prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-gray-700"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
@@ -146,7 +149,8 @@ const BlogPost = ({ params }: { params: { id: string } }) => {
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
+                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-200 
+                      transition-colors duration-200"
                   >
                     #{tag}
                   </span>
@@ -166,6 +170,12 @@ const BlogPost = ({ params }: { params: { id: string } }) => {
             </Button>
           </div>
         </article>
+
+        {/* Related Posts - Could be added here */}
+        {/* <div className="container mx-auto px-4 max-w-4xl mt-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Articles</h2>
+          // Add related posts component here
+        </div> */}
       </main>
       <Footer />
     </div>

@@ -1,0 +1,27 @@
+{
+  "stats": {
+    "totalProjects": 4000,
+    "yearsInBusiness": 15,
+    "serviceAreas": 12
+  },
+  "text": {
+    "mainHeading": "What Our Clients Say",
+    "mainSubheading": "Read experiences from our valued customers",
+    "statsSubtext": "Serving Calgary, Kewlona, and the Greater Vancouver since 2009",
+    "averageRatingText": "Average Customer Rating",
+    "customerStoriesLabel": "Customer Stories",
+    "callTitle": "We're Here to Help",
+    "callSubtitle": "Have questions about your painting project? Need a quote or assistance?",
+    "formNameLabel": "Name",
+    "formNamePlaceholder": "Your name",
+    "formEmailLabel": "Email",
+    "formEmailPlaceholder": "Your email",
+    "formMessageLabel": "Message",
+    "formMessagePlaceholder": "Tell us about your project...",
+    "formSubmitText": "Send Message",
+    "formSuccessMessage": "Thanks for reaching out! We'll get back to you shortly.",
+    "formErrorMessage": "There was an error sending your message. Please try again.",
+    "directCallText": "Call us directly",
+    "phoneNumber": "604-357-4787"
+  }
+}

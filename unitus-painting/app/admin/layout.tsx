@@ -39,8 +39,8 @@ const menuItems: MenuItem[] = [
   {
     key: "pages",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Edit Pages",
-    href: "/admin/pages",
+    label: "Customer Feedback",
+    href: "/admin/customerFeedback",
   },
   {
     key: "reviews",

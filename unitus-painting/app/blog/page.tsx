@@ -16,14 +16,13 @@ const BlogPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [mounted, setMounted] = useState(false);
   
-  const { posts = [], categories = [] } = useBlogStore();
+  const { posts = [], categories = [], hydrate, hasHydrated } = useBlogStore();
 
-  // Handle mounting
+  // Handle hydration
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    hydrate();
+  }, [hydrate]);
 
   // Combine All with other categories
   const allCategories = ["All", ...categories];
@@ -84,7 +83,7 @@ const BlogPage = () => {
   };
 
   // Loading state
-  if (!mounted) {
+  if (!hasHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -183,7 +182,7 @@ const BlogPage = () => {
                   animate="visible"
                   exit={{ opacity: 0, scale: 0.9 }}
                 >
-                  <Link href={`/blog/${post.id}`}>
+                  <Link href={`/blog/${post.id}`} passHref>
                     <Card className="h-full hover:shadow-xl transition-shadow duration-300 overflow-hidden group cursor-pointer">
                       <div className="aspect-w-16 aspect-h-9 overflow-hidden">
                         <img
@@ -194,7 +193,9 @@ const BlogPage = () => {
                       </div>
                       <CardContent className="p-6">
                         <div className="flex items-center gap-4 mb-4">
-                          <span className="text-sm text-gray-500">{new Date(post.date).toLocaleDateString()}</span>
+                          <span className="text-sm text-gray-500">
+                            {new Date(post.date).toLocaleDateString()}
+                          </span>
                           <span className="text-sm text-gray-500">•</span>
                           <span className="text-sm text-gray-500">{post.readTime}</span>
                         </div>
