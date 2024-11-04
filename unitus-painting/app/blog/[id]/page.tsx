@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, Clock, Calendar, User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,38 +13,101 @@ import dynamic from 'next/dynamic';
 
 // Dynamically import markdown components
 const ReactMarkdown = dynamic(() => import('react-markdown'), {
-  ssr: false
+  ssr: false,
+  loading: () => <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
 });
 
 const RemarkGfm = dynamic(() => import('remark-gfm'), {
   ssr: false
 });
 
-// Convert HTML-style content to markdown
+// Function to convert HTML-style content to markdown
 const convertToMarkdown = (content: string): string => {
   if (!content) return '';
   
   return content
-    // Convert header tags to markdown
     .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
     .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
     .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n')
     .replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n\n')
     .replace(/<h5>(.*?)<\/h5>/gi, '##### $1\n\n')
     .replace(/<h6>(.*?)<\/h6>/gi, '###### $1\n\n')
-    // Convert paragraph and break tags
     .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
     .replace(/<br\s*\/?>/gi, '\n')
-    // Clean up any extra spaces/line breaks
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 };
 
+const MarkdownRenderer = ({ content }: { content: string }) => {
+  const [isClient, setIsClient] = useState(false);
+  const processedContent = content.includes('<') ? convertToMarkdown(content) : content;
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+      </div>
+    );
+  }
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[RemarkGfm]}
+      components={{
+        h1: ({ ...props }) => (
+          <h1 className="text-4xl font-bold mt-8 mb-4 block" {...props} />
+        ),
+        h2: ({ ...props }) => (
+          <h2 className="text-3xl font-semibold mt-8 mb-4 block" {...props} />
+        ),
+        h3: ({ ...props }) => (
+          <h3 className="text-2xl font-semibold mt-6 mb-3 block" {...props} />
+        ),
+        h4: ({ ...props }) => (
+          <h4 className="text-xl font-semibold mt-4 mb-2 block" {...props} />
+        ),
+        p: ({ ...props }) => (
+          <p className="mt-4 mb-4 text-gray-700 leading-relaxed block whitespace-pre-wrap" {...props} />
+        ),
+        pre: ({ ...props }) => (
+          <pre className="mt-4 mb-4 block overflow-auto bg-gray-100 p-4 rounded-lg" {...props} />
+        ),
+        code: ({ inline, className, children, ...props }) => {
+          if (inline) {
+            return (
+              <code className="bg-gray-100 rounded px-1.5 py-0.5 text-sm" {...props}>
+                {children}
+              </code>
+            );
+          }
+          return (
+            <pre className="mt-4 mb-4 block overflow-auto bg-gray-100 p-4 rounded-lg">
+              <code {...props}>{children}</code>
+            </pre>
+          );
+        }
+      }}
+    >
+      {processedContent}
+    </ReactMarkdown>
+  );
+};
+
 const BlogPostPage = () => {
+  const [isClient, setIsClient] = useState(false);
   const params = useParams();
   const { getPost } = useBlogStore();
-  
   const post = getPost(Number(params.id));
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   if (!post) {
     return (
@@ -65,11 +128,6 @@ const BlogPostPage = () => {
       </div>
     );
   }
-
-  // Convert content if it contains HTML tags
-  const processedContent = post.content.includes('<') 
-    ? convertToMarkdown(post.content) 
-    : post.content;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -148,28 +206,7 @@ const BlogPostPage = () => {
 
                 {/* Markdown Content */}
                 <div className="prose prose-lg max-w-none">
-                  <ReactMarkdown 
-                    remarkPlugins={[RemarkGfm]}
-                    components={{
-                      h1: ({ ...props }) => (
-                        <h1 className="text-4xl font-bold mt-8 mb-4 block" {...props} />
-                      ),
-                      h2: ({ ...props }) => (
-                        <h2 className="text-3xl font-semibold mt-8 mb-4 block" {...props} />
-                      ),
-                      h3: ({ ...props }) => (
-                        <h3 className="text-2xl font-semibold mt-6 mb-3 block" {...props} />
-                      ),
-                      h4: ({ ...props }) => (
-                        <h4 className="text-xl font-semibold mt-4 mb-2 block" {...props} />
-                      ),
-                      p: ({ ...props }) => (
-                        <p className="mt-4 mb-4 text-gray-700 leading-relaxed block whitespace-pre-wrap" {...props} />
-                      ),
-                    }}
-                  >
-                    {processedContent}
-                  </ReactMarkdown>
+                  {isClient && <MarkdownRenderer content={post.content} />}
                 </div>
 
                 {/* Tags */}
