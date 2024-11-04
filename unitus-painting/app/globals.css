@@ -192,3 +192,27 @@ body {
     @apply bg-muted;
   }
 }
+
+
+.project-modal {
+  .ant-modal-content {
+    padding: 24px;
+  }
+  
+  &.ant-modal {
+    top: 50%;
+    padding-bottom: 0;
+    transform: translateY(-50%);
+  }
+}
+
+/* Additional styles to ensure proper modal overlay */
+.ant-modal-mask {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+
+.ant-modal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

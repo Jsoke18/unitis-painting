@@ -291,49 +291,7 @@ const QuoteRequestDialog = () => {
                 </RadioGroup>
               </div>
 
-              <div className="space-y-2 mt-4">
-                <Label className="block mb-2">Services Needed (Select all that apply)</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {services.map((service) => (
-                    <div key={service.value} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={service.value}
-                        checked={selectedServices.includes(service.value)}
-                        onChange={() => handleServiceToggle(service.value)}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-950 focus:ring-blue-950"
-                      />
-                      <Label 
-                        htmlFor={service.value}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {service.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                {selectedServices.length === 0 && (
-                  <p className="text-sm text-red-500 mt-1">Please select at least one service</p>
-                )}
-              </div>
-
-              <div className="space-y-2 mt-4">
-                <Label htmlFor="timeline">Preferred Timeline</Label>
-                <Select
-                  value={formData.timeline}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, timeline: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="When do you need this done?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="asap">As Soon As Possible</SelectItem>
-                    <SelectItem value="1month">Within 1 Month</SelectItem>
-                    <SelectItem value="3months">Within 3 Months</SelectItem>
-                    <SelectItem value="planning">Just Planning</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              
 
               <div className="space-y-2 mt-4">
                 <Label htmlFor="message">Additional Details (Optional)</Label>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -8,64 +8,22 @@ import { Tab } from "@headlessui/react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 
-const projects = [
-  {
-    id: 1,
-    title: "Luxury Hotel Renovation",
-    category: "Hospitality",
-    image: "/api/placeholder/800/600",
-    description: "Complete interior and exterior painting for a 5-star hotel.",
-  },
-  {
-    id: 2,
-    title: "Beachfront Resort Refresh",
-    category: "Hospitality",
-    image: "/api/placeholder/800/600",
-    description: "Exterior painting and weatherproofing for a coastal resort.",
-  },
-  {
-    id: 3,
-    title: "High-Rise Condo Exterior",
-    category: "Strata and Condo",
-    image: "/api/placeholder/800/600",
-    description: "Full exterior repaint of a 30-story condominium building.",
-  },
-  {
-    id: 4,
-    title: "Modern Apartment Complex",
-    category: "Strata and Condo",
-    image: "/api/placeholder/800/600",
-    description: "Interior painting for 100+ units in a new apartment development.",
-  },
-  {
-    id: 5,
-    title: "Elegant Family Home",
-    category: "Residential",
-    image: "/api/placeholder/800/600",
-    description: "Custom interior painting with specialty finishes for a luxury home.",
-  },
-  {
-    id: 6,
-    title: "Victorian House Restoration",
-    category: "Residential",
-    image: "/api/placeholder/800/600",
-    description: "Historical restoration painting for a 19th-century Victorian home.",
-  },
-  {
-    id: 7,
-    title: "Corporate Office Tower",
-    category: "Commercial",
-    image: "/api/placeholder/800/600",
-    description: "Complete interior painting for a 20-floor corporate headquarters.",
-  },
-  {
-    id: 8,
-    title: "Retail Store Chain Rebrand",
-    category: "Commercial",
-    image: "/api/placeholder/800/600",
-    description: "Nationwide painting project for 50+ retail locations during rebranding.",
-  },
-];
+interface ProjectSpecs {
+  area?: string;
+  duration?: string;
+  team?: string;
+}
+
+interface Project {
+  id: number;
+  title: string;
+  category: string;
+  image: string;
+  description: string;
+  completionDate?: string;
+  location?: string;
+  specs?: ProjectSpecs;
+}
 
 const categories = [
   "All Projects",
@@ -75,8 +33,106 @@ const categories = [
   "Commercial",
 ];
 
+// Helper functions for handling optional data
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "Date TBA";
+  try {
+    return new Date(dateString).toLocaleDateString();
+  } catch {
+    return "Date TBA";
+  }
+};
+
+const formatLocation = (location?: string) => {
+  return location || "Location TBA";
+};
+
+const ProjectSpecs: React.FC<{ specs?: ProjectSpecs }> = ({ specs }) => {
+  const defaultSpecs = {
+    area: "Area TBA",
+    duration: "Duration TBA",
+    team: "Team TBA"
+  };
+
+  const displaySpecs = {
+    ...defaultSpecs,
+    ...specs
+  };
+
+  return (
+    <div className="grid grid-cols-3 gap-2 text-xs text-gray-500">
+      <div>
+        <span className="block font-medium">Area</span>
+        {displaySpecs.area}
+      </div>
+      <div>
+        <span className="block font-medium">Duration</span>
+        {displaySpecs.duration}
+      </div>
+      <div>
+        <span className="block font-medium">Team Size</span>
+        {displaySpecs.team}
+      </div>
+    </div>
+  );
+};
+
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
+  <Card className="group overflow-hidden h-full flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300">
+    <AspectRatio ratio={4 / 3} className="overflow-hidden">
+      <img
+        src={project.image}
+        alt={project.title}
+        className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
+      />
+    </AspectRatio>
+    <CardContent className="p-6 flex-grow flex flex-col justify-between">
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-900 transition-colors duration-200">
+          {project.title}
+        </h3>
+        <p className="text-gray-600 text-sm mb-3">
+          {formatLocation(project.location)} • Completed {formatDate(project.completionDate)}
+        </p>
+        <p className="text-gray-600 text-sm leading-relaxed mb-4">
+          {project.description}
+        </p>
+        <ProjectSpecs specs={project.specs} />
+      </div>
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <span className="inline-block px-3 py-1 bg-indigo-50 text-blue-900 text-sm font-medium rounded-full">
+          {project.category}
+        </span>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 const ProjectGallery: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/data/projects.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+        const data = await response.json();
+        setProjects(data.projects || []);
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+        setError('Failed to load projects. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const filteredProjects =
     selectedIndex === 0
@@ -84,6 +140,30 @@ const ProjectGallery: React.FC = () => {
       : projects.filter(
           (project) => project.category === categories[selectedIndex]
         );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-900"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-800"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -133,30 +213,7 @@ const ProjectGallery: React.FC = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="group overflow-hidden h-full flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300">
-                    <AspectRatio ratio={4 / 3} className="overflow-hidden">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </AspectRatio>
-                    <CardContent className="p-6 flex-grow flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-900 transition-colors duration-200">
-                          {project.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                          {project.description}
-                        </p>
-                      </div>
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <span className="inline-block px-3 py-1 bg-indigo-50 text-blue-900 text-sm font-medium rounded-full">
-                          {project.category}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ProjectCard project={project} />
                 </motion.div>
               ))}
             </AnimatePresence>
