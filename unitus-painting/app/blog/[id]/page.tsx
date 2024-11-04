@@ -8,98 +8,44 @@ import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { useBlogStore } from "@/lib/blogService";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useParams } from "next/navigation";
+import dynamic from 'next/dynamic';
+
+// Dynamically import markdown components
+const ReactMarkdown = dynamic(() => import('react-markdown'), {
+  ssr: false
+});
+
+const RemarkGfm = dynamic(() => import('remark-gfm'), {
+  ssr: false
+});
+
+// Convert HTML-style content to markdown
+const convertToMarkdown = (content: string): string => {
+  if (!content) return '';
+  
+  return content
+    // Convert header tags to markdown
+    .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
+    .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
+    .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n')
+    .replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n\n')
+    .replace(/<h5>(.*?)<\/h5>/gi, '##### $1\n\n')
+    .replace(/<h6>(.*?)<\/h6>/gi, '###### $1\n\n')
+    // Convert paragraph and break tags
+    .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    // Clean up any extra spaces/line breaks
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
 
 const BlogPostPage = () => {
   const params = useParams();
-  const router = useRouter();
   const { getPost } = useBlogStore();
   
-  // Get the post using the ID from URL params
   const post = getPost(Number(params.id));
 
-  // Custom components for ReactMarkdown
-  const components = {
-    // Custom heading styles
-    h1: ({ children }) => <h1 className="text-4xl font-bold mt-8 mb-4">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-3xl font-semibold mt-8 mb-4">{children}</h2>,
-    h3: ({ children }) => <h3 className="text-2xl font-semibold mt-6 mb-3">{children}</h3>,
-    h4: ({ children }) => <h4 className="text-xl font-semibold mt-4 mb-2">{children}</h4>,
-    
-    // Paragraph styles
-    p: ({ children }) => <p className="mt-4 mb-4 text-gray-700 leading-relaxed">{children}</p>,
-    
-    // List styles
-    ul: ({ children }) => <ul className="list-disc pl-6 my-4">{children}</ul>,
-    ol: ({ children }) => <ol className="list-decimal pl-6 my-4">{children}</ol>,
-    li: ({ children }) => <li className="mt-2">{children}</li>,
-    
-    // Blockquote style
-    blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-blue-500 pl-4 my-4 italic bg-gray-50 py-2">
-        {children}
-      </blockquote>
-    ),
-    
-    // Code blocks with syntax highlighting
-    code: ({ node, inline, className, children, ...props }) => {
-      const match = /language-(\w+)/.exec(className || '');
-      return !inline && match ? (
-        <div className="my-4 rounded-lg overflow-hidden">
-          <SyntaxHighlighter
-            language={match[1]}
-            style={vscDarkPlus}
-            PreTag="div"
-            className="rounded-lg"
-            showLineNumbers
-            {...props}
-          >
-            {String(children).replace(/\n$/, '')}
-          </SyntaxHighlighter>
-        </div>
-      ) : (
-        <code className="bg-gray-100 rounded px-1 py-0.5 text-sm" {...props}>
-          {children}
-        </code>
-      );
-    },
-    
-    // Table styles
-    table: ({ children }) => (
-      <div className="my-4 overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          {children}
-        </table>
-      </div>
-    ),
-    thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
-    th: ({ children }) => (
-      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-        {children}
-      </th>
-    ),
-    td: ({ children }) => (
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {children}
-      </td>
-    ),
-    
-    // Link styles
-    a: ({ children, href }) => (
-      <a href={href} className="text-blue-600 hover:text-blue-800 hover:underline">
-        {children}
-      </a>
-    ),
-    
-    // Horizontal rule
-    hr: () => <hr className="my-8 border-t border-gray-200" />,
-  };
-
-  // If post doesn't exist, show error state
   if (!post) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -119,6 +65,11 @@ const BlogPostPage = () => {
       </div>
     );
   }
+
+  // Convert content if it contains HTML tags
+  const processedContent = post.content.includes('<') 
+    ? convertToMarkdown(post.content) 
+    : post.content;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -198,10 +149,26 @@ const BlogPostPage = () => {
                 {/* Markdown Content */}
                 <div className="prose prose-lg max-w-none">
                   <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]} 
-                    components={components}
+                    remarkPlugins={[RemarkGfm]}
+                    components={{
+                      h1: ({ ...props }) => (
+                        <h1 className="text-4xl font-bold mt-8 mb-4 block" {...props} />
+                      ),
+                      h2: ({ ...props }) => (
+                        <h2 className="text-3xl font-semibold mt-8 mb-4 block" {...props} />
+                      ),
+                      h3: ({ ...props }) => (
+                        <h3 className="text-2xl font-semibold mt-6 mb-3 block" {...props} />
+                      ),
+                      h4: ({ ...props }) => (
+                        <h4 className="text-xl font-semibold mt-4 mb-2 block" {...props} />
+                      ),
+                      p: ({ ...props }) => (
+                        <p className="mt-4 mb-4 text-gray-700 leading-relaxed block whitespace-pre-wrap" {...props} />
+                      ),
+                    }}
                   >
-                    {post.content}
+                    {processedContent}
                   </ReactMarkdown>
                 </div>
 

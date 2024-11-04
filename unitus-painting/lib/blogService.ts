@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+// Declare global window interface
+declare global {
+  interface Window {
+    blogStore: ReturnType<typeof useBlogStore>;
+  }
+}
+
 export interface BlogPost {
   id: number;
   title: string;
@@ -29,33 +36,32 @@ interface BlogStore {
   getPost: (id: number) => BlogPost | undefined;
 }
 
-const initialState = {
-  posts: [],
-  categories: ["Commercial", "Residential", "Maintenance", "Color Selection", "Painting Tips"],
-  isLoading: false,
-  hasHydrated: false
-};
-
-/**
- * Cleans HTML content by removing HTML tags and formatting
- */
-function cleanContent(htmlContent: string): string {
-  if (!htmlContent) return '';
+// Content processing function
+function processContent(content: string): string {
+  if (!content) return '';
   
-  return htmlContent
-    .replace(/<[^>]+>/g, '')
-    .replace(/style="[^"]*"/g, '')
-    .replace(/background-color:[^;]+;/g, '')
-    .replace(/\s+/g, ' ')
-    .replace(/(\n\s*){3,}/g, '\n\n')
-    .replace(/&nbsp;/g, ' ')
+  return content
+    // Normalize line endings
+    .replace(/\r\n/g, '\n')
+    // Add proper spacing around headers
+    .replace(/^(#{1,6}\s.*?)$/gm, '\n$1\n')
+    // Remove more than 2 consecutive line breaks
+    .replace(/\n{3,}/g, '\n\n')
+    // Clean up any HTML that might have been pasted
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<iframe.*?<\/iframe>/gi, '')
+    // Remove any extra whitespace
     .trim();
 }
 
 export const useBlogStore = create<BlogStore>()(
   persist(
     (set, get) => ({
-      ...initialState,
+      posts: [],
+      categories: ["Commercial", "Residential", "Maintenance", "Color Selection", "Painting Tips"],
+      isLoading: false,
+      hasHydrated: false,
 
       setHasHydrated: (state) => {
         set({
@@ -68,7 +74,12 @@ export const useBlogStore = create<BlogStore>()(
           const stored = localStorage.getItem('blog-storage');
           if (stored) {
             const { state } = JSON.parse(stored);
-            set({ ...state, hasHydrated: true });
+            // Process all posts' content during hydration
+            const processedPosts = state.posts.map((post: BlogPost) => ({
+              ...post,
+              content: processContent(post.content)
+            }));
+            set({ ...state, posts: processedPosts, hasHydrated: true });
           } else {
             set({ ...initialState, hasHydrated: true });
           }
@@ -79,10 +90,9 @@ export const useBlogStore = create<BlogStore>()(
         const state = get();
         const post = state.posts.find(post => post.id === id);
         if (post) {
-          // Return a new object with cleaned content
           return {
             ...post,
-            content: cleanContent(post.content)
+            content: processContent(post.content)
           };
         }
         return undefined;
@@ -94,10 +104,11 @@ export const useBlogStore = create<BlogStore>()(
             ...post,
             id: Date.now(),
             date: new Date().toISOString().split('T')[0],
-            content: cleanContent(post.content) // Clean content when adding post
+            content: processContent(post.content)
           };
           const updatedPosts = [...state.posts, newPost];
           return {
+            ...state,
             posts: updatedPosts
           };
         });
@@ -105,9 +116,10 @@ export const useBlogStore = create<BlogStore>()(
 
       updatePost: (updatedPost) => {
         set((state) => ({
+          ...state,
           posts: state.posts.map(post => 
             post.id === updatedPost.id 
-              ? { ...updatedPost, content: cleanContent(updatedPost.content) } // Clean content when updating
+              ? { ...updatedPost, content: processContent(updatedPost.content) }
               : post
           )
         }));
@@ -139,7 +151,10 @@ export const useBlogStore = create<BlogStore>()(
       name: 'blog-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        posts: state.posts,
+        posts: state.posts.map(post => ({
+          ...post,
+          content: processContent(post.content)
+        })),
         categories: state.categories
       }),
       onRehydrateStorage: () => (state) => {
@@ -151,13 +166,9 @@ export const useBlogStore = create<BlogStore>()(
   )
 );
 
-// Type-safe way to debug the store
-declare global {
-  interface Window {
-    blogStore?: ReturnType<typeof useBlogStore>;
-  }
-}
-
+// Only attach to window in browser environment
 if (typeof window !== 'undefined') {
   window.blogStore = useBlogStore;
 }
+
+export type BlogStoreType = typeof useBlogStore;

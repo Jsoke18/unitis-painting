@@ -25,6 +25,89 @@ body {
   z-index: 49;
 }
 
+/* Markdown Editor Styles */
+.wmde-markdown {
+  @apply font-sans;
+}
+
+.w-md-editor {
+  @apply border border-border rounded-lg overflow-hidden;
+  --md-editor-font-family: Arial, Helvetica, sans-serif;
+  --md-editor-font-size: 16px;
+  --md-editor-line-height: 1.6;
+}
+
+.w-md-editor-toolbar {
+  @apply border-b border-border bg-background;
+}
+
+.w-md-editor-toolbar ul {
+  @apply p-2;
+}
+
+.w-md-editor-toolbar li button {
+  @apply text-foreground hover:bg-accent rounded;
+}
+
+.w-md-editor-text {
+  @apply p-4;
+}
+
+.w-md-editor-preview {
+  @apply p-4 bg-background text-foreground;
+}
+
+/* Markdown Preview Styles */
+.wmde-markdown h1 {
+  @apply text-3xl font-bold mb-6 mt-8;
+}
+
+.wmde-markdown h2 {
+  @apply text-2xl font-semibold mb-4 mt-6;
+}
+
+.wmde-markdown h3 {
+  @apply text-xl font-semibold mb-3 mt-5;
+}
+
+.wmde-markdown p {
+  @apply mb-4 leading-relaxed;
+}
+
+.wmde-markdown ul, 
+.wmde-markdown ol {
+  @apply mb-4 pl-6;
+}
+
+.wmde-markdown li {
+  @apply mb-2;
+}
+
+.wmde-markdown blockquote {
+  @apply pl-4 border-l-4 border-border italic my-4;
+}
+
+.wmde-markdown code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm;
+}
+
+.wmde-markdown pre {
+  @apply bg-muted p-4 rounded-lg my-4 overflow-x-auto;
+}
+
+.wmde-markdown table {
+  @apply w-full border-collapse mb-4;
+}
+
+.wmde-markdown th,
+.wmde-markdown td {
+  @apply border border-border p-2;
+}
+
+.wmde-markdown th {
+  @apply bg-muted;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -88,5 +171,24 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Dark mode support for markdown editor */
+[data-color-mode="dark"] {
+  .w-md-editor {
+    @apply bg-background;
+  }
+  
+  .w-md-editor-content {
+    @apply bg-background text-foreground;
+  }
+  
+  .wmde-markdown-color {
+    @apply text-foreground;
+  }
+  
+  pre {
+    @apply bg-muted;
   }
 }
