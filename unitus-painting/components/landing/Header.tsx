@@ -420,14 +420,14 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
               transition={{ duration: 0.2 }}
               className="overflow-hidden bg-gray-50"
             >
-              {/* Add "All Services" link if this is the Services section */}
-              {item.label === "Services" && (
+              {/* Add main section link for both Services and About Us sections */}
+              {(item.label === "Services" || item.label === "About Us") && (
                 <Link
-                  href="/services"
+                  href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block p-4 pl-8 text-blue-950 font-medium border-b border-gray-200"
                 >
-                  View All Services →
+                  {`View ${item.label}`} →
                 </Link>
               )}
               {item.children.map((child, index) => (
