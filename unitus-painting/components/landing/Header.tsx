@@ -382,7 +382,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
   const MobileNavItem = ({ item }: { item: NavItem }) => {
     const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
     const active = isActive(item);
-
+  
     return (
       <div className="border-b border-gray-200">
         <div className="flex items-center justify-between p-4">
@@ -410,7 +410,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
             </Link>
           )}
         </div>
-
+  
         <AnimatePresence>
           {item.children && isSubMenuOpen && (
             <motion.div
@@ -420,6 +420,16 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
               transition={{ duration: 0.2 }}
               className="overflow-hidden bg-gray-50"
             >
+              {/* Add "All Services" link if this is the Services section */}
+              {item.label === "Services" && (
+                <Link
+                  href="/services"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block p-4 pl-8 text-blue-950 font-medium border-b border-gray-200"
+                >
+                  View All Services →
+                </Link>
+              )}
               {item.children.map((child, index) => (
                 <Link
                   key={index}
@@ -440,6 +450,8 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
       </div>
     );
   };
+  
+  
 
   const DesktopNavLink = ({ item }: { item: NavItem }) => {
     const active = isActive(item);
