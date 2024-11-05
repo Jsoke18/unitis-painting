@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Separator } from "@/components/ui/separator";
@@ -30,7 +31,7 @@ const Footer: React.FC = () => {
     const vancouver = { lat: 49.2827, lon: -123.1207, name: "Vancouver, BC" };
 
     const calcDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-      const R = 6371; // Earth's radius in km
+      const R = 6371;
       const dLat = (lat2 - lat1) * Math.PI / 180;
       const dLon = (lon2 - lon1) * Math.PI / 180;
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -50,6 +51,7 @@ const Footer: React.FC = () => {
     <footer className="bg-blue-950 text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2">
             <Link href="/">
               <img 
@@ -62,46 +64,71 @@ const Footer: React.FC = () => {
               We are here to fit the needs of your basic services for your dream building whether it's commercial, residential or industrial.
             </p>
           </div>
+
+          {/* Explore Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-amber-400">Explore</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/about" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/about" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/blog" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/areas-served" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/areas-served" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   Areas Served
                 </Link>
               </li>
             </ul>
           </div>
+
+          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-amber-400">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/services" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   Services
                 </Link>
               </li>
               <li>
-                <Link href="/projects" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/projects" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   Projects
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-amber-400 transition-colors">
+                <Link 
+                  href="/contact" 
+                  className="hover:text-amber-400 transition-colors block"
+                >
                   Contact Us
                 </Link>
               </li>
@@ -111,19 +138,30 @@ const Footer: React.FC = () => {
         
         <Separator className="my-8 bg-slate-600" />
         
+        {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex items-center space-x-3">
             <Mail className="h-5 w-5 text-amber-400" />
             <div>
               <p className="font-semibold">Mail Us</p>
-              <a href="mailto:info@unitispainting.com" className="text-sm hover:text-amber-400 transition-colors">info@unitispainting.com</a>
+              <a 
+                href="mailto:info@unitispainting.com" 
+                className="text-sm hover:text-amber-400 transition-colors"
+              >
+                info@unitispainting.com
+              </a>
             </div>
           </div>
           <div className="flex items-center space-x-3">
             <Phone className="h-5 w-5 text-amber-400" />
             <div>
               <p className="font-semibold">Call Us</p>
-              <a href="tel:604-357-4787" className="text-sm hover:text-amber-400 transition-colors">604-357-4787</a>
+              <a 
+                href="tel:604-357-4787" 
+                className="text-sm hover:text-amber-400 transition-colors"
+              >
+                604-357-4787
+              </a>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -137,11 +175,23 @@ const Footer: React.FC = () => {
         
         <Separator className="my-8 bg-slate-600" />
         
+        {/* Footer Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm mb-4 md:mb-0">&copy; 2024 Unitus Painting. All rights reserved.</p>
+          <p className="text-sm mb-4 md:mb-0">
+            &copy; {new Date().getFullYear()} Unitus Painting. All rights reserved.
+          </p>
           <div className="flex space-x-4">
-            <Input type="email" placeholder="Enter your email" className="bg-blue-900 border-blue-800 text-white placeholder-gray-400" />
-            <Button variant="secondary" className="bg-amber-400 text-blue-950 hover:bg-amber-500">Subscribe</Button>
+            <Input 
+              type="email" 
+              placeholder="Enter your email" 
+              className="bg-blue-900 border-blue-800 text-white placeholder-gray-400" 
+            />
+            <Button 
+              variant="secondary" 
+              className="bg-amber-400 text-blue-950 hover:bg-amber-500"
+            >
+              Subscribe
+            </Button>
           </div>
         </div>
       </div>
