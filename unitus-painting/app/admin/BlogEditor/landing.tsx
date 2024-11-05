@@ -243,7 +243,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ initialPost, onSuccess }) => {
         </div>
         <MDEditor
           value={markdownContent}
-          onChange={(val) => {
+          onChange={(val: string | undefined) => {
             const processed = processMarkdownContent(val || '');
             setMarkdownContent(processed);
           }}

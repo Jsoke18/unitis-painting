@@ -111,7 +111,7 @@ const ProjectAdmin: React.FC = () => {
         }
         message.success('Upload successful!');
       } catch (error) {
-        message.error('Upload failed.');
+        message.error('Upload failed.'); 
       }
       return false;
     },

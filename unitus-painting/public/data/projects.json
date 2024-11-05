@@ -39,6 +39,32 @@
       "imageUrl": "/uploads/1730767400562-8bf34383dba9b405.jpg",
       "createdAt": "2024-11-05T00:43:29.303Z",
       "updatedAt": "2024-11-05T00:43:42.799Z"
+    },
+    {
+      "id": 5,
+      "title": "Storage Facilities ",
+      "description": "We currently serve several storage companies throughout the lower mainland.  It starts with understanding the needs of every unique company.  No two companies are alike, but all want the best possible results at a competitive price.\n",
+      "imageUrl": "/uploads/1730768182618-a9a63f8f29287327.webp",
+      "createdAt": "2024-11-05T00:56:24.095Z"
+    },
+    {
+      "id": 6,
+      "title": "Save on Foods ",
+      "description": "N/A ",
+      "category": "Commercial",
+      "specs": {},
+      "imageUrl": "/uploads/1730769235671-61e5a531677e0961.jpg",
+      "createdAt": "2024-11-05T01:14:00.690Z"
+    },
+    {
+      "id": 7,
+      "title": "Best Buy Richmond ",
+      "description": "This was a midnight and early morning project while no customers on site at BEST BUY Lansdowne.   Both interior and exterior painting.  Interior ceiling what changed from white to black for that \"Man Cave\" look.\n",
+      "category": "Commercial",
+      "specs": {},
+      "imageUrl": "/uploads/1730769286581-84a94810d096ce5c.webp",
+      "createdAt": "2024-11-05T01:20:31.990Z",
+      "updatedAt": "2024-11-05T01:20:54.564Z"
     }
   ]
 }
