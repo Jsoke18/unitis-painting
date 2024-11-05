@@ -28,6 +28,7 @@ import dynamic from "next/dynamic";
 import { useBlogStore, BlogPost } from "@/lib/blogService";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
+import type { ColumnsType } from 'antd/es/table';
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -115,7 +116,7 @@ const BlogCMS = () => {
   } = useBlogStore();
 
   // Table column definitions
-  const columns = [
+  const columns: ColumnsType<BlogPost> = [
     {
       title: "Title",
       dataIndex: "title",
@@ -135,7 +136,7 @@ const BlogCMS = () => {
       width: "15%",
       filters: categories.map((cat) => ({ text: cat, value: cat })),
       onFilter: (value: string | number | boolean, record: BlogPost) =>
-        record.category === value,
+        record.category === String(value),
       render: (category: string) => <Tag color="blue">{category}</Tag>,
     },
     {
@@ -159,7 +160,7 @@ const BlogCMS = () => {
           className="w-16 h-16 object-cover rounded"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = "/placeholder.jpg"; // Add a placeholder image
+            target.src = "/placeholder.jpg";
           }}
         />
       ),
@@ -210,7 +211,6 @@ const BlogCMS = () => {
       ),
     },
   ];
-
   // Post management handlers
   const handleEdit = (post: BlogPost) => {
     setEditingPost(post);

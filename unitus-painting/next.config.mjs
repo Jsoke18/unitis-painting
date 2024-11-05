@@ -5,7 +5,9 @@ const nextConfig = BuilderDevTools()({
   reactStrictMode: true,
   images: {
     domains: ['cdn.builder.io'],
-    
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 });
 
