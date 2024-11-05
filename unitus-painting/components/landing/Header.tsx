@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Mail, Phone, Check, Loader2 } from 'lucide-react';
+import { ChevronDown, Mail, Phone, Check, Loader2, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
 
 // Types
 type HeaderProps = {
@@ -328,12 +329,12 @@ const QuoteRequestDialog = () => {
   );
 };
 
-// Main Header Component (continued)
 const Header: React.FC<HeaderProps> = ({ openingHours }) => {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showEmailOptions, setShowEmailOptions] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleScroll = useCallback(() => {
     const scrolled = window.scrollY > 50;
@@ -358,7 +359,18 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [handleScroll]);
 
-  // Helper function to check if a nav item is active
+  // Handle body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const isActive = (item: NavItem) => {
     if (pathname === item.href) return true;
     if (item.children) {
@@ -367,8 +379,69 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
     return false;
   };
 
-  // Navigation Link Component
-  const NavLink = ({ item }: { item: NavItem }) => {
+  const MobileNavItem = ({ item }: { item: NavItem }) => {
+    const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+    const active = isActive(item);
+
+    return (
+      <div className="border-b border-gray-200">
+        <div className="flex items-center justify-between p-4">
+          {item.children ? (
+            <button
+              onClick={() => setIsSubMenuOpen(!isSubMenuOpen)}
+              className={`flex items-center justify-between w-full ${
+                active ? 'text-blue-950' : 'text-gray-700'
+              }`}
+            >
+              {item.label}
+              <ChevronDown
+                className={`w-5 h-5 transition-transform duration-200 ${
+                  isSubMenuOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+          ) : (
+            <Link
+              href={item.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={active ? 'text-blue-950' : 'text-gray-700'}
+            >
+              {item.label}
+            </Link>
+          )}
+        </div>
+
+        <AnimatePresence>
+          {item.children && isSubMenuOpen && (
+            <motion.div
+              initial={{ height: 0 }}
+              animate={{ height: 'auto' }}
+              exit={{ height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden bg-gray-50"
+            >
+              {item.children.map((child, index) => (
+                <Link
+                  key={index}
+                  href={child.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block p-4 pl-8 ${
+                    pathname === child.href
+                      ? 'text-blue-950 bg-amber-50'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {child.label}
+                </Link>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
+  const DesktopNavLink = ({ item }: { item: NavItem }) => {
     const active = isActive(item);
     const isOpen = openDropdown === item.label;
 
@@ -419,18 +492,17 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
               <img
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/9b68ca45052d057c3539f5259eaebc8fc853392e2bc5d444f2225c9e4d6265ec?apiKey=a05a9fe5da54475091abff9f564d40f8&"
                 alt="Unitus Painting Ltd. logo"
-                className="w-[220px] h-auto"
+                className="w-[180px] md:w-[220px] h-auto"
               />
             </Link>
-            <div className="flex items-center gap-6">
-              {/* Email Button */}
+
+            {/* Desktop Contact Buttons */}
+            <div className="hidden md:flex items-center gap-6">
               <div className="relative">
                 <Button
                   variant="ghost"
                   className="group text-blue-950 hover:bg-amber-100 rounded-full px-5 py-3 transition-all duration-300"
                   onClick={() => setShowEmailOptions(!showEmailOptions)}
-                  aria-expanded={showEmailOptions}
-                  aria-haspopup="true"
                 >
                   <Mail className="w-5 h-5 mr-2 transition-transform group-hover:scale-110"/>
                   <div className="flex flex-col items-start">
@@ -463,7 +535,6 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                 </AnimatePresence>
               </div>
 
-              {/* Phone Button */}
               <Button
                 variant="ghost"
                 className="group text-blue-950 hover:bg-amber-100 rounded-full px-5 py-3 transition-all duration-300"
@@ -478,11 +549,20 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                 </a>
               </Button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              className="md:hidden text-blue-950"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="bg-amber-400">
+        {/* Desktop Navigation */}
+        <div className="hidden md:block bg-amber-400">
           <div className="max-w-7xl mx-auto flex justify-between items-center px-6">
             <nav className="flex">
               <div className="flex text-base font-semibold tracking-wide">
@@ -493,7 +573,7 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                     onMouseEnter={() => item.children && setOpenDropdown(item.label)}
                     onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <NavLink item={item} />
+                    <DesktopNavLink item={item} />
                     <AnimatePresence>
                       {item.children && openDropdown === item.label && (
                         <motion.div
@@ -503,22 +583,19 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
                           transition={{ duration: 0.2 }}
                           className="absolute top-full left-0 bg-white shadow-lg rounded-b-lg py-2 min-w-[200px] max-h-[400px] overflow-y-auto z-50"
                         >
-                          {item.children.map((child, childIndex) => {
-                            const childActive = pathname === child.href;
-                            return (
-                              <Link key={childIndex} href={child.href}>
-                                <div 
-                                  className={`px-6 py-2 transition-colors duration-200
-                                    ${childActive 
-                                      ? 'text-blue-950 bg-amber-50' 
-                                      : 'text-neutral-800 hover:text-blue-950 hover:bg-gray-50'
-                                    }`}
-                                >
-                                  {child.label}
-                                </div>
-                              </Link>
-                            );
-                          })}
+                          {item.children.map((child, childIndex) => (
+                            <Link key={childIndex} href={child.href}>
+                              <div 
+                                className={`px-6 py-2 transition-colors duration-200
+                                  ${pathname === child.href
+                                    ? 'text-blue-950 bg-amber-50' 
+                                    : 'text-neutral-800 hover:text-blue-950 hover:bg-gray-50'
+                                  }`}
+                              >
+                                {child.label}
+                              </div>
+                            </Link>
+                          ))}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -531,19 +608,69 @@ const Header: React.FC<HeaderProps> = ({ openingHours }) => {
         </div>
       </header>
 
-      {/* Style to prevent scrollbar shift */}
-      <style jsx global>{`
-        .dialog-open {
-          overflow: hidden !important;
-          padding-right: var(--scrollbar-width, 15px);
-        }
+      {/* Mobile Sidebar Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/50 z-50 md:hidden"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.3 }}
+              className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm bg-white z-50 md:hidden overflow-y-auto"
+            >
+              <div className="flex items-center justify-between p-4 border-b">
+                <h2 className="text-lg font-semibold text-blue-950">Menu</h2>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </div>
 
-        @media (max-width: 640px) {
-          .dialog-open {
-            padding-right: 0;
-          }
-        }
-      `}</style>
+              <div className="py-2">
+                {navItems.map((item, index) => (
+                  <MobileNavItem key={index} item={item} />
+                ))}
+              </div>
+
+              <div className="p-4 space-y-4 border-t">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left"
+                  asChild
+                >
+                  <a href="mailto:info@unituspainting.com" className="flex items-center">
+                    <Mail className="w-5 h-5 mr-3" />
+                    <span>info@unituspainting.com</span>
+                  </a>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left"
+                  asChild
+                >
+                  <a href="tel:+16043574787" className="flex items-center">
+                    <Phone className="w-5 h-5 mr-3" />
+                    <span>604-357-4787</span>
+                  </a>
+                </Button>
+                <QuoteRequestDialog />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };
