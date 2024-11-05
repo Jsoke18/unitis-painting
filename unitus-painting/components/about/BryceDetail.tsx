@@ -166,7 +166,7 @@ const MainComponent: React.FC = () => {
     name: "Bryce Cayer",
     title: "Founder, CEO, & Senior Project Manager",
     description: "Having worked in the painting industry since 2006, Chris and Bryce founded Unitus Painting in 2013. Long before their business partnership began, Chris and Bryce were roommates living in Victoria during university finishing their degrees in commerce. Co-incidentally after finishing university, both of them began working in the painting industry: Bryce with a painting company and Chris with a paint manufacturer. Today they successfully run operations at Unitus Painting. Bryce and his family currently reside in Maple Ridge, where he and his wife, Danielle, have three children: Sidney, Autumn and baby Kasen (Bryce, Sidney and Kasen in photo). They also have a small chihuahua, Romeo, who is quite the character. When Bryce was asked why customers choose Unitus Painting over other companies, he answered \"Our customers are busy people that value their time. Due to the systems we have developed and the importance we place on delivering a positive experience our clients feel at ease knowing that everything from the quoting stage to job completion will be done in a professional efficient manner.\"",
-    phone: "604-716-4054",
+    phone: "604-357-4787",
     email: "bryce@unituspainting.com",
     image: "https://cdn.builder.io/api/v1/image/assets/TEMP/4d0ff4655fbd2d991505c37d91dea0861c1b998ce00f74989885a0bf2fae9ae5?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
   };

@@ -65,6 +65,24 @@
       "imageUrl": "/uploads/1730769286581-84a94810d096ce5c.webp",
       "createdAt": "2024-11-05T01:20:31.990Z",
       "updatedAt": "2024-11-05T01:20:54.564Z"
+    },
+    {
+      "id": 8,
+      "title": "Maple Ridge Strata",
+      "description": "Repairs and repainting 104 Alpine inspired townhomes.  Project completed in summer of 2020.\n",
+      "category": "Strata and Condo",
+      "specs": {},
+      "imageUrl": "/uploads/1730813907570-1d05a29d46181cc4.webp",
+      "createdAt": "2024-11-05T13:38:33.809Z"
+    },
+    {
+      "id": 9,
+      "title": "Best Western Sands Hotel",
+      "description": "Best Western Sands Hotel in downtown Vancouver.  Concrete repairs and complete repainting.\n",
+      "category": "Hospitality",
+      "specs": {},
+      "imageUrl": "/uploads/1730813991158-649f330be0cddfc9.webp",
+      "createdAt": "2024-11-05T13:40:09.613Z"
     }
   ]
 }
