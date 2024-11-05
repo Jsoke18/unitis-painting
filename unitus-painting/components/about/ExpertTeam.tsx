@@ -61,7 +61,7 @@ const VideoSection: React.FC = () => (
   <div className="relative w-full max-w-5xl mx-auto mb-20">
     <div className="relative pb-[56.25%] rounded-xl overflow-hidden shadow-2xl">
       <iframe
-        src="https://player.vimeo.com/video/1022728557?h=7d8f904fc9&title=0&byline=0&portrait=0"
+        src="https://player.vimeo.com/video/1025605551?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
         className="absolute top-0 left-0 w-full h-full"
         frameBorder="0"
         allow="autoplay; fullscreen; picture-in-picture"

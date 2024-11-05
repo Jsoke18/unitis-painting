@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     siteName: 'Unitus Painting',
     images: [
       {
-        url: '/photos/9b68ca45052d057c3539f5259eaebc8fc853392e2bc5d444f2225c9e4d6265ec.png',
+        url: 'public/photos/unituslogo.png',
         width: 600,
         height: 200,
         alt: 'Unitus Painting Logo',
