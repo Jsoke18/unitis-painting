@@ -18,7 +18,7 @@ interface Project {
   id: number;
   title: string;
   category: string;
-  image: string;
+  imageUrl: string;  // Updated to match the API response
   description: string;
   completionDate?: string;
   location?: string;
@@ -81,7 +81,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
   <Card className="group overflow-hidden h-full flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300">
     <AspectRatio ratio={4 / 3} className="overflow-hidden">
       <img
-        src={project.image}
+        src={project.imageUrl}
         alt={project.title}
         className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
       />

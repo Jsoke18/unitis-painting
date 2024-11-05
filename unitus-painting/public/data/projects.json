@@ -1,3 +1,22 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "id": 1,
+      "title": "Coal Harbour Strata",
+      "description": "Multiple projects at this 41 floor property including balcony membranes replaced.\n",
+      "images": [],
+      "createdAt": "2024-11-04T23:12:01.298Z",
+      "updatedAt": "2024-11-04T23:30:56.361Z",
+      "imageUrl": "/uploads/1730762997334-3784dde4ab6f5538.webp",
+      "category": "Strata and Condo",
+      "specs": {}
+    },
+    {
+      "id": 2,
+      "title": "test",
+      "description": "test",
+      "imageUrl": "/uploads/1730766679462-8114f4ed3e4b0460.jpg",
+      "createdAt": "2024-11-05T00:31:20.330Z"
+    }
+  ]
 }

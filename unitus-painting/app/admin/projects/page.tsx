@@ -16,16 +16,11 @@ interface ProjectSpecs {
   team?: string;
 }
 
-interface ProjectImage {
-  url: string;
-  alt?: string;
-}
-
 interface Project {
   id: number;
   title: string;
   description: string;
-  images: ProjectImage[];
+  imageUrl?: string;
   category?: string;
   location?: string;
   completionDate?: string;
@@ -34,7 +29,7 @@ interface Project {
   updatedAt?: string;
 }
 
-interface FormValues extends Omit<Project, 'id' | 'images' | 'createdAt' | 'updatedAt'> {
+interface FormValues extends Omit<Project, 'id' | 'imageUrl' | 'createdAt' | 'updatedAt'> {
   specs?: ProjectSpecs;
 }
 
@@ -54,8 +49,8 @@ const ProjectAdmin: React.FC = () => {
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [tableLoading, setTableLoading] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [editFileList, setEditFileList] = useState<UploadFile[]>([]);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [editImageUrl, setEditImageUrl] = useState<string>('');
 
   useEffect(() => {
     fetchProjects();
@@ -77,30 +72,61 @@ const ProjectAdmin: React.FC = () => {
     }
   };
 
-  const handleUploadChange = (info: any, isEditing: boolean) => {
-    const { fileList } = info;
-    if (isEditing) {
-      setEditFileList(fileList);
-    } else {
-      setFileList(fileList);
+  const handleUpload = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.url;
+    } catch (error) {
+      throw new Error('Upload failed');
     }
   };
 
   const uploadProps: UploadProps = {
-    name: 'file',
-    action: '/api/upload',
-    multiple: true,
+    beforeUpload: async (file) => {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        message.error('You can only upload image files!');
+        return Upload.LIST_IGNORE;
+      }
+
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isLt5M) {
+        message.error('Image must be smaller than 5MB!');
+        return Upload.LIST_IGNORE;
+      }
+
+      try {
+        const url = await handleUpload(file);
+        if (editingProject) {
+          setEditImageUrl(url);
+        } else {
+          setImageUrl(url);
+        }
+        message.success('Upload successful!');
+      } catch (error) {
+        message.error('Upload failed.');
+      }
+      return false;
+    },
+    maxCount: 1,
+    showUploadList: true,
     listType: "picture-card",
-    onChange: (info) => handleUploadChange(info, !!editingProject),
   };
 
   const createProject = async (values: FormValues) => {
     setLoading(true);
     try {
-      const images = fileList.map(file => ({
-        url: file.response?.url || file.url,
-        alt: file.name
-      })).filter(img => img.url);
+      if (!imageUrl) {
+        message.error('Please upload an image');
+        return;
+      }
 
       const newProject: Project = {
         id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1,
@@ -109,12 +135,8 @@ const ProjectAdmin: React.FC = () => {
         category: values.category,
         location: values.location,
         completionDate: values.completionDate,
-        specs: {
-          area: values.specs?.area,
-          duration: values.specs?.duration,
-          team: values.specs?.team,
-        },
-        images: images,
+        specs: values.specs,
+        imageUrl: imageUrl,
         createdAt: new Date().toISOString(),
       };
 
@@ -125,7 +147,7 @@ const ProjectAdmin: React.FC = () => {
       message.success('Project added successfully');
       setAddModalVisible(false);
       form.resetFields();
-      setFileList([]);
+      setImageUrl('');
     } catch (error) {
       console.error('Failed to add project:', error);
       message.error('Failed to add project');
@@ -139,11 +161,6 @@ const ProjectAdmin: React.FC = () => {
 
     setLoading(true);
     try {
-      const images = editFileList.map(file => ({
-        url: file.response?.url || file.url,
-        alt: file.name
-      })).filter(img => img.url);
-
       const updatedProject: Project = {
         ...editingProject,
         title: values.title,
@@ -151,12 +168,8 @@ const ProjectAdmin: React.FC = () => {
         category: values.category,
         location: values.location,
         completionDate: values.completionDate,
-        specs: {
-          area: values.specs?.area,
-          duration: values.specs?.duration,
-          team: values.specs?.team,
-        },
-        images: images,
+        specs: values.specs,
+        imageUrl: editImageUrl || editingProject.imageUrl,
         updatedAt: new Date().toISOString(),
       };
 
@@ -164,7 +177,7 @@ const ProjectAdmin: React.FC = () => {
       message.success('Project updated successfully');
       setEditModalVisible(false);
       await fetchProjects();
-      setEditFileList([]);
+      setEditImageUrl('');
     } catch (error) {
       console.error('Failed to update project:', error);
       message.error('Failed to update project');
@@ -200,22 +213,19 @@ const ProjectAdmin: React.FC = () => {
       width: '10%',
     },
     {
-      title: 'Images',
-      key: 'images',
+      title: 'Image',
+      key: 'image',
       width: '20%',
       render: (_: any, record: Project) => (
-        <div className="flex gap-2 overflow-x-auto">
-          {record.images?.map((image, index) => (
-            <Image
-              key={index}
-              src={image.url}
-              alt={image.alt || `Project image ${index + 1}`}
-              width={50}
-              height={50}
-              className="object-cover rounded"
-            />
-          ))}
-        </div>
+        record.imageUrl && (
+          <Image
+            src={record.imageUrl}
+            alt={record.title}
+            width={100}
+            height={100}
+            className="object-cover rounded"
+          />
+        )
       ),
     },
     {
@@ -255,18 +265,9 @@ const ProjectAdmin: React.FC = () => {
     setEditingProject(record);
     editForm.setFieldsValue({
       ...record,
-      specs: {
-        area: record.specs?.area,
-        duration: record.specs?.duration,
-        team: record.specs?.team,
-      }
+      specs: record.specs,
     });
-    setEditFileList(record.images?.map((img, index) => ({
-      uid: `-${index}`,
-      name: img.alt || `Image ${index + 1}`,
-      status: 'done',
-      url: img.url,
-    })) || []);
+    setEditImageUrl(record.imageUrl || '');
     setEditModalVisible(true);
   };
 
@@ -281,13 +282,12 @@ const ProjectAdmin: React.FC = () => {
     }
   };
 
-  const ProjectForm = ({ form, onFinish, submitText, loading, fileList }: any) => (
+  const ProjectForm = ({ form, onFinish, submitText, loading, currentImageUrl }: any) => (
     <Form
       form={form}
       layout="vertical"
       onFinish={onFinish}
     >
-      {/* Required Fields */}
       <Form.Item
         name="title"
         label="Project Title"
@@ -304,7 +304,6 @@ const ProjectAdmin: React.FC = () => {
         <TextArea rows={4} placeholder="Enter project description" />
       </Form.Item>
 
-      {/* Optional Fields in Collapse Panel */}
       <Collapse className="mb-4">
         <Panel header="Additional Information (Optional)" key="1">
           <Form.Item
@@ -352,14 +351,28 @@ const ProjectAdmin: React.FC = () => {
       </Collapse>
 
       <Form.Item
-        label="Project Images"
+        label="Project Image"
+        required
       >
-        <Upload {...uploadProps} fileList={fileList}>
-          <div>
-            <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Upload</div>
-          </div>
+        <Upload {...uploadProps}>
+          {!currentImageUrl && (
+            <div>
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>Upload</div>
+            </div>
+          )}
         </Upload>
+        {currentImageUrl && (
+          <div className="mt-2">
+            <Image
+              src={currentImageUrl}
+              alt="Current project image"
+              width={200}
+              height={200}
+              className="object-cover rounded"
+            />
+          </div>
+        )}
       </Form.Item>
 
       <Form.Item>
@@ -400,7 +413,7 @@ const ProjectAdmin: React.FC = () => {
           open={addModalVisible}
           onCancel={() => {
             setAddModalVisible(false);
-            setFileList([]);
+            setImageUrl('');
             form.resetFields();
           }}
           footer={null}
@@ -411,7 +424,7 @@ const ProjectAdmin: React.FC = () => {
             onFinish={createProject}
             submitText="Add Project"
             loading={loading}
-            fileList={fileList}
+            currentImageUrl={imageUrl}
           />
         </Modal>
 
@@ -421,7 +434,7 @@ const ProjectAdmin: React.FC = () => {
           onCancel={() => {
             setEditModalVisible(false);
             setEditingProject(null);
-            setEditFileList([]);
+            setEditImageUrl('');
             editForm.resetFields();
           }}
           footer={null}
@@ -432,7 +445,7 @@ const ProjectAdmin: React.FC = () => {
             onFinish={updateProject}
             submitText="Update Project"
             loading={loading}
-            fileList={editFileList}
+            currentImageUrl={editImageUrl || editingProject?.imageUrl}
           />
         </Modal>
       </div>
