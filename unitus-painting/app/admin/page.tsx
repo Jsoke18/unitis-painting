@@ -403,8 +403,7 @@ const BlogCMS = () => {
             name="title"
             label="Title"
             rules={[
-              { required: true, message: "Please input the title!" },
-              { max: 100, message: "Title is too long!" },
+              { required: true, message: "Please input the title!" }
             ]}
           >
             <Input />

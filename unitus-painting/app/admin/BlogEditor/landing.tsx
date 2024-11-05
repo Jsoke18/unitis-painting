@@ -273,13 +273,16 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ initialPost, onSuccess }) => {
             layout="vertical"
             onFinish={onFinish}
           >
-            <Form.Item
-              name="title"
-              label="Title"
-              rules={[{ required: true, message: 'Please enter a title' }]}
-            >
-              <Input placeholder="Enter blog post title" />
-            </Form.Item>
+<Form.Item
+  name="title"
+  label="Title"
+  rules={[{ required: true, message: 'Please enter a title' }]}
+>
+  <Input 
+    placeholder="Enter blog post title"
+    className="w-full"
+  />
+</Form.Item>
 
             <Form.Item
               name="category"
