@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { 
   ClipboardList,
   Paintbrush, 
@@ -41,7 +42,6 @@ const itemVariants = {
 
 const OurApproach = () => {
   const [activeStep, setActiveStep] = useState<number | null>(null);
-
 
   const processSteps = [
     {
@@ -184,19 +184,23 @@ const OurApproach = () => {
             Learn how our proven approach can deliver results for your property.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-blue-950 hover:bg-blue-900 text-white px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform duration-300"
-            >
-              Request Project Consultation
-            </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-blue-950 text-blue-950 hover:bg-blue-50 px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform duration-300"
-            >
-              See Our Services
-            </Button>
+            <Link href="/contact">
+              <Button 
+                size="lg"
+                className="bg-blue-950 hover:bg-blue-900 text-white px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform duration-300"
+              >
+                Request Project Consultation
+              </Button>
+            </Link>
+            <Link href="/services">
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-blue-950 text-blue-950 hover:bg-blue-50 px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform duration-300"
+              >
+                See Our Services
+              </Button>
+            </Link>
           </div>
         </motion.div>
       </main>

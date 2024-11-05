@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +51,13 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/192b18d784640b366909dfe342aa9156116872eaf1e2b8f7a75c0b003757fc35?apiKey=a05a9fe5da54475091abff9f564d40f8&" alt="Company logo" className="h-12 w-auto mb-4" />
+            <Link href="/">
+              <img 
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/192b18d784640b366909dfe342aa9156116872eaf1e2b8f7a75c0b003757fc35?apiKey=a05a9fe5da54475091abff9f564d40f8&" 
+                alt="Company logo" 
+                className="h-12 w-auto mb-4 cursor-pointer hover:opacity-90 transition-opacity" 
+              />
+            </Link>
             <p className="text-sm mt-4">
               We are here to fit the needs of your basic services for your dream building whether it's commercial, residential or industrial.
             </p>
@@ -58,19 +65,46 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-amber-400">Explore</h3>
             <ul className="space-y-2">
-              <li><a href="#about" className="hover:text-amber-400 transition-colors">About Us</a></li>
-              <li><a href="#team" className="hover:text-amber-400 transition-colors">Team</a></li>
-              <li><a href="#blog" className="hover:text-amber-400 transition-colors">Blog</a></li>
-              <li><a href="#locations" className="hover:text-amber-400 transition-colors">Locations</a></li>
+              <li>
+                <Link href="/about" className="hover:text-amber-400 transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="hover:text-amber-400 transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/areas-served" className="hover:text-amber-400 transition-colors">
+                  Areas Served
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4 text-amber-400">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#home" className="hover:text-amber-400 transition-colors">Home</a></li>
-              <li><a href="#services" className="hover:text-amber-400 transition-colors">Services</a></li>
-              <li><a href="#projects" className="hover:text-amber-400 transition-colors">Projects</a></li>
-              <li><a href="#contact" className="hover:text-amber-400 transition-colors">Contact Us</a></li>
+              <li>
+                <Link href="/" className="hover:text-amber-400 transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/services" className="hover:text-amber-400 transition-colors">
+                  Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/projects" className="hover:text-amber-400 transition-colors">
+                  Projects
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-amber-400 transition-colors">
+                  Contact Us
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -89,7 +123,7 @@ const Footer: React.FC = () => {
             <Phone className="h-5 w-5 text-amber-400" />
             <div>
               <p className="font-semibold">Call Us</p>
-              <a href="tel:604-716-4054" className="text-sm hover:text-amber-400 transition-colors">604-716-4054</a>
+              <a href="tel:604-357-4787" className="text-sm hover:text-amber-400 transition-colors">604-357-4787</a>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -104,7 +138,7 @@ const Footer: React.FC = () => {
         <Separator className="my-8 bg-slate-600" />
         
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm mb-4 md:mb-0">&copy; 2023 Unitus Painting. All rights reserved.</p>
+          <p className="text-sm mb-4 md:mb-0">&copy; 2024 Unitus Painting. All rights reserved.</p>
           <div className="flex space-x-4">
             <Input type="email" placeholder="Enter your email" className="bg-blue-900 border-blue-800 text-white placeholder-gray-400" />
             <Button variant="secondary" className="bg-amber-400 text-blue-950 hover:bg-amber-500">Subscribe</Button>
