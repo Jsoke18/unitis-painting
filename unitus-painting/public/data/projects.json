@@ -13,10 +13,32 @@
     },
     {
       "id": 2,
-      "title": "test",
-      "description": "test",
+      "title": "London Drugs",
+      "description": "N/A",
       "imageUrl": "/uploads/1730766679462-8114f4ed3e4b0460.jpg",
-      "createdAt": "2024-11-05T00:31:20.330Z"
+      "createdAt": "2024-11-05T00:31:20.330Z",
+      "updatedAt": "2024-11-05T00:32:30.759Z",
+      "category": "Commercial",
+      "specs": {}
+    },
+    {
+      "id": 3,
+      "title": "Twin Towers near Lougheed Mall",
+      "description": "N/A",
+      "category": "Strata and Condo",
+      "specs": {},
+      "imageUrl": "/uploads/1730767333795-a8f7f43e38c86bfb.jpg",
+      "createdAt": "2024-11-05T00:42:26.025Z"
+    },
+    {
+      "id": 4,
+      "title": "Superstore",
+      "description": "N/A",
+      "category": "Commercial",
+      "specs": {},
+      "imageUrl": "/uploads/1730767400562-8bf34383dba9b405.jpg",
+      "createdAt": "2024-11-05T00:43:29.303Z",
+      "updatedAt": "2024-11-05T00:43:42.799Z"
     }
   ]
 }
