@@ -69,13 +69,13 @@ const ArticleSkeleton = () => (
 );
 
 const LatestNews: React.FC = () => {
-  const { getPosts, hydrate, hasHydrated } = useBlogStore();
+  const { getPosts, fetchPosts, isLoading } = useBlogStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    hydrate();
-  }, [hydrate]);
+    fetchPosts();
+  }, [fetchPosts]);
 
   // Don't render anything on the server side
   if (!mounted) {
@@ -106,7 +106,7 @@ const LatestNews: React.FC = () => {
           Latest News & Articles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {!hasHydrated ? (
+          {isLoading ? (
             <>
               <ArticleSkeleton />
               <ArticleSkeleton />

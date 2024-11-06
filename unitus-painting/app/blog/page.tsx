@@ -16,13 +16,15 @@ const BlogPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
-  const { posts = [], categories = [], hydrate, hasHydrated } = useBlogStore();
+  const { posts = [], categories = [], fetchPosts, isLoading } = useBlogStore();
 
-  // Handle hydration
+  // Handle initial data loading
   useEffect(() => {
-    hydrate();
-  }, [hydrate]);
+    setMounted(true);
+    fetchPosts();
+  }, [fetchPosts]);
 
   // Combine All with other categories
   const allCategories = ["All", ...categories];
@@ -82,8 +84,8 @@ const BlogPage = () => {
     }
   };
 
-  // Loading state
-  if (!hasHydrated) {
+  // Don't render anything on the server side or while loading
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -182,7 +184,7 @@ const BlogPage = () => {
                   animate="visible"
                   exit={{ opacity: 0, scale: 0.9 }}
                 >
-                  <Link href={`/blog/${post.id}`} passHref>
+                  <Link href={`/blog/${post.id}`}>
                     <Card className="h-full hover:shadow-xl transition-shadow duration-300 overflow-hidden group cursor-pointer">
                       <div className="aspect-w-16 aspect-h-9 overflow-hidden">
                         <img

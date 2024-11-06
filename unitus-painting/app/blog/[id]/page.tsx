@@ -21,26 +21,8 @@ const RemarkGfm = dynamic(() => import('remark-gfm'), {
   ssr: false
 });
 
-// Function to convert HTML-style content to markdown
-const convertToMarkdown = (content: string): string => {
-  if (!content) return '';
-  
-  return content
-    .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
-    .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
-    .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n')
-    .replace(/<h4>(.*?)<\/h4>/gi, '#### $1\n\n')
-    .replace(/<h5>(.*?)<\/h5>/gi, '##### $1\n\n')
-    .replace(/<h6>(.*?)<\/h6>/gi, '###### $1\n\n')
-    .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-};
-
 const MarkdownRenderer = ({ content }: { content: string }) => {
   const [isClient, setIsClient] = useState(false);
-  const processedContent = content.includes('<') ? convertToMarkdown(content) : content;
 
   useEffect(() => {
     setIsClient(true);
@@ -94,39 +76,62 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
         }
       }}
     >
-      {processedContent}
+      {content}
     </ReactMarkdown>
   );
 };
 
+const LoadingState = () => (
+  <div className="min-h-screen bg-gray-50">
+    <Header openingHours="8:00 am - 5:00 pm" />
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-gray-700">Loading Post...</h2>
+      </div>
+    </div>
+    <Footer />
+  </div>
+);
+
+const NotFoundState = () => (
+  <div className="min-h-screen bg-gray-50">
+    <Header openingHours="8:00 am - 5:00 pm" />
+    <div className="container mx-auto px-4 py-32 text-center">
+      <h1 className="text-4xl font-bold text-gray-900 mb-4">Post Not Found</h1>
+      <p className="text-gray-600 mb-8">The blog post you're looking for doesn't exist or has been removed.</p>
+      <Link 
+        href="/blog"
+        className="inline-flex items-center px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors duration-200"
+      >
+        <ChevronLeft className="mr-2 h-5 w-5" />
+        Back to Blog
+      </Link>
+    </div>
+    <Footer />
+  </div>
+);
+
 const BlogPostPage = () => {
-  const [isClient, setIsClient] = useState(false);
   const params = useParams();
-  const { getPost } = useBlogStore();
-  const post = getPost(Number(params.id));
+  const { getPost, fetchPosts, isLoading } = useBlogStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    setMounted(true);
+    fetchPosts();
+  }, [fetchPosts]);
 
+  // Show loading state
+  if (!mounted || isLoading) {
+    return <LoadingState />;
+  }
+
+  const post = getPost(Number(params.id));
+
+  // Show not found state
   if (!post) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header openingHours="8:00 am - 5:00 pm" />
-        <div className="container mx-auto px-4 py-32 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Post Not Found</h1>
-          <p className="text-gray-600 mb-8">The blog post you're looking for doesn't exist or has been removed.</p>
-          <Link 
-            href="/blog"
-            className="inline-flex items-center px-6 py-3 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors duration-200"
-          >
-            <ChevronLeft className="mr-2 h-5 w-5" />
-            Back to Blog
-          </Link>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <NotFoundState />;
   }
 
   return (
@@ -206,7 +211,7 @@ const BlogPostPage = () => {
 
                 {/* Markdown Content */}
                 <div className="prose prose-lg max-w-none">
-                  {isClient && <MarkdownRenderer content={post.content} />}
+                  <MarkdownRenderer content={post.content} />
                 </div>
 
                 {/* Tags */}

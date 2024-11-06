@@ -40,6 +40,7 @@
     "mapbox-gl": "^3.7.0",
     "next": "14.2.15",
     "plyr": "^3.7.8",
+    "promises": "^0.2.5",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.1",
