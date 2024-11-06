@@ -1,11 +1,13 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import Link from 'next/link';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import QuoteRequestDialog from "@/components/landing/QuoteRequestDialog";
 
+// Types
 interface Feature {
   icon: string;
   text: string;
@@ -19,6 +21,29 @@ interface ServiceDetailTemplateProps {
   serviceImage: string;
 }
 
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+    },
+  },
+};
+
+const buttonHover = {
+  hover: {
+    scale: 1.05,
+    transition: {
+      duration: 0.2,
+      ease: "easeInOut",
+    },
+  },
+};
+
+// Animated Section Component
 const AnimatedSection: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({
@@ -54,6 +79,7 @@ const AnimatedSection: React.FC<{ children: React.ReactNode }> = ({ children }) 
   );
 };
 
+// Hero Section Component
 const HeroSection: React.FC<{ title: string; videoUrl: string }> = ({ title, videoUrl }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
@@ -144,14 +170,10 @@ const HeroSection: React.FC<{ title: string; videoUrl: string }> = ({ title, vid
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <Link href="/contact">
-                  <Button 
-                    size="lg"
-                    className="bg-amber-400 text-blue-950 hover:bg-amber-500 transition-colors duration-300 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl font-semibold"
-                  >
-                    Get Free Quote
-                  </Button>
-                </Link>
+                <QuoteRequestDialog 
+                  buttonClassName="bg-amber-400 text-blue-950 hover:bg-amber-500 transition-colors duration-300 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl font-semibold"
+                  buttonContent="Get Free Quote"
+                />
               </motion.div>
             </div>
           </div>
@@ -182,6 +204,83 @@ const HeroSection: React.FC<{ title: string; videoUrl: string }> = ({ title, vid
   );
 };
 
+// Features Section Component
+const FeaturesSection: React.FC<{ features: Feature[]; serviceImage: string }> = ({ 
+  features, 
+  serviceImage 
+}) => {
+  return (
+    <section className="mt-16 px-4 max-w-6xl mx-auto w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          {features.map((feature, index) => (
+            <motion.div 
+              key={index} 
+              variants={fadeInUp}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="transition-all duration-300 hover:shadow-lg">
+                <CardContent className="flex items-center p-4">
+                  <img
+                    src={feature.icon}
+                    alt=""
+                    className="w-10 h-10 mr-4"
+                  />
+                  <p className="text-lg text-blue-950">{feature.text}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+        <motion.div 
+          variants={fadeInUp} 
+          className="mt-8 md:mt-0 flex items-center"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+        >
+          <img
+            src={serviceImage}
+            alt="Service example"
+            className="w-full h-full object-cover rounded-lg shadow-lg"
+            style={{ minHeight: '400px' }}
+          />
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// Call to Action Section Component
+const CallToAction: React.FC = () => {
+  return (
+    <section className="w-full bg-amber-400 py-6 mt-36">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+          <motion.h2
+            variants={fadeInUp}
+            className="text-2xl font-bold text-blue-950 text-center md:text-left"
+          >
+            Ready to transform your property?
+          </motion.h2>
+          <motion.div 
+            variants={fadeInUp}
+            whileHover="hover"
+          >
+            <motion.div variants={buttonHover}>
+              <QuoteRequestDialog
+                buttonClassName="bg-white text-blue-950 hover:bg-gray-100 transition-colors duration-200 px-8 py-3 rounded-md font-medium shadow-lg"
+                buttonContent="Get a Quote"
+              />
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Main Service Detail Template Component
 const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
   title,
   description,
@@ -189,27 +288,6 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
   features,
   serviceImage,
 }) => {
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
-
-  const buttonVariants = {
-    hover: {
-      scale: 1.05,
-      transition: {
-        duration: 0.2,
-        ease: "easeInOut",
-      },
-    },
-  };
-
   return (
     <main className="flex flex-col items-center w-full bg-white">
       <HeroSection title={title} videoUrl={videoUrl} />
@@ -217,13 +295,13 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
       <AnimatedSection>
         <section className="flex flex-col items-center mt-16 px-4 max-w-4xl mx-auto">
           <motion.h2
-            variants={itemVariants}
+            variants={fadeInUp}
             className="text-3xl font-bold text-blue-950 mb-6"
           >
             About Our Service
           </motion.h2>
           <motion.p
-            variants={itemVariants}
+            variants={fadeInUp}
             className="text-lg text-gray-700 leading-relaxed whitespace-pre-line"
           >
             {description}
@@ -232,63 +310,10 @@ const ServiceDetailTemplate: React.FC<ServiceDetailTemplateProps> = ({
       </AnimatedSection>
 
       <AnimatedSection>
-        <section className="mt-16 px-4 max-w-6xl mx-auto w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              {features.map((feature, index) => (
-                <motion.div key={index} variants={itemVariants}>
-                  <Card className="transition-all duration-300 hover:shadow-lg">
-                    <CardContent className="flex items-center p-4">
-                      <img
-                        src={feature.icon}
-                        alt=""
-                        className="w-10 h-10 mr-4"
-                      />
-                      <p className="text-lg text-blue-950">{feature.text}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-            <motion.div variants={itemVariants} className="mt-8 md:mt-0 flex items-center">
-              <img
-                src={serviceImage}
-                alt={`${title} example`}
-                className="w-full h-full object-cover rounded-lg shadow-lg"
-                style={{ minHeight: '400px' }}
-              />
-            </motion.div>
-          </div>
-        </section>
+        <FeaturesSection features={features} serviceImage={serviceImage} />
       </AnimatedSection>
 
-      <section className="w-full bg-amber-400 py-6 mt-36">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
-            <motion.h2
-              variants={itemVariants}
-              className="text-2xl font-bold text-blue-950 text-center md:text-left"
-            >
-              Ready to transform your property?
-            </motion.h2>
-            <motion.div 
-              variants={itemVariants}
-              whileHover="hover"
-            >
-              <motion.div variants={buttonVariants}>
-                <Link href="/contact">
-                  <Button
-                    size="lg"
-                    className="bg-white text-blue-950 hover:bg-gray-100 transition-colors duration-200 px-8"
-                  >
-                    Get a Quote
-                  </Button>
-                </Link>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <CallToAction />
 
       <div className="w-full bg-blue-950 h-4"></div>
     </main>

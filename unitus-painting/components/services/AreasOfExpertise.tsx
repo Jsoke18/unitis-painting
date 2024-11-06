@@ -100,7 +100,7 @@ const AreasOfExpertise: React.FC = () => {
         <motion.a
           href="#areas-of-expertise"
           variants={itemVariants}
-          className="block text-4xl font-bold mb-12 text-center mt-36 text-[#1C2752] hover:text-[#FFB342] transition-colors duration-300"
+          className="block text-4xl font-bold mb-12 text-center mt-28 text-[#1C2752] hover:text-[#FFB342] transition-colors duration-300"
         >
           Areas Of Expertise
         </motion.a>
