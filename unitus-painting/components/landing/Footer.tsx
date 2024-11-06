@@ -1,13 +1,13 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { toast } from "sonner";
 
-// Types
+// Types remain the same
 type Location = {
   lat: number;
   lon: number;
@@ -22,10 +22,11 @@ type FooterSection = {
   }>;
 };
 
-// Constants
+// Constants remain the same
 const COMPANY_LOCATIONS: Location[] = [
   { lat: 51.0447, lon: -114.0719, name: "Calgary, AB" },
   { lat: 49.2827, lon: -123.1207, name: "Vancouver, BC" },
+  { lat: 49.8880, lon: -119.4960, name: "Kelowna, BC" },
 ];
 
 const FOOTER_SECTIONS: FooterSection[] = [
@@ -51,62 +52,19 @@ const FOOTER_SECTIONS: FooterSection[] = [
   },
 ];
 
-const SOCIAL_LINKS = [
-  { icon: Facebook, href: "https://facebook.com/unituspainting", label: "Facebook" },
-  { icon: Instagram, href: "https://instagram.com/unituspainting", label: "Instagram" },
-  { icon: Linkedin, href: "https://linkedin.com/company/unituspainting", label: "LinkedIn" },
-];
-
 const Footer: React.FC = () => {
-  const [userLocation, setUserLocation] = useState('Calgary, AB');
   const [email, setEmail] = useState('');
   const [isSubscribing, setIsSubscribing] = useState(false);
-
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          const closestLocation = getClosestLocation(latitude, longitude);
-          setUserLocation(closestLocation);
-        },
-        error => {
-          console.error("Error getting user location:", error);
-        }
-      );
-    }
-  }, []);
-
-  const getClosestLocation = (lat: number, lon: number): string => {
-    const calcDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-      const R = 6371; // Earth's radius in km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    };
-
-    let closestLocation = COMPANY_LOCATIONS[0];
-    let minDistance = calcDistance(lat, lon, COMPANY_LOCATIONS[0].lat, COMPANY_LOCATIONS[0].lon);
-
-    COMPANY_LOCATIONS.forEach(location => {
-      const distance = calcDistance(lat, lon, location.lat, location.lon);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestLocation = location;
-      }
-    });
-
-    return closestLocation.name;
-  };
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
       toast.error("Please enter your email address");
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
@@ -129,50 +87,37 @@ const Footer: React.FC = () => {
     <footer className="bg-blue-950 text-white w-full">
       <div className="w-full px-4 py-12">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Logo and Description */}
-            <div className="col-span-1 md:col-span-2">
-              <Link href="/">
-                <img 
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/192b18d784640b366909dfe342aa9156116872eaf1e2b8f7a75c0b003757fc35?apiKey=a05a9fe5da54475091abff9f564d40f8&" 
-                  alt="Unitus Painting logo" 
-                  className="h-12 w-auto mb-4 cursor-pointer hover:opacity-90 transition-opacity" 
-                />
-              </Link>
-              <p className="text-sm mt-4">
-                We are here to fit the needs of your basic services for your dream building whether it's commercial, residential or industrial.
-              </p>
-              
-              {/* Social Links */}
-              <div className="flex space-x-4 mt-6">
-                {SOCIAL_LINKS.map((social, index) => {
-                  const Icon = social.icon;
-                  return (
-                    <a
-                      key={index}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-white hover:text-amber-400 transition-colors"
-                      aria-label={social.label}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </a>
-                  );
-                })}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
+            {/* Logo and Description Section */}
+            <div className="col-span-1 md:col-span-2 flex flex-col">
+              <div className="flex items-start">
+                <Link href="/" className="inline-block">
+                  <img 
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/192b18d784640b366909dfe342aa9156116872eaf1e2b8f7a75c0b003757fc35?apiKey=a05a9fe5da54475091abff9f564d40f8&" 
+                    alt="Unitus Painting logo" 
+                    className="h-16 w-auto object-contain hover:opacity-90 transition-opacity" 
+                  />
+                </Link>
+              </div>
+              <div className="mt-6 max-w-md">
+                <p className="text-base leading-relaxed text-gray-300">
+                  We are here to fit the needs of your basic services for your dream building whether it's commercial, residential or industrial.
+                </p>
               </div>
             </div>
 
             {/* Navigation Sections */}
             {FOOTER_SECTIONS.map((section, index) => (
-              <div key={index}>
-                <h3 className="text-lg font-semibold mb-4 text-amber-400">{section.title}</h3>
-                <ul className="space-y-2">
+              <div key={index} className="space-y-4">
+                <h3 className="text-lg font-semibold text-amber-400">
+                  {section.title}
+                </h3>
+                <ul className="space-y-3">
                   {section.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
                       <Link 
                         href={link.href} 
-                        className="hover:text-amber-400 transition-colors block"
+                        className="text-gray-300 hover:text-amber-400 transition-colors duration-200 block"
                       >
                         {link.label}
                       </Link>
@@ -183,62 +128,66 @@ const Footer: React.FC = () => {
             ))}
           </div>
           
-          <Separator className="my-8 bg-slate-600" />
+          <Separator className="my-10 bg-slate-800" />
           
-          {/* Contact Information */}
+          {/* Contact Information - Adjusted for alignment */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-amber-400" />
+            <div className="flex items-start space-x-3">
+              <Mail className="h-5 w-5 text-amber-400 flex-shrink-0 mt-1" />
               <div>
-                <p className="font-semibold">Mail Us</p>
+                <p className="font-semibold text-gray-200">Mail Us</p>
                 <a 
                   href="mailto:info@unituspainting.com" 
-                  className="text-sm hover:text-amber-400 transition-colors"
+                  className="text-sm text-gray-300 hover:text-amber-400 transition-colors duration-200"
                 >
                   info@unituspainting.com
                 </a>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-5 w-5 text-amber-400" />
+            <div className="flex items-start space-x-3">
+              <Phone className="h-5 w-5 text-amber-400 flex-shrink-0 mt-1" />
               <div>
-                <p className="font-semibold">Call Us</p>
+                <p className="font-semibold text-gray-200">Call Us</p>
                 <a 
                   href="tel:604-357-4787" 
-                  className="text-sm hover:text-amber-400 transition-colors"
+                  className="text-sm text-gray-300 hover:text-amber-400 transition-colors duration-200"
                 >
                   604-357-4787
                 </a>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <MapPin className="h-5 w-5 text-amber-400" />
+            <div className="flex items-start space-x-3">
+              <MapPin className="h-5 w-5 text-amber-400 flex-shrink-0 mt-1" />
               <div>
-                <p className="font-semibold">Location</p>
-                <p className="text-sm">{userLocation}</p>
+                <p className="font-semibold text-gray-200">Our Locations</p>
+                <div className="space-y-1">
+                  {COMPANY_LOCATIONS.map((location, index) => (
+                    <p key={index} className="text-sm text-gray-300">{location.name}</p>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
           
-          <Separator className="my-8 bg-slate-600" />
+          <Separator className="my-10 bg-slate-800" />
           
           {/* Footer Bottom */}
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-sm text-gray-300">
               &copy; {new Date().getFullYear()} Unitus Painting. All rights reserved.
             </p>
-            <form onSubmit={handleSubscribe} className="flex space-x-4">
+            <form onSubmit={handleSubscribe} className="flex w-full md:w-auto space-x-4">
               <Input 
                 type="email" 
                 placeholder="Enter your email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-blue-900 border-blue-800 text-white placeholder-gray-400" 
+                className="bg-blue-900 border-blue-800 text-white placeholder:text-white/70 max-w-xs" 
               />
               <Button 
                 type="submit"
                 variant="secondary" 
-                className="bg-amber-400 text-blue-950 hover:bg-amber-500"
+                className="bg-amber-400 text-blue-950 hover:bg-amber-500 transition-all duration-200 whitespace-nowrap"
                 disabled={isSubscribing}
               >
                 {isSubscribing ? "Subscribing..." : "Subscribe"}
