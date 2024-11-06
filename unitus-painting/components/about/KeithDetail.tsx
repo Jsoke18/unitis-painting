@@ -120,12 +120,7 @@ const NewsletterSection: React.FC = () => {
   };
 
   return (
-    <motion.section 
-      className="bg-amber-400 py-20 mt-20"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.4 }}
-    >
+    <section className="bg-amber-400 py-20 mt-10">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8 items-center">
           <div className="md:w-1/2">
@@ -151,7 +146,7 @@ const NewsletterSection: React.FC = () => {
           </div>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 
@@ -166,8 +161,10 @@ const MainComponent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <AboutSection {...aboutProps} />
+    <div className="flex flex-col h-full">
+      <div className="flex-grow mt-32">
+        <AboutSection {...aboutProps} />
+      </div>
       <NewsletterSection />
       <FloatingQuickInfo {...aboutProps} />
     </div>

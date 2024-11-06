@@ -61,7 +61,7 @@ const NewsletterSection: React.FC = () => {
           <div className="md:w-1/2">
             <h2 className="text-3xl font-bold text-blue-950">Subscribe to Our Newsletter</h2>
             <p className="mt-4 text-blue-950/80">
-              Stay in touch with us to get the latest news. We're here to meet your electrical service needs for your dream building.
+            Stay in touch with us to get the latest news and updates about our painting services.
             </p>
           </div>
           <div className="md:w-1/2">
@@ -94,8 +94,10 @@ const MainComponent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AboutSection {...aboutProps} />
+    <div className="flex flex-col h-full">
+      <div className="flex-grow mt-32">
+        <AboutSection {...aboutProps} />
+      </div>
       <NewsletterSection />
     </div>
   );
