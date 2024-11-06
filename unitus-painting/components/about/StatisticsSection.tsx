@@ -34,18 +34,21 @@ const StatisticsCard: React.FC<{
     <motion.div
       whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.95 }}
+      className="w-full sm:w-64"
     >
-      <Card className="w-64 h-64 flex flex-col items-center justify-between p-6 mt-32 mb-32">
-        <Icon className={`w-16 h-16 mb-4 ${iconColor}`} />
-        <CardContent className="text-center">
-          <motion.h3 
-            className="text-2xl font-bold mb-2"
-            whileHover={{ scale: 1.1, color: "#3B82F6" }}
-          >
-            {value}
-          </motion.h3>
-          <p className="text-gray-600">{description}</p>
-        </CardContent>
+      <Card className="h-auto sm:h-64 flex flex-row sm:flex-col items-center sm:justify-between p-4 sm:p-6 my-2 sm:my-8">
+        <div className="flex items-center sm:flex-col flex-1">
+          <Icon className={`w-12 h-12 sm:w-16 sm:h-16 sm:mb-4 ${iconColor}`} />
+          <CardContent className="text-left sm:text-center pl-4 sm:pl-0 flex-1">
+            <motion.h3 
+              className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2"
+              whileHover={{ scale: 1.1, color: "#3B82F6" }}
+            >
+              {value}
+            </motion.h3>
+            <p className="text-gray-600 text-sm sm:text-base">{description}</p>
+          </CardContent>
+        </div>
       </Card>
     </motion.div>
   );
@@ -53,22 +56,35 @@ const StatisticsCard: React.FC<{
 
 const StatisticsSection: React.FC = () => {
   return (
-    <motion.main
-      className="flex flex-wrap gap-8 justify-center mt-14"
+    <motion.div
+      className="px-4 sm:px-0"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, staggerChildren: 0.1 }}
+      transition={{ duration: 0.5 }}
     >
-      {statisticsData.map((stat, index) => (
-        <StatisticsCard
-          key={index}
-          icon={stat.icon}
-          value={stat.value}
-          description={stat.description}
-          iconColor={stat.iconColor}
-        />
-      ))}
-    </motion.main>
+      <div className="max-w-7xl mx-auto">
+        <motion.main
+          className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-8 justify-center my-8 sm:my-14"
+        >
+          {statisticsData.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="w-full sm:w-auto"
+            >
+              <StatisticsCard
+                icon={stat.icon}
+                value={stat.value}
+                description={stat.description}
+                iconColor={stat.iconColor}
+              />
+            </motion.div>
+          ))}
+        </motion.main>
+      </div>
+    </motion.div>
   );
 };
 
