@@ -31,7 +31,7 @@ const AboutUsPage = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative aspect-[16/9] bg-slate-900">
+      <section className="relative aspect-[21/7] bg-slate-900 overflow-hidden">
         {/* Mobile Background */}
         {state.iMobile && (
           <div className="absolute inset-0">
@@ -44,30 +44,39 @@ const AboutUsPage = () => {
         {/* Video Background - Desktop Only */}
         {!state.iMobile && (
           <div className="absolute inset-0">
-            <ReactPlayer
-              url="https://player.vimeo.com/video/836294434"
-              width="100%"
-              height="100%"
-              playing={state.isPlaying}
-              loop
-              muted={state.isMuted}
-              onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
-              playsinline
-              config={{
-                vimeo: {
-                  playerOptions: {
-                    background: true,
-                    responsive: true,
-                    autoplay: true,
-                    controls: false,
-                    muted: state.isMuted,
-                    quality: 'auto',
-                    preload: true,
+            <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
+              <ReactPlayer
+                url="https://player.vimeo.com/video/836294434"
+                width="100%"
+                height="none"
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '100%',
+                  height: '177.77777778%',
+                }}
+                playing={state.isPlaying}
+                loop
+                muted={state.isMuted}
+                onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
+                playsinline
+                config={{
+                  vimeo: {
+                    playerOptions: {
+                      background: true,
+                      responsive: true,
+                      autoplay: true,
+                      controls: false,
+                      muted: state.isMuted,
+                      quality: 'auto',
+                      preload: true,
+                    },
                   },
-                },
-              }}
-              style={{ position: 'absolute', top: 0 }}
-            />
+                }}
+              />
+            </div>
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-black/60" />
           </div>
@@ -85,33 +94,33 @@ const AboutUsPage = () => {
               className={`
                 backdrop-blur-lg bg-black/50 rounded-2xl border border-white/20 shadow-2xl
                 ${state.isMinimized ? 'w-auto inline-block' : 'w-full'}
-                ${state.iMobile ? 'p-8' : ''}
+                ${state.iMobile ? 'p-6' : 'p-4'}
               `}
               layout
             >
               {/* Desktop Controls */}
               {!state.iMobile && (
-                <div className={`flex ${state.isMinimized ? 'gap-6 px-6' : 'justify-between'} p-4`}>
-                  <div className={`flex items-center ${state.isMinimized ? 'gap-6' : 'space-x-4'}`}>
+                <div className={`flex ${state.isMinimized ? 'gap-4 px-4' : 'justify-between'} mb-2`}>
+                  <div className={`flex items-center ${state.isMinimized ? 'gap-4' : 'space-x-3'}`}>
                     <motion.button
-                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                      className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
                       onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {state.isPlaying ? <Pause className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-white" />}
+                      {state.isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white" />}
                     </motion.button>
                     <motion.button
-                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                      className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
                       onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {state.isMuted ? <VolumeX className="w-6 h-6 text-white" /> : <Volume2 className="w-6 h-6 text-white" />}
+                      {state.isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
                     </motion.button>
                   </div>
                   <motion.button
-                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                    className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
                     onClick={() => setState(prev => ({ ...prev, isMinimized: !prev.isMinimized }))}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -125,15 +134,15 @@ const AboutUsPage = () => {
               <AnimatePresence>
                 {(!state.isMinimized || state.iMobile) && (
                   <motion.div 
-                    className={`${state.iMobile ? 'space-y-4' : 'px-8 pb-8'}`}
+                    className={`${state.iMobile ? 'space-y-3' : 'px-6'}`}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                   >
-                    <h1 className={`font-bold text-white ${state.iMobile ? 'text-3xl leading-tight' : 'text-4xl md:text-6xl'} mb-4`}>
+                    <h1 className={`font-bold text-white ${state.iMobile ? 'text-2xl leading-tight' : 'text-3xl md:text-5xl'} mb-3`}>
                       Crafting Excellence in <span className="text-amber-300">Every Stroke</span>
                     </h1>
-                    <p className={`${state.iMobile ? 'text-base leading-relaxed' : 'text-xl'} text-white mb-4`}>
+                    <p className={`${state.iMobile ? 'text-sm leading-relaxed' : 'text-lg'} text-white mb-2`}>
                       Since our founding, Unitis Painting has been dedicated to delivering exceptional painting services across British Columbia and Alberta. Our commitment to quality and attention to detail has made us a trusted name in residential, commercial, and strata painting.
                     </p>
                   </motion.div>
@@ -145,7 +154,7 @@ const AboutUsPage = () => {
       </section>
 
       {/* About Section */}
-      <section className="bg-white py-24">
+      <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-gray-900 mb-8">About Our Company</h2>
           <div className="grid md:grid-cols-2 gap-12">
@@ -196,4 +205,4 @@ const AboutUsPage = () => {
   );
 };
 
-export default AboutUsPage;
+export default AboutUsPage
