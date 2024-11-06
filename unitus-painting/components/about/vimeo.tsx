@@ -60,7 +60,7 @@ const AboutUsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-navy-blue">
       <div className="relative h-screen w-full overflow-hidden">
-        {/* Video Background - Hidden on Mobile */}
+        {/* Video Background - Desktop Only */}
         {!state.isMobile && (
           <div className="absolute inset-0">
             <ReactPlayer
@@ -89,7 +89,7 @@ const AboutUsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Dark Overlay */}
+        {/* Overlay */}
         <div className="absolute inset-0 bg-black/50" />
 
         {/* Content */}
@@ -100,15 +100,18 @@ const AboutUsPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            {/* Glassmorphism Container */}
+            {/* Content Container */}
             <motion.div 
-              className={`backdrop-blur-lg bg-black/30 rounded-2xl border border-white/10 shadow-2xl
-                ${state.isMinimized ? 'w-auto inline-block' : 'w-full'}`}
+              className={`
+                backdrop-blur-lg bg-black/30 rounded-2xl border border-white/10 shadow-2xl
+                ${state.isMinimized ? 'w-auto inline-block' : 'w-full'}
+                ${state.isMobile ? 'px-5 py-8' : ''}
+              `}
               layout
               transition={{ duration: 0.3 }}
             >
-              {/* Minimize/Maximize Button - Hidden on Mobile */}
-              {!state.isMobile && (
+              {/* Minimize/Maximize Button - Desktop Only */}
+              {!state.iMobile && (
                 <div className="flex justify-end p-4">
                   <motion.button
                     className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300"
@@ -128,25 +131,37 @@ const AboutUsPage: React.FC = () => {
               <AnimatePresence>
                 {(!state.isMinimized || state.isMobile) && (
                   <motion.div 
-                    className="px-8 pb-8"
+                    className={`${state.isMobile ? 'space-y-4' : 'px-8 pb-8'}`}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                    <h1 className={`
+                      font-bold text-white 
+                      ${state.iMobile 
+                        ? 'text-3xl leading-tight' 
+                        : 'text-4xl md:text-6xl'} 
+                      mb-4
+                    `}>
                       Crafting Excellence in{' '}
                       <span className="text-amber-400">Every Stroke</span>
                     </h1>
-                    <p className="text-xl text-white/90 mb-8 leading-relaxed">
+                    <p className={`
+                      ${state.iMobile 
+                        ? 'text-base leading-relaxed' 
+                        : 'text-xl'} 
+                      text-white/90
+                      mb-4
+                    `}>
                       Since our founding, Unitis Painting has been dedicated to delivering exceptional painting services across British Columbia and Alberta. Our commitment to quality and attention to detail has made us a trusted name in residential, commercial, and strata painting.
                     </p>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Video Controls - Hidden on Mobile */}
-              {!state.isMobile && (
+              {/* Video Controls - Desktop Only */}
+              {!state.iMobile && (
                 <div className={`flex items-center space-x-4 ${state.isMinimized ? 'p-2' : 'px-8 pb-8'}`}>
                   <motion.button
                     className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300"
