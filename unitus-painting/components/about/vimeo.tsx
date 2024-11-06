@@ -6,8 +6,12 @@ import { Play, Pause, Volume2, VolumeX, Minimize2, Maximize2 } from 'lucide-reac
 const ReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 bg-navy-blue animate-pulse flex items-center justify-center">
-      <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+    <div className="absolute inset-0 bg-navy-blue flex items-center justify-center">
+      <motion.div 
+        className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+      />
     </div>
   ),
 });
@@ -28,181 +32,236 @@ const AboutUsPage = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const containerVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    },
+    exit: { 
+      opacity: 0,
+      y: -20,
+      transition: {
+        duration: 0.4,
+        ease: [0.4, 0, 1, 1]
+      }
+    }
+  };
+
+  const textVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    }
+  };
+
+  const gradientVariants = {
+    animate: {
+      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+      transition: {
+        duration: 8,
+        repeat: Infinity,
+        ease: "linear"
+      }
+    }
+  };
+
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative aspect-[21/7] bg-slate-900 overflow-hidden">
-        {/* Mobile Background */}
-        {state.iMobile && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 animate-bg" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_1px)] bg-[size:24px_24px] opacity-5" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60" />
-          </div>
-        )}
-
-        {/* Video Background - Desktop Only */}
-        {!state.iMobile && (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
-              <ReactPlayer
-                url="https://player.vimeo.com/video/836294434"
-                width="100%"
-                height="none"
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '100%',
-                  height: '177.77777778%',
-                }}
-                playing={state.isPlaying}
-                loop
-                muted={state.isMuted}
-                onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
-                playsinline
-                config={{
-                  vimeo: {
-                    playerOptions: {
-                      background: true,
-                      responsive: true,
-                      autoplay: true,
-                      controls: false,
-                      muted: state.isMuted,
-                      quality: 'auto',
-                      preload: true,
-                    },
-                  },
-                }}
-              />
-            </div>
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-black/60" />
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div className="absolute inset-0 container mx-auto px-4 flex items-center justify-start">
+    <section className="relative w-full min-h-[60vh] md:aspect-[21/9] overflow-hidden">
+      {/* Mobile Background */}
+      {state.isMobile ? (
+        <div className="absolute inset-0">
+          {/* Primary background with rich gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-slate-900 to-blue-950" />
+          
+          {/* Animated subtle gradient overlay */}
           <motion.div 
-            className="max-w-3xl"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            className="absolute inset-0"
+            initial={false}
+            animate="animate"
+            variants={gradientVariants}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 via-transparent to-amber-400/5" 
+              style={{ backgroundSize: '200% 200%' }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+          </motion.div>
+          
+          {/* Dot pattern overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(251,191,36)_1px,transparent_1px)] bg-[size:20px_20px] opacity-[0.03]" />
+        </div>
+      ) : (
+        /* Video Background - Desktop Only */
+        <div className="absolute inset-0">
+          <div className="absolute inset-0">
+            <ReactPlayer
+              url="https://player.vimeo.com/video/836294434"
+              width="100%"
+              height="100%"
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '100%',
+                height: '100%',
+              }}
+              playing={state.isPlaying}
+              loop
+              muted={state.isMuted}
+              onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
+              playsinline
+              config={{
+                vimeo: {
+                  playerOptions: {
+                    background: true,
+                    responsive: true,
+                    autoplay: true,
+                    controls: false,
+                    muted: state.isMuted,
+                    quality: 'auto',
+                    preload: true,
+                  },
+                },
+              }}
+            />
+            <motion.div 
+              className="absolute inset-0" 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+            </motion.div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full container mx-auto px-6 md:px-8 lg:px-16">
+          <motion.div 
+            className={`w-full md:max-w-4xl ${state.isMobile ? 'my-20' : ''}`}
+            variants={containerVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
             <motion.div 
               className={`
-                backdrop-blur-lg bg-black/50 rounded-2xl border border-white/20 shadow-2xl
+                backdrop-blur-lg bg-black/40 rounded-2xl border border-white/10 shadow-2xl
                 ${state.isMinimized ? 'w-auto inline-block' : 'w-full'}
-                ${state.iMobile ? 'p-6' : 'p-4'}
+                ${state.isMobile ? 'py-12 px-6' : 'p-8'}
               `}
               layout
+              transition={{
+                layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
+              }}
             >
               {/* Desktop Controls */}
-              {!state.iMobile && (
-                <div className={`flex ${state.isMinimized ? 'gap-4 px-4' : 'justify-between'} mb-2`}>
-                  <div className={`flex items-center ${state.isMinimized ? 'gap-4' : 'space-x-3'}`}>
+              {!state.isMobile && (
+                <motion.div 
+                  className={`flex ${state.isMinimized ? 'gap-4 px-4' : 'justify-between'} mb-6`}
+                  layout
+                >
+                  <div className={`flex items-center ${state.isMinimized ? 'gap-4' : 'space-x-4'}`}>
                     <motion.button
-                      className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
+                      className="p-2 rounded-full bg-white/20"
                       onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ 
+                        scale: 1.1,
+                        backgroundColor: "rgba(255, 255, 255, 0.3)"
+                      }}
                       whileTap={{ scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
                     >
                       {state.isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white" />}
                     </motion.button>
                     <motion.button
-                      className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
+                      className="p-2 rounded-full bg-white/20"
                       onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ 
+                        scale: 1.1,
+                        backgroundColor: "rgba(255, 255, 255, 0.3)"
+                      }}
                       whileTap={{ scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
                     >
                       {state.isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
                     </motion.button>
                   </div>
                   <motion.button
-                    className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
+                    className="p-2 rounded-full bg-white/20"
                     onClick={() => setState(prev => ({ ...prev, isMinimized: !prev.isMinimized }))}
-                    whileHover={{ scale: 1.1 }}
+                    whileHover={{ 
+                      scale: 1.1,
+                      backgroundColor: "rgba(255, 255, 255, 0.3)"
+                    }}
                     whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
                   >
                     {state.isMinimized ? <Maximize2 className="w-5 h-5 text-white" /> : <Minimize2 className="w-5 h-5 text-white" />}
                   </motion.button>
-                </div>
+                </motion.div>
               )}
 
               {/* Content */}
-              <AnimatePresence>
-                {(!state.isMinimized || state.iMobile) && (
+              <AnimatePresence mode="wait" initial={false}>
+                {(!state.isMinimized || state.isMobile) && (
                   <motion.div 
-                    className={`${state.iMobile ? 'space-y-3' : 'px-6'}`}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-6 md:space-y-8"
+                    variants={containerVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                   >
-                    <h1 className={`font-bold text-white ${state.iMobile ? 'text-2xl leading-tight' : 'text-3xl md:text-5xl'} mb-3`}>
-                      Crafting Excellence in <span className="text-amber-300">Every Stroke</span>
+                    <h1 className="font-bold text-white text-4xl md:text-5xl leading-tight tracking-tight">
+                      <motion.span
+                        variants={textVariants}
+                        initial="initial"
+                        animate="animate"
+                        transition={{ delay: 0.2 }}
+                        className="block"
+                      >
+                        Crafting Excellence in
+                      </motion.span>
+                      <motion.span
+                        variants={textVariants}
+                        initial="initial"
+                        animate="animate"
+                        transition={{ delay: 0.4 }}
+                        className="text-amber-400 mt-2 block"
+                      >
+                        Every Stroke
+                      </motion.span>
                     </h1>
-                    <p className={`${state.iMobile ? 'text-sm leading-relaxed' : 'text-lg'} text-white mb-2`}>
+                    <motion.p 
+                      className="text-lg md:text-xl leading-relaxed text-white/95 max-w-3xl"
+                      variants={textVariants}
+                      initial="initial"
+                      animate="animate"
+                      transition={{ delay: 0.6 }}
+                    >
                       Since our founding, Unitis Painting has been dedicated to delivering exceptional painting services across British Columbia and Alberta. Our commitment to quality and attention to detail has made us a trusted name in residential, commercial, and strata painting.
-                    </p>
+                    </motion.p>
                   </motion.div>
                 )}
               </AnimatePresence>
             </motion.div>
           </motion.div>
         </div>
-      </section>
-
-      {/* About Section */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-gray-900 mb-8">About Our Company</h2>
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Our Mission</h3>
-              <p className="text-gray-600 leading-relaxed">
-                We strive to transform spaces with exceptional painting services that exceed expectations. 
-                Our experienced team combines technical expertise with artistic vision to deliver results 
-                that stand the test of time.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Our Values</h3>
-              <ul className="space-y-4 text-gray-600">
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                  <span>Quality craftsmanship in every project</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                  <span>Transparent communication and pricing</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                  <span>Environmental responsibility</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                  <span>Customer satisfaction guaranteed</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <style jsx global>{`
-        @keyframes bg {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 100% 50%; }
-        }
-        .animate-bg {
-          background-size: 200% 200%;
-          animation: bg 15s linear infinite alternate;
-        }
-      `}</style>
-    </>
+      </div>
+    </section>
   );
 };
 
-export default AboutUsPage
+export default AboutUsPage;

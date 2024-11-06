@@ -1,8 +1,8 @@
 import React from 'react';
 import { User, Play } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
-// Data structure for each expert
 interface ExpertData {
   name: string;
   role: string;
@@ -10,7 +10,7 @@ interface ExpertData {
   link: string;
 }
 
-// Array of expert data
+
 const expertsData: ExpertData[] = [
   {
     name: "Bryce Cayer",
@@ -56,9 +56,18 @@ const expertsData: ExpertData[] = [
   }
 ];
 
-// Video Section Component
+
 const VideoSection: React.FC = () => (
-  <div className="relative w-full max-w-5xl mx-auto mb-20">
+  <motion.div 
+    className="relative w-full max-w-5xl mx-auto mb-20"
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ 
+      duration: 0.8,
+      ease: [0.17, 0.55, 0.55, 1]
+    }}
+  >
     <div className="relative pb-[56.25%] rounded-xl overflow-hidden shadow-2xl">
       <iframe
         src="https://player.vimeo.com/video/1025605551?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
@@ -68,78 +77,206 @@ const VideoSection: React.FC = () => (
         allowFullScreen
       />
     </div>
-    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none rounded-xl" />
-  </div>
+    <motion.div 
+      className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none rounded-xl"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.5, duration: 0.8 }}
+    />
+  </motion.div>
 );
 
-// Expert Card Component
-const ExpertCard: React.FC<ExpertData> = ({ name, role, imageSrc, link }) => (
-  <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl w-full max-w-sm">
-    <div className="aspect-w-4 aspect-h-3">
-      <img src={imageSrc} alt={name} className="object-cover w-full h-full" />
-    </div>
-    <div className="p-6">
-      <Link href={link}>
-        <h3 className="text-xl font-semibold text-blue-900 mb-2 hover:text-blue-600 transition-colors duration-300">{name}</h3>
-      </Link>
-      <p className="text-gray-600">{role}</p>
-    </div>
-  </div>
-);
+const ExpertCard: React.FC<ExpertData & { index: number }> = ({ name, role, imageSrc, link, index }) => {
+  const cardVariants = {
+    hidden: { 
+      opacity: 0,
+      y: 50,
+      scale: 0.9
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        delay: index * 0.1,
+        ease: [0.43, 0.13, 0.23, 0.96]
+      }
+    },
+    hover: {
+      y: -10,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  };
 
-// Expert Team Component
+  const imageVariants = {
+    hover: {
+      scale: 1.1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  return (
+    <motion.div 
+      className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 w-full max-w-sm"
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      whileHover="hover"
+      viewport={{ once: true, margin: "-50px" }}
+    >
+      <motion.div className="aspect-w-4 aspect-h-3 overflow-hidden">
+        <motion.img 
+          src={imageSrc} 
+          alt={name} 
+          className="object-cover w-full h-full"
+          variants={imageVariants}
+        />
+      </motion.div>
+      <div className="p-6">
+        <Link href={link} className="block relative">
+          <motion.div 
+            className="relative z-10"
+            initial={{ color: '#1e3a8a' }} // text-blue-900
+            whileHover={{ 
+              color: '#2563eb', // text-blue-600
+              transition: { duration: 0.2 }
+            }}
+          >
+            <span className="text-xl font-semibold block transform-gpu">
+              {name}
+            </span>
+          </motion.div>
+        </Link>
+        <motion.p 
+          className="text-gray-600 mt-2"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: index * 0.1 + 0.3 }}
+        >
+          {role}
+        </motion.p>
+      </div>
+    </motion.div>
+  );
+};
+
 const ExpertTeam: React.FC = () => {
-  const itemsPerRow = 3; // Number of items per full row
+  const itemsPerRow = 3;
   const totalItems = expertsData.length;
   const fullRows = Math.floor(totalItems / itemsPerRow);
   const lastRowItems = totalItems % itemsPerRow;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
     <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-4 md:px-8 lg:px-16">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6">
+      <motion.div 
+        className="max-w-7xl mx-auto"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={containerVariants}
+      >
+        <motion.div 
+          className="text-center mb-16"
+          variants={headerVariants}
+        >
+          <motion.div 
+            className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <Play className="w-4 h-4 text-blue-600 mr-2" />
             <span className="text-sm font-medium text-blue-600">Watch Our Story</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-6 leading-tight">
+          </motion.div>
+          <motion.h1 
+            className="text-4xl md:text-5xl font-bold text-blue-900 mb-6 leading-tight"
+            variants={headerVariants}
+          >
             The People Behind Our Success
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12">
+          </motion.h1>
+          <motion.p 
+            className="text-xl text-gray-600 max-w-2xl mx-auto mb-12"
+            variants={headerVariants}
+          >
             Get to know our team and see how we work together to deliver exceptional results for our clients.
-          </p>
+          </motion.p>
           
-          {/* Video Section */}
           <VideoSection />
-        </div>
+        </motion.div>
 
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6">
+        <motion.div 
+          className="text-center mb-16"
+          variants={headerVariants}
+        >
+          <motion.div 
+            className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <User className="w-4 h-4 text-blue-600 mr-2" />
             <span className="text-sm font-medium text-blue-600">Our Team</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-6 leading-tight">
+          </motion.div>
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-blue-900 mb-6 leading-tight"
+            variants={headerVariants}
+          >
             Meet Our Experts
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p 
+            className="text-xl text-gray-600 max-w-2xl mx-auto"
+            variants={headerVariants}
+          >
             Our people are fully qualified with all types of services whether it's commercial, residential, or industrial. You'll get top-notch service every time.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {expertsData.slice(0, fullRows * itemsPerRow).map((expert, index) => (
-            <ExpertCard key={index} {...expert} />
+            <ExpertCard key={index} {...expert} index={index} />
           ))}
         </div>
         
         {lastRowItems > 0 && (
           <div className={`flex justify-center mt-8 gap-8 ${lastRowItems === 1 ? 'md:justify-center' : 'md:justify-start'}`}>
             {expertsData.slice(fullRows * itemsPerRow).map((expert, index) => (
-              <ExpertCard key={fullRows * itemsPerRow + index} {...expert} />
+              <ExpertCard 
+                key={fullRows * itemsPerRow + index} 
+                {...expert} 
+                index={fullRows * itemsPerRow + index}
+              />
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 };
