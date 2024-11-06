@@ -9,13 +9,43 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { StrataServicesContent, ServiceItem, ProjectItem } from './StrataServiceContent';
 
+// Animation variants
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6 }
 };
 
-const Header: React.FC<{ title: string; image: string }> = ({ title, image }) => (
+// Types
+interface HeaderProps {
+  title: string;
+  image: string;
+}
+
+interface ServiceListProps {
+  services: ServiceItem[];
+  title: string;
+}
+
+interface ProjectShowcaseProps {
+  projects: ProjectItem[];
+  title: string;
+}
+
+interface CallToActionProps {
+  title: string;
+  buttonText: string;
+}
+
+interface FeaturedProjectProps {
+  title: string;
+  subtitle: string;
+  description: string;
+  videoSrc: string;
+}
+
+// Header Component
+const Header: React.FC<HeaderProps> = ({ title, image }) => (
   <motion.header
     className="relative w-full min-h-[389px] text-white"
     initial={{ opacity: 0 }}
@@ -35,7 +65,9 @@ const Header: React.FC<{ title: string; image: string }> = ({ title, image }) =>
     </div>
   </motion.header>
 );
-const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ services, title }) => (
+
+// Service List Component
+const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
   <Card className="w-full h-full flex flex-col">
     <CardHeader className="pb-2">
       <CardTitle className="text-3xl font-bold text-blue-950">{title}</CardTitle>
@@ -64,7 +96,8 @@ const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ ser
   </Card>
 );
 
-const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
+// Project Showcase Component
+const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) => (
   <section className="mt-16">
     <motion.h2
       className="text-3xl font-extrabold text-blue-950 text-center mb-8"
@@ -107,7 +140,8 @@ const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({
   </section>
 );
 
-const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
+// Call to Action Component
+const CallToAction: React.FC<CallToActionProps> = ({ title, buttonText }) => (
   <motion.section
     className="bg-amber-400 py-16 mt-16"
     variants={fadeIn}
@@ -129,7 +163,8 @@ const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, 
   </motion.section>
 );
 
-const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
+// Featured Project Component
+const FeaturedProject: React.FC<FeaturedProjectProps> = ({ title, subtitle, description, videoSrc }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [muted, setMuted] = useState(true);
@@ -225,30 +260,48 @@ const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
           </Badge>
           <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
           <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
-          <p className="text-gray-700 leading-relaxed">{description}</p>
+          <p className="text-lg lg:text-xl text-gray-700 leading-relaxed">{description}</p>
         </div>
       </CardContent>
     </Card>
   );
 };
 
+// Main Strata Services Page Component
 const StrataServiceDetails: React.FC = () => {
   return (
-    <div className="bg-white mt-24">
-      <main className="container mx-auto px-4 py-16">
+    <div className="bg-white mt-12 lg:mt-24">
+      <main className="container mx-auto px-4 py-8 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <aside className="lg:col-span-1 h-full">
+          {/* Services section - hidden on mobile, shown first on desktop */}
+          <aside className="lg:col-span-1 h-full order-2 lg:order-1 hidden lg:block">
             <ServiceList services={StrataServicesContent.services} title={StrataServicesContent.servicesTitle} />
           </aside>
-          <section className="lg:col-span-2">
+
+          {/* Featured Project section - shown first on both mobile and desktop */}
+          <section className="lg:col-span-2 order-1 lg:order-2">
             <FeaturedProject 
-              title="Staples in Burnaby: Exterior Power Washing and Repainting"
+              title="164 Townhouses in Port Moody: Full Repaint and Carpentry"
               subtitle={StrataServicesContent.descriptionTitle}
               description={StrataServicesContent.descriptionText}
               videoSrc={StrataServicesContent.descriptionVideo}
             />
           </section>
+
+          {/* Mobile-only services section - shown after video on mobile, hidden on desktop */}
+          <aside className="lg:col-span-1 h-full order-2 lg:hidden">
+            <ServiceList services={StrataServicesContent.services} title={StrataServicesContent.servicesTitle} />
+          </aside>
         </div>
+        
+        <motion.div
+          className="mt-16 mb-8"
+          variants={fadeIn}
+          initial="initial"
+          animate="animate"
+        >
+        </motion.div>
+
         <ProjectShowcase projects={StrataServicesContent.projects} title={StrataServicesContent.projectShowcaseTitle} />
       </main>
       <CallToAction title={StrataServicesContent.ctaTitle} buttonText={StrataServicesContent.ctaButtonText} />

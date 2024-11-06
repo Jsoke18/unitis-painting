@@ -8,13 +8,43 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { commercialServicesContent, ServiceItem, ProjectItem } from './CommercialServiceContent';
 
+// Animation variants
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6 }
 };
 
-const Header: React.FC<{ title: string; image: string }> = ({ title, image }) => (
+// Types
+interface HeaderProps {
+  title: string;
+  image: string;
+}
+
+interface ServiceListProps {
+  services: ServiceItem[];
+  title: string;
+}
+
+interface ProjectShowcaseProps {
+  projects: ProjectItem[];
+  title: string;
+}
+
+interface CallToActionProps {
+  title: string;
+  buttonText: string;
+}
+
+interface FeaturedProjectProps {
+  title: string;
+  subtitle: string;
+  description: string;
+  videoSrc: string;
+}
+
+// Header Component
+const Header: React.FC<HeaderProps> = ({ title, image }) => (
   <motion.header
     className="relative w-full min-h-[389px] text-white"
     initial={{ opacity: 0 }}
@@ -35,7 +65,8 @@ const Header: React.FC<{ title: string; image: string }> = ({ title, image }) =>
   </motion.header>
 );
 
-const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ services, title }) => (
+// Service List Component
+const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
   <Card className="w-full h-full flex flex-col">
     <CardHeader className="pb-2">
       <CardTitle className="text-3xl font-bold text-blue-950">{title}</CardTitle>
@@ -52,7 +83,9 @@ const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ ser
             transition={{ delay: index * 0.1 }}
           >
             <Check className="text-green-500 h-6 w-6 flex-shrink-0" />
-            <span className="text-zinc-700 text-lg leading-tight">{service.name}</span>
+            <span className="text-zinc-700 text-lg leading-tight cursor-pointer hover:text-blue-600 transition-colors duration-200">
+              {service.name}
+            </span>
           </motion.li>
         ))}
       </ul>
@@ -60,7 +93,8 @@ const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ ser
   </Card>
 );
 
-const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
+// Project Showcase Component
+const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) => (
   <section className="mt-16">
     <motion.h2
       className="text-3xl font-extrabold text-blue-950 text-center mb-8"
@@ -103,7 +137,8 @@ const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({
   </section>
 );
 
-const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
+// Call to Action Component
+const CallToAction: React.FC<CallToActionProps> = ({ title, buttonText }) => (
   <motion.section
     className="bg-amber-400 py-16 mt-16"
     variants={fadeIn}
@@ -125,128 +160,145 @@ const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, 
   </motion.section>
 );
 
+// Featured Project Component
+const FeaturedProject: React.FC<FeaturedProjectProps> = ({ title, subtitle, description, videoSrc }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [muted, setMuted] = useState(true);
+  const [played, setPlayed] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const playerRef = useRef(null);
 
-const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.5);
-    const [muted, setMuted] = useState(true);
-    const [played, setPlayed] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const playerRef = useRef(null);
-  
-    const handlePlayPause = () => setIsPlaying(!isPlaying);
-    const handleVolumeChange = (newValue) => {
-      setVolume(newValue[0]);
-      setMuted(newValue[0] === 0);
-    };
-    const handleProgress = (state) => setPlayed(state.played);
-    const handleMuteToggle = () => setMuted(!muted);
-    const handleSeekChange = (newValue) => {
-      setPlayed(newValue[0]);
-      playerRef.current.seekTo(newValue[0]);
-    };
-  
-    const formatTime = (seconds) => {
-      const date = new Date(seconds * 1000);
-      const hh = date.getUTCHours();
-      const mm = date.getUTCMinutes();
-      const ss = date.getUTCSeconds().toString().padStart(2, "0");
-      if (hh) {
-        return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
-      }
-      return `${mm}:${ss}`;
-    };
-  
-    return (
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          <div className="relative aspect-video">
-            <ReactPlayer
-              ref={playerRef}
-              url={videoSrc}
-              width="100%"
-              height="100%"
-              playing={isPlaying}
-              volume={volume}
-              muted={muted}
-              loop
-              progressInterval={1000}
-              onProgress={handleProgress}
-              onDuration={setDuration}
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-              <div className="flex items-center justify-between mb-2">
+  const handlePlayPause = () => setIsPlaying(!isPlaying);
+  const handleVolumeChange = (newValue) => {
+    setVolume(newValue[0]);
+    setMuted(newValue[0] === 0);
+  };
+  const handleProgress = (state) => setPlayed(state.played);
+  const handleMuteToggle = () => setMuted(!muted);
+  const handleSeekChange = (newValue) => {
+    setPlayed(newValue[0]);
+    playerRef.current.seekTo(newValue[0]);
+  };
+
+  const formatTime = (seconds) => {
+    const date = new Date(seconds * 1000);
+    const hh = date.getUTCHours();
+    const mm = date.getUTCMinutes();
+    const ss = date.getUTCSeconds().toString().padStart(2, "0");
+    if (hh) {
+      return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
+    }
+    return `${mm}:${ss}`;
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="relative aspect-video">
+          <ReactPlayer
+            ref={playerRef}
+            url={videoSrc}
+            width="100%"
+            height="100%"
+            playing={isPlaying}
+            volume={volume}
+            muted={muted}
+            loop
+            progressInterval={1000}
+            onProgress={handleProgress}
+            onDuration={setDuration}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handlePlayPause}
+                className="text-white hover:bg-white/20"
+              >
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+              <div className="flex items-center space-x-2">
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={handlePlayPause}
+                  onClick={handleMuteToggle}
                   className="text-white hover:bg-white/20"
                 >
-                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                  {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                 </Button>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={handleMuteToggle}
-                    className="text-white hover:bg-white/20"
-                  >
-                    {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                  </Button>
-                  <Slider
-                    className="w-24"
-                    value={[muted ? 0 : volume]}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
                 <Slider
-                  className="flex-grow"
-                  value={[played]}
+                  className="w-24"
+                  value={[muted ? 0 : volume]}
                   max={1}
-                  step={0.001}
-                  onValueChange={handleSeekChange}
+                  step={0.1}
+                  onValueChange={handleVolumeChange}
                 />
-                <span className="text-white text-sm">
-                  {formatTime(played * duration)} / {formatTime(duration)}
-                </span>
               </div>
             </div>
+            <div className="flex items-center space-x-2">
+              <Slider
+                className="flex-grow"
+                value={[played]}
+                max={1}
+                step={0.001}
+                onValueChange={handleSeekChange}
+              />
+              <span className="text-white text-sm">
+                {formatTime(played * duration)} / {formatTime(duration)}
+              </span>
+            </div>
           </div>
-          <div className="p-6">
-            <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
-              Featured Project
-            </Badge>
-            <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
-            <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
-            <p className="text-gray-700 leading-relaxed">{description}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-  
+        </div>
+        <div className="p-6">
+          <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
+            Featured Project
+          </Badge>
+          <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
+          <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
+          <p className="text-lg lg:text-xl text-gray-700 leading-relaxed">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
+// Main Commercial Services Page Component
 const CommercialServices: React.FC = () => {
   return (
-    <div className="bg-white mt-24">
-      <main className="container mx-auto px-4 py-16">
+    <div className="bg-white mt-12 lg:mt-24">
+      <main className="container mx-auto px-4 py-8 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <aside className="lg:col-span-1 h-full">
+          {/* Services section - hidden on mobile, shown first on desktop */}
+          <aside className="lg:col-span-1 h-full order-2 lg:order-1 hidden lg:block">
             <ServiceList services={commercialServicesContent.services} title={commercialServicesContent.servicesTitle} />
           </aside>
-          <section className="lg:col-span-2">
+
+          {/* Featured Project section - shown first on both mobile and desktop */}
+          <section className="lg:col-span-2 order-1 lg:order-2">
             <FeaturedProject 
-              title="Staples in Burnaby: Exterior Power Washing and Repainting"
+              title="Commercial Services Portfolio"
               subtitle={commercialServicesContent.descriptionTitle}
               description={commercialServicesContent.descriptionText}
               videoSrc={commercialServicesContent.descriptionVideo}
             />
           </section>
+
+          {/* Mobile-only services section - shown after video on mobile, hidden on desktop */}
+          <aside className="lg:col-span-1 h-full order-2 lg:hidden">
+            <ServiceList services={commercialServicesContent.services} title={commercialServicesContent.servicesTitle} />
+          </aside>
         </div>
+        
+        <motion.div
+          className="mt-16 mb-8"
+          variants={fadeIn}
+          initial="initial"
+          animate="animate"
+        >
+        </motion.div>
+
         <ProjectShowcase projects={commercialServicesContent.projects} title={commercialServicesContent.projectShowcaseTitle} />
       </main>
       <CallToAction title={commercialServicesContent.ctaTitle} buttonText={commercialServicesContent.ctaButtonText} />
