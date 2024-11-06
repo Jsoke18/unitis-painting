@@ -6,22 +6,14 @@ import { Play, Pause, Volume2, VolumeX, Minimize2, Maximize2 } from 'lucide-reac
 const ReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 bg-slate-900 animate-pulse flex items-center justify-center">
+    <div className="absolute inset-0 bg-navy-blue animate-pulse flex items-center justify-center">
       <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
     </div>
   ),
 });
 
-interface VideoPlayerState {
-  isPlaying: boolean;
-  isMuted: boolean;
-  isLoaded: boolean;
-  isMinimized: boolean;
-  isMobile: boolean;
-}
-
-const AboutUsPage: React.FC = () => {
-  const [state, setState] = useState<VideoPlayerState>({
+const AboutUsPage = () => {
+  const [state, setState] = useState({
     isPlaying: true,
     isMuted: true,
     isLoaded: false,
@@ -30,53 +22,27 @@ const AboutUsPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const checkMobile = () => {
-      setState(prev => ({ ...prev, isMobile: window.innerWidth < 768 }));
-    };
-    
+    const checkMobile = () => setState(prev => ({ ...prev, isMobile: window.innerWidth < 768 }));
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handlePlayPause = () => {
-    setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
-  };
-
-  const handleMuteUnmute = () => {
-    setState(prev => ({ ...prev, isMuted: !prev.isMuted }));
-  };
-
-  const handleBuffer = () => {
-    if (!state.isLoaded) {
-      setState(prev => ({ ...prev, isLoaded: true }));
-    }
-  };
-
-  const toggleMinimize = () => {
-    setState(prev => ({ ...prev, isMinimized: !prev.isMinimized }));
-  };
-
   return (
-    <div className="min-h-screen bg-slate-900 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div 
-            className="absolute -inset-[10px] bg-gradient-to-r from-violet-600 via-blue-600 to-cyan-500"
-            style={{
-              backgroundSize: '200% 200%',
-              animation: 'gradient 8s linear infinite',
-              filter: 'blur(20px)',
-            }}
-          />
-        </div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.7),rgba(0,0,0,0.9))]" />
-      </div>
+    <>
+      {/* Hero Section */}
+      <section className="relative aspect-[16/9] bg-slate-900">
+        {/* Mobile Background */}
+        {state.iMobile && (
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 animate-bg" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,white_1px,transparent_1px)] bg-[size:24px_24px] opacity-5" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/60" />
+          </div>
+        )}
 
-      <div className="relative min-h-screen w-full overflow-hidden">
         {/* Video Background - Desktop Only */}
-        {!state.isMobile && (
+        {!state.iMobile && (
           <div className="absolute inset-0">
             <ReactPlayer
               url="https://player.vimeo.com/video/836294434"
@@ -85,7 +51,7 @@ const AboutUsPage: React.FC = () => {
               playing={state.isPlaying}
               loop
               muted={state.isMuted}
-              onBuffer={handleBuffer}
+              onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
               playsinline
               config={{
                 vimeo: {
@@ -100,102 +66,74 @@ const AboutUsPage: React.FC = () => {
                   },
                 },
               }}
+              style={{ position: 'absolute', top: 0 }}
             />
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-black/60" />
           </div>
         )}
 
-        {/* Enhanced Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/40" />
-
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 h-screen flex flex-col items-start justify-center">
+        {/* Main Content */}
+        <div className="absolute inset-0 container mx-auto px-4 flex items-center justify-start">
           <motion.div 
-            className="max-w-3xl w-full"
+            className="max-w-3xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            {/* Glass Content Container */}
             <motion.div 
               className={`
-                backdrop-blur-xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl
-                overflow-hidden
+                backdrop-blur-lg bg-black/50 rounded-2xl border border-white/20 shadow-2xl
                 ${state.isMinimized ? 'w-auto inline-block' : 'w-full'}
+                ${state.iMobile ? 'p-8' : ''}
               `}
               layout
-              transition={{ duration: 0.3 }}
             >
-              {/* Accent border */}
-              <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
-
-              {/* Controls - Desktop Only */}
-              {!state.isMobile && (
-                <div className="flex justify-between p-4">
-                  <div className="flex items-center space-x-4">
+              {/* Desktop Controls */}
+              {!state.iMobile && (
+                <div className={`flex ${state.isMinimized ? 'gap-6 px-6' : 'justify-between'} p-4`}>
+                  <div className={`flex items-center ${state.isMinimized ? 'gap-6' : 'space-x-4'}`}>
                     <motion.button
-                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300"
-                      onClick={handlePlayPause}
+                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                      onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {state.isPlaying ? (
-                        <Pause className="w-6 h-6 text-white" />
-                      ) : (
-                        <Play className="w-6 h-6 text-white" />
-                      )}
+                      {state.isPlaying ? <Pause className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-white" />}
                     </motion.button>
                     <motion.button
-                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300"
-                      onClick={handleMuteUnmute}
+                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                      onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {state.isMuted ? (
-                        <VolumeX className="w-6 h-6 text-white" />
-                      ) : (
-                        <Volume2 className="w-6 h-6 text-white" />
-                      )}
+                      {state.isMuted ? <VolumeX className="w-6 h-6 text-white" /> : <Volume2 className="w-6 h-6 text-white" />}
                     </motion.button>
                   </div>
                   <motion.button
-                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300"
-                    onClick={toggleMinimize}
+                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                    onClick={() => setState(prev => ({ ...prev, isMinimized: !prev.isMinimized }))}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    {state.isMinimized ? (
-                      <Maximize2 className="w-5 h-5 text-white" />
-                    ) : (
-                      <Minimize2 className="w-5 h-5 text-white" />
-                    )}
+                    {state.isMinimized ? <Maximize2 className="w-5 h-5 text-white" /> : <Minimize2 className="w-5 h-5 text-white" />}
                   </motion.button>
                 </div>
               )}
 
+              {/* Content */}
               <AnimatePresence>
-                {(!state.isMinimized || state.isMobile) && (
+                {(!state.isMinimized || state.iMobile) && (
                   <motion.div 
-                    className="p-8 space-y-6"
+                    className={`${state.iMobile ? 'space-y-4' : 'px-8 pb-8'}`}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
                   >
-                    <motion.h1 
-                      className={`
-                        font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400
-                        ${state.iMobile ? 'text-3xl leading-tight' : 'text-4xl md:text-6xl'} 
-                      `}
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      Crafting Excellence in{' '}
-                      <span className="text-amber-300">Every Stroke</span>
-                    </motion.h1>
-                    <p className={`
-                      ${state.iMobile ? 'text-base leading-relaxed' : 'text-xl'} 
-                      text-white
-                    `}>
+                    <h1 className={`font-bold text-white ${state.iMobile ? 'text-3xl leading-tight' : 'text-4xl md:text-6xl'} mb-4`}>
+                      Crafting Excellence in <span className="text-amber-300">Every Stroke</span>
+                    </h1>
+                    <p className={`${state.iMobile ? 'text-base leading-relaxed' : 'text-xl'} text-white mb-4`}>
                       Since our founding, Unitis Painting has been dedicated to delivering exceptional painting services across British Columbia and Alberta. Our commitment to quality and attention to detail has made us a trusted name in residential, commercial, and strata painting.
                     </p>
                   </motion.div>
@@ -204,34 +142,57 @@ const AboutUsPage: React.FC = () => {
             </motion.div>
           </motion.div>
         </div>
-      </div>
+      </section>
+
+      {/* About Section */}
+      <section className="bg-white py-24">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl font-bold text-gray-900 mb-8">About Our Company</h2>
+          <div className="grid md:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Our Mission</h3>
+              <p className="text-gray-600 leading-relaxed">
+                We strive to transform spaces with exceptional painting services that exceed expectations. 
+                Our experienced team combines technical expertise with artistic vision to deliver results 
+                that stand the test of time.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Our Values</h3>
+              <ul className="space-y-4 text-gray-600">
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                  <span>Quality craftsmanship in every project</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                  <span>Transparent communication and pricing</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                  <span>Environmental responsibility</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                  <span>Customer satisfaction guaranteed</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <style jsx global>{`
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
+        @keyframes bg {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 100% 50%; }
         }
-        
-        @keyframes float {
-          0% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-          100% {
-            transform: translateY(0px);
-          }
+        .animate-bg {
+          background-size: 200% 200%;
+          animation: bg 15s linear infinite alternate;
         }
       `}</style>
-    </div>
+    </>
   );
 };
 
