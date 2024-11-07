@@ -1,4 +1,5 @@
-'use client'
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -13,50 +14,35 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
-import reviewsData from '@/public/data/reviews.json';
+import { useReviewStore } from '@/lib/reviewService';
 
-interface Settings {
+const defaultSettings = {
   stats: {
-    totalProjects: number;
-    yearsInBusiness: number;
-    serviceAreas: number;
-    averageRating: number;
-  };
+    totalProjects: 0,
+    yearsInBusiness: 0,
+    serviceAreas: 0,
+    averageRating: 0
+  },
   text: {
-    mainHeading: string;
-    mainSubheading: string;
-    statsSubtext: string;
-    averageRatingText: string;
-    customerStoriesLabel: string;
-    callTitle: string;
-    callSubtitle: string;
-    formNameLabel: string;
-    formNamePlaceholder: string;
-    formEmailLabel: string;
-    formEmailPlaceholder: string;
-    formMessageLabel: string;
-    formMessagePlaceholder: string;
-    formSubmitText: string;
-    formSuccessMessage: string;
-    formErrorMessage: string;
-    directCallText: string;
-    phoneNumber: string;
-  };
-}
-
-type TestimonialProps = {
-  name: string;
-  location: string;
-  avatarSrc: string;
-  content: string;
-  rating: number;
-  date: string;
-};
-
-type FormData = {
-  name: string;
-  email: string;
-  message: string;
+    mainHeading: "Customer Testimonials",
+    mainSubheading: "See what our clients have to say about us",
+    statsSubtext: "Projects completed and counting",
+    averageRatingText: "Customer satisfaction rating",
+    customerStoriesLabel: "Reviews",
+    callTitle: "Get in Touch",
+    callSubtitle: "We'd love to hear from you",
+    formNameLabel: "Name",
+    formNamePlaceholder: "Your name",
+    formEmailLabel: "Email",
+    formEmailPlaceholder: "your.email@example.com",
+    formMessageLabel: "Message",
+    formMessagePlaceholder: "Tell us about your project",
+    formSubmitText: "Send Message",
+    formSuccessMessage: "Thank you! We'll be in touch soon.",
+    formErrorMessage: "There was an error sending your message. Please try again.",
+    directCallText: "Prefer to talk now?",
+    phoneNumber: "(555) 123-4567"
+  }
 };
 
 const RatingStars: React.FC<{ rating: number }> = ({ rating }) => (
@@ -75,21 +61,21 @@ const RatingStars: React.FC<{ rating: number }> = ({ rating }) => (
   </div>
 );
 
-const Testimonial: React.FC<TestimonialProps> = ({ 
-  name, 
-  location, 
-  avatarSrc, 
-  content,
-  rating,
-  date 
-}) => {
+const Testimonial: React.FC<{
+  name: string;
+  location: string;
+  avatarSrc: string;
+  content: string;
+  rating: number;
+  date: string;
+}> = ({ name, location, avatarSrc, content, rating, date }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inView) {
       controls.start('visible');
     }
@@ -111,8 +97,8 @@ const Testimonial: React.FC<TestimonialProps> = ({
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center space-x-4">
               <Avatar className="h-12 w-12 border-2 border-amber-400">
-                <AvatarImage src={avatarSrc} alt={`${name}'s avatar`} />
-                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={avatarSrc} alt={name} />
+                <AvatarFallback>{name[0]}</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="text-lg font-semibold text-blue-950">{name}</h3>
@@ -120,7 +106,7 @@ const Testimonial: React.FC<TestimonialProps> = ({
                 <div className="flex items-center mt-1">
                   <RatingStars rating={rating} />
                   <span className="text-xs text-zinc-500 ml-2">
-                    {new Date(date).toLocaleDateString('en-US', { 
+                    {new Date(date).toLocaleDateString('en-US', {
                       month: 'long',
                       year: 'numeric'
                     })}
@@ -138,17 +124,19 @@ const Testimonial: React.FC<TestimonialProps> = ({
 };
 
 const ContactForm: React.FC<{
-  settings: Settings;
+  settings: typeof defaultSettings;
   formStatus: 'idle' | 'submitting' | 'success' | 'error';
   onSubmit: (e: React.FormEvent) => void;
 }> = ({ settings, formStatus, onSubmit }) => {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData(prev => ({
       ...prev,
       [e.target.id]: e.target.value
@@ -236,8 +224,8 @@ const ContactForm: React.FC<{
   );
 };
 
-const CustomerFeedback: React.FC = () => {
-  const [settings, setSettings] = useState<Settings | null>(null);
+export const CustomerFeedback: React.FC = () => {
+  const [settings] = useState(defaultSettings);
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
   const [autoplayEnabled, setAutoplayEnabled] = useState(true);
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -247,19 +235,56 @@ const CustomerFeedback: React.FC = () => {
     threshold: 0.1,
   });
 
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('siteSettings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
-  }, []);
+  const { reviews, stats, isLoading, error, fetchReviews } = useReviewStore();
 
-  const currentTestimonial = reviewsData.testimonials[currentTestimonialIndex];
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  useEffect(() => {
+    if (inView) {
+      controls.start("visible");
+    }
+  }, [controls, inView]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (autoplayEnabled && reviews.length > 0) {
+      timer = setInterval(() => {
+        setCurrentTestimonialIndex((prev) => 
+          prev === reviews.length - 1 ? 0 : prev + 1
+        );
+      }, 5000);
+    }
+    return () => clearInterval(timer);
+  }, [autoplayEnabled, reviews.length]);
+
+  if (error) {
+    return (
+      <Alert className="m-4 bg-red-50 border-red-200">
+        <AlertDescription className="text-red-800">
+          Error loading reviews: {error}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-8 h-8 border-4 border-blue-950 border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
 
   const handlePrevTestimonial = () => {
     setAutoplayEnabled(false);
     setCurrentTestimonialIndex((prev) => 
-      prev === 0 ? reviewsData.testimonials.length - 1 : prev - 1
+      prev === 0 ? reviews.length - 1 : prev - 1
     );
     setTimeout(() => setAutoplayEnabled(true), 5000);
   };
@@ -267,22 +292,10 @@ const CustomerFeedback: React.FC = () => {
   const handleNextTestimonial = () => {
     setAutoplayEnabled(false);
     setCurrentTestimonialIndex((prev) => 
-      prev === reviewsData.testimonials.length - 1 ? 0 : prev + 1
+      prev === reviews.length - 1 ? 0 : prev + 1
     );
     setTimeout(() => setAutoplayEnabled(true), 5000);
   };
-
-  React.useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (autoplayEnabled) {
-      timer = setInterval(() => {
-        setCurrentTestimonialIndex((prev) => 
-          prev === reviewsData.testimonials.length - 1 ? 0 : prev + 1
-        );
-      }, 5000);
-    }
-    return () => clearInterval(timer);
-  }, [autoplayEnabled]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -303,20 +316,25 @@ const CustomerFeedback: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
+  const currentTestimonial = reviews[currentTestimonialIndex];
 
-  if (!settings) {
+  if (!currentTestimonial) {
     return null;
   }
 
   return (
     <section ref={ref} className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto">
-        <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          variants={{
+            visible: { opacity: 1, y: 0 },
+            hidden: { opacity: 0, y: 50 },
+          }}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.5 }}
+        >
           <motion.div className="space-y-6">
             <div>
               <Badge variant="default" className="mb-4 bg-blue-950">
@@ -329,7 +347,7 @@ const CustomerFeedback: React.FC = () => {
                 {settings.text.mainSubheading}
               </p>
             </div>
-  
+
             <div className="relative">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -342,7 +360,7 @@ const CustomerFeedback: React.FC = () => {
                   <Testimonial {...currentTestimonial} />
                 </motion.div>
               </AnimatePresence>
-  
+
               <div className="flex justify-center mt-6 space-x-2">
                 <Button
                   variant="outline"
@@ -361,9 +379,9 @@ const CustomerFeedback: React.FC = () => {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
-  
+
               <div className="flex justify-center mt-4 space-x-2">
-                {reviewsData.testimonials.map((_, index) => (
+                {reviews.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => {
@@ -382,32 +400,32 @@ const CustomerFeedback: React.FC = () => {
                 ))}
               </div>
             </div>
-  
+
             <div className="mt-8 bg-blue-50 rounded-lg p-6">
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div className="bg-blue-100 px-3 py-1 rounded-full">
                       <span className="text-blue-950 font-semibold">
-                        {settings.stats.totalProjects}+
+                        {stats?.totalProjects}+
                       </span>
                     </div>
-                    <span className="text-zinc-600">Projects Completed</span>
+                    <span className="text-zinc-600">Projects</span>
                   </div>
                   <p className="text-sm text-zinc-500">
                     {settings.text.statsSubtext}
                   </p>
                 </div>
-  
+
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <div className="bg-amber-100 px-3 py-1 rounded-full">
-                      <span className="text-amber-700 font-semibold">
-                        {settings.stats.averageRating}
+                    <span className="text-amber-700 font-semibold">
+                        {stats?.averageRating}
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <RatingStars rating={settings.stats.averageRating} />
+                      <RatingStars rating={stats?.averageRating || 0} />
                     </div>
                   </div>
                   <p className="text-sm text-zinc-500">
@@ -417,7 +435,7 @@ const CustomerFeedback: React.FC = () => {
               </div>
             </div>
           </motion.div>
-  
+
           <motion.div
             variants={{
               visible: { opacity: 1, x: 0 },
@@ -425,7 +443,7 @@ const CustomerFeedback: React.FC = () => {
             }}
             className="relative"
           >
-<Card className="relative overflow-hidden">
+            <Card className="relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400 rounded-bl-full opacity-10" />
               
               <CardHeader>
@@ -436,7 +454,7 @@ const CustomerFeedback: React.FC = () => {
                   {settings.text.callSubtitle}
                 </CardDescription>
               </CardHeader>
-  
+
               <CardContent className="space-y-6">
                 <div className="flex items-center p-4 bg-blue-50 rounded-lg">
                   <div className="bg-white p-3 rounded-full mr-4 shadow-sm">
@@ -451,7 +469,7 @@ const CustomerFeedback: React.FC = () => {
                     </p>
                   </div>
                 </div>
-  
+
                 <Separator />
                 
                 <ContactForm 
