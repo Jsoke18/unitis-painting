@@ -7,26 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { toast } from "sonner";
 
-// Types remain the same
 type Location = {
   lat: number;
   lon: number;
   name: string;
 };
 
-type FooterSection = {
-  title: string;
-  links: Array<{
-    label: string;
-    href: string;
-  }>;
-};
-
-// Constants remain the same
 const COMPANY_LOCATIONS: Location[] = [
   { lat: 51.0447, lon: -114.0719, name: "Calgary, AB" },
   { lat: 49.2827, lon: -123.1207, name: "Vancouver, BC" },
-  { lat: 49.8880, lon: -119.4960, name: "Kelowna, BC" },
+  { lat: 49.8880, lon: -119.4960, name: "Okanagan, BC" }
 ];
 
 const FOOTER_SECTIONS: FooterSection[] = [
@@ -149,10 +139,10 @@ const Footer: React.FC = () => {
               <div>
                 <p className="font-semibold text-gray-200">Call Us</p>
                 <a 
-                  href="tel:604-357-4787" 
+                  href="tel:1-833-300-6888" 
                   className="text-sm text-gray-300 hover:text-amber-400 transition-colors duration-200"
                 >
-                  604-357-4787
+                  1-833-300-6888
                 </a>
               </div>
             </div>

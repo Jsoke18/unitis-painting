@@ -376,11 +376,11 @@ const Header: React.FC<HeaderProps> = () => {
                 className="group text-blue-950 hover:bg-amber-100 rounded-full px-5 py-3 transition-all duration-300"
                 asChild
               >
-                <a href="tel:+16043574787" className="flex items-center">
+                <a href="tel:+18333006888" className="flex items-center">
                   <Phone className="w-5 h-5 mr-2 transition-transform group-hover:scale-110"/>
                   <div className="flex flex-col items-start">
                     <span className="text-xs font-semibold">Call Us</span>
-                    <span className="text-sm">604-357-4787</span>
+                    <span className="text-sm">+1-833-300-6888</span>
                   </div>
                 </a>
               </Button>
