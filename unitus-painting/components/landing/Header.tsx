@@ -43,6 +43,7 @@ const navItems: NavItem[] = [
     label: "About Us",
     href: "/about",
     children: [
+      { label: "Meet The Team", href: "/about/management-team" }, // Added this line
       { label: "Our Approach", href: "/our-approach" },
       { label: "Warranty", href: "/warranty" },
     ],

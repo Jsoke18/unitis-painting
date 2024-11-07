@@ -23,10 +23,6 @@ type State = {
   isLoaded: boolean;
   isMinimized: boolean;
   isMobile: boolean;
-  position: {
-    x: number;
-    y: number;
-  };
 };
 
 const AboutUsPage = () => {
@@ -40,7 +36,6 @@ const AboutUsPage = () => {
     isLoaded: false,
     isMinimized: false,
     isMobile: false,
-    position: { x: 0, y: 0 },
   });
 
   useEffect(() => {
@@ -49,26 +44,6 @@ const AboutUsPage = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  useEffect(() => {
-    if (state.isMinimized && containerRef.current && minimizedRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const minimizedRect = minimizedRef.current.getBoundingClientRect();
-      
-      const newX = 20;
-      const newY = containerRect.height - minimizedRect.height - 20;
-      
-      setState(prev => ({
-        ...prev,
-        position: { x: newX, y: newY }
-      }));
-    } else {
-      setState(prev => ({
-        ...prev,
-        position: { x: 0, y: 0 }
-      }));
-    }
-  }, [state.isMinimized]);
 
   const containerVariants = {
     initial: { opacity: 0, y: 20 },
@@ -137,158 +112,103 @@ const AboutUsPage = () => {
         </div>
       ) : (
         <div className="absolute inset-0">
-          <div className="absolute inset-0">
-            <ReactPlayer
-              url="https://player.vimeo.com/video/836294434"
-              width="100%"
-              height="100%"
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '100%',
-                height: '100%',
-              }}
-              playing={state.isPlaying}
-              loop
-              muted={state.isMuted}
-              onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
-              playsinline
-              config={{
-                vimeo: {
-                  playerOptions: {
-                    background: true,
-                    responsive: true,
-                    autoplay: true,
-                    controls: false,
-                    muted: state.isMuted,
-                    quality: 'auto',
-                    preload: true,
-                  },
+          <ReactPlayer
+            url="https://player.vimeo.com/video/836294434"
+            width="100%"
+            height="100%"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '100%',
+              height: '100%',
+            }}
+            playing={state.isPlaying}
+            loop
+            muted={state.isMuted}
+            onBuffer={() => !state.isLoaded && setState(prev => ({ ...prev, isLoaded: true }))}
+            playsinline
+            config={{
+              vimeo: {
+                playerOptions: {
+                  background: true,
+                  responsive: true,
+                  autoplay: true,
+                  controls: false,
+                  muted: state.isMuted,
+                  quality: 'auto',
+                  preload: true,
                 },
-              }}
-            />
-            <motion.div 
-              className="absolute inset-0" 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
-            </motion.div>
-          </div>
+              },
+            }}
+          />
+          <motion.div 
+            className="absolute inset-0" 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+          </motion.div>
         </div>
       )}
 
-      <div className="absolute inset-0 flex items-center">
-        <div className="w-full container mx-auto px-6 md:px-8 lg:px-16">
-          <motion.div 
-            className={`w-full md:max-w-4xl ${state.isMobile ? 'my-20' : ''}`}
-            variants={containerVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <motion.div 
-              ref={minimizedRef}
-              className={`
-                backdrop-blur-lg bg-black/40 rounded-2xl border border-white/10 shadow-2xl
-                ${state.isMinimized ? 'absolute cursor-move' : 'w-full'}
-                ${state.isMobile ? 'py-12 px-6' : 'p-8'}
-                ${state.isMinimized ? 'w-[300px]' : ''}
-              `}
-              layout
-              drag={state.isMinimized}
-              dragControls={dragControls}
-              dragMomentum={false}
-              dragElastic={0}
-              dragConstraints={containerRef}
-              animate={state.isMinimized ? {
-                x: state.position.x,
-                y: state.position.y,
-                transition: { type: "spring", stiffness: 300, damping: 30 }
-              } : {
-                x: 0,
-                y: 0
-              }}
-              onDragEnd={(event, info) => {
-                if (containerRef.current && minimizedRef.current) {
-                  const containerRect = containerRef.current.getBoundingClientRect();
-                  const minimizedRect = minimizedRef.current.getBoundingClientRect();
-                  
-                  const newX = Math.max(20, Math.min(
-                    state.position.x + info.offset.x,
-                    containerRect.width - minimizedRect.width - 20
-                  ));
-                  const newY = Math.max(20, Math.min(
-                    state.position.y + info.offset.y,
-                    containerRect.height - minimizedRect.height - 20
-                  ));
-                  
-                  setState(prev => ({
-                    ...prev,
-                    position: { x: newX, y: newY }
-                  }));
-                }
-              }}
-              transition={{
-                layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
-              }}
-            >
-              {!state.isMobile && (
+      <div className="absolute inset-0">
+        {!state.isMinimized ? (
+          <div className="h-full flex items-center">
+            <div className="w-full container mx-auto px-6 md:px-8 lg:px-16">
+              <motion.div 
+                className="w-full md:max-w-4xl"
+                variants={containerVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
                 <motion.div 
-                  className={`flex ${state.isMinimized ? 'gap-4 px-4' : 'justify-between'} mb-6`}
+                  className="backdrop-blur-lg bg-black/40 rounded-2xl border border-white/10 shadow-2xl w-full p-8"
                   layout
-                  onPointerDown={(e) => {
-                    if (state.isMinimized) {
-                      dragControls.start(e);
-                    }
+                  transition={{
+                    layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
                   }}
                 >
-                  <div className={`flex items-center ${state.isMinimized ? 'gap-4' : 'space-x-4'}`}>
-                    <motion.button
-                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                      onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {state.isPlaying ? 
-                        <Pause className="w-5 h-5 text-white" /> : 
-                        <Play className="w-5 h-5 text-white" />
-                      }
-                    </motion.button>
-                    <motion.button
-                      className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                      onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {state.isMuted ? 
-                        <VolumeX className="w-5 h-5 text-white" /> : 
-                        <Volume2 className="w-5 h-5 text-white" />
-                      }
-                    </motion.button>
-                  </div>
-                  <motion.button
-                    className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                    onClick={() => setState(prev => ({ ...prev, isMinimized: !prev.isMinimized }))}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {state.isMinimized ? 
-                      <Maximize2 className="w-5 h-5 text-white" /> : 
-                      <Minimize2 className="w-5 h-5 text-white" />
-                    }
-                  </motion.button>
-                </motion.div>
-              )}
+                  {!state.isMobile && (
+                    <motion.div className="flex justify-between mb-6">
+                      <div className="flex items-center space-x-4">
+                        <motion.button
+                          className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                          onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {state.isPlaying ? 
+                            <Pause className="w-5 h-5 text-white" /> : 
+                            <Play className="w-5 h-5 text-white" />
+                          }
+                        </motion.button>
+                        <motion.button
+                          className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                          onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {state.isMuted ? 
+                            <VolumeX className="w-5 h-5 text-white" /> : 
+                            <Volume2 className="w-5 h-5 text-white" />
+                          }
+                        </motion.button>
+                      </div>
+                      <motion.button
+                        className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                        onClick={() => setState(prev => ({ ...prev, isMinimized: true }))}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Minimize2 className="w-5 h-5 text-white" />
+                      </motion.button>
+                    </motion.div>
+                  )}
 
-              <AnimatePresence mode="wait" initial={false}>
-                {(!state.isMinimized || state.isMobile) && (
                   <motion.div 
                     className="space-y-6 md:space-y-8"
                     variants={containerVariants}
@@ -326,11 +246,62 @@ const AboutUsPage = () => {
                       Since our founding, Unitis Painting has been dedicated to delivering exceptional painting services across British Columbia and Alberta. Our commitment to quality and attention to detail has made us a trusted name in residential, commercial, and strata painting.
                     </motion.p>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        ) : (
+          <motion.div 
+            ref={minimizedRef}
+            className="absolute left-5 bottom-5 w-[300px] backdrop-blur-lg bg-black/40 rounded-2xl border border-white/10 shadow-2xl p-4"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.3 }}
+            drag
+            dragConstraints={containerRef}
+            dragElastic={0}
+            dragMomentum={false}
+          >
+            <motion.div 
+              className="flex items-center justify-between cursor-move"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
+              <div className="flex items-center gap-4">
+                <motion.button
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                  onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {state.isPlaying ? 
+                    <Pause className="w-5 h-5 text-white" /> : 
+                    <Play className="w-5 h-5 text-white" />
+                  }
+                </motion.button>
+                <motion.button
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                  onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {state.isMuted ? 
+                    <VolumeX className="w-5 h-5 text-white" /> : 
+                    <Volume2 className="w-5 h-5 text-white" />
+                  }
+                </motion.button>
+              </div>
+              <motion.button
+                className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+                onClick={() => setState(prev => ({ ...prev, isMinimized: false }))}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Maximize2 className="w-5 h-5 text-white" />
+              </motion.button>
             </motion.div>
           </motion.div>
-        </div>
+        )}
       </div>
     </section>
   );

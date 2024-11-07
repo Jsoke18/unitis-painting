@@ -6,7 +6,6 @@ import Footer from "@/components/landing/Footer";
 import CommitmentToExcellence from "@/components/about/CommitmentToExcellence";
 import StatisticsSection from "@/components/about/StatisticsSection";
 import HistorySection from "@/components/about/HistorySection";
-import ExpertTeam from "@/components/about/ExpertTeam";
 import { Separator } from "@/components/ui/separator";
 import VideoPlayer from "@/components/about/vimeo";
 
@@ -15,7 +14,7 @@ const AboutPage: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-white">
       <Header openingHours="8:00 am - 5:00 pm"/>
       
-      <div className="-mt-1"> {/* Negative margin to remove any potential gap */}
+      <div className="-mt-1">
         <VideoPlayer />
       </div>
       
@@ -31,8 +30,6 @@ const AboutPage: React.FC = () => {
           <StatisticsSection />
           <Separator />
           <HistorySection />
-          <Separator />
-          <ExpertTeam />
         </motion.div>
       </main>
       

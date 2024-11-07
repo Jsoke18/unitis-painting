@@ -197,9 +197,9 @@ const ExpertTeam: React.FC = () => {
   };
 
   return (
-    <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-4 md:px-8 lg:px-16">
+    <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-4 md:px-8 lg:px-16 ">
       <motion.div 
-        className="max-w-7xl mx-auto"
+        className="max-w-7xl mx-auto mt-32"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
