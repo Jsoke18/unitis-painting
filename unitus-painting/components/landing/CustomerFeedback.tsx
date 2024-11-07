@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -26,8 +24,6 @@ const defaultSettings = {
   text: {
     mainHeading: "Customer Testimonials",
     mainSubheading: "See what our clients have to say about us",
-    statsSubtext: "Projects completed and counting",
-    averageRatingText: "Customer satisfaction rating",
     customerStoriesLabel: "Reviews",
     callTitle: "Get in Touch",
     callSubtitle: "We'd love to hear from you",
@@ -400,40 +396,6 @@ export const CustomerFeedback: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            <div className="mt-8 bg-blue-50 rounded-lg p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-blue-100 px-3 py-1 rounded-full">
-                      <span className="text-blue-950 font-semibold">
-                        {stats?.totalProjects}+
-                      </span>
-                    </div>
-                    <span className="text-zinc-600">Projects</span>
-                  </div>
-                  <p className="text-sm text-zinc-500">
-                    {settings.text.statsSubtext}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-amber-100 px-3 py-1 rounded-full">
-                    <span className="text-amber-700 font-semibold">
-                        {stats?.averageRating}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <RatingStars rating={stats?.averageRating || 0} />
-                    </div>
-                  </div>
-                  <p className="text-sm text-zinc-500">
-                    {settings.text.averageRatingText}
-                  </p>
-                </div>
-              </div>
-            </div>
           </motion.div>
 
           <motion.div
@@ -458,7 +420,7 @@ export const CustomerFeedback: React.FC = () => {
               <CardContent className="space-y-6">
                 <div className="flex items-center p-4 bg-blue-50 rounded-lg">
                   <div className="bg-white p-3 rounded-full mr-4 shadow-sm">
-                    <Phone className="h-6 w-6 text-blue-950" />
+                  <Phone className="h-6 w-6 text-blue-950" />
                   </div>
                   <div>
                     <p className="text-sm text-blue-950 font-medium">
