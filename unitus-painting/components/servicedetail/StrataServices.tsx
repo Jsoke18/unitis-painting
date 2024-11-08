@@ -35,6 +35,7 @@ const Header: React.FC<{ title: string; image: string }> = ({ title, image }) =>
     </div>
   </motion.header>
 );
+
 const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ services, title }) => (
   <Card className="w-full h-full flex flex-col">
     <CardHeader className="pb-2">
@@ -62,71 +63,6 @@ const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ ser
       </ul>
     </CardContent>
   </Card>
-);
-
-const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
-  <section className="mt-16">
-    <motion.h2
-      className="text-3xl font-extrabold text-blue-950 text-center mb-8"
-      variants={fadeIn}
-      initial="initial"
-      animate="animate"
-    >
-      {title}
-    </motion.h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {projects.map((project, index) => (
-        <motion.div
-          key={index}
-          variants={fadeIn}
-          initial="initial"
-          animate="animate"
-          transition={{ delay: index * 0.1 }}
-          whileHover={{ 
-            scale: 1.05, 
-            rotate: 1,
-            transition: { 
-              type: "spring", 
-              stiffness: 300, 
-              damping: 10 
-            }
-          }}
-          className="cursor-pointer"
-        >
-          <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-xl">
-            <CardContent className="p-0">
-              <img src={project.image} alt={project.title} className="w-full h-48 object-cover rounded-t-lg" />
-              <div className="p-4">
-                <h3 className="text-xl font-bold text-blue-950">{project.title}</h3>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
-    </div>
-  </section>
-);
-
-const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
-  <motion.section
-    className="bg-amber-400 py-16 mt-16"
-    variants={fadeIn}
-    initial="initial"
-    animate="animate"
-  >
-    <div className="container mx-auto flex items-center justify-center space-x-6">
-      <h2 className="text-3xl font-bold text-black">{title}</h2>
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <Button variant="default" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-          {buttonText}
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </motion.div>
-    </div>
-  </motion.section>
 );
 
 const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
@@ -232,15 +168,79 @@ const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
   );
 };
 
+const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
+  <section className="mt-16">
+    <motion.h2
+      className="text-3xl font-extrabold text-blue-950 text-center mb-8"
+      variants={fadeIn}
+      initial="initial"
+      animate="animate"
+    >
+      {title}
+    </motion.h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {projects.map((project, index) => (
+        <motion.div
+          key={index}
+          variants={fadeIn}
+          initial="initial"
+          animate="animate"
+          transition={{ delay: index * 0.1 }}
+          whileHover={{ 
+            scale: 1.05, 
+            rotate: 1,
+            transition: { 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 10 
+            }
+          }}
+          className="cursor-pointer"
+        >
+          <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-xl">
+            <CardContent className="p-0">
+              <img src={project.image} alt={project.title} className="w-full h-48 object-cover rounded-t-lg" />
+              <div className="p-4">
+                <h3 className="text-xl font-bold text-blue-950">{project.title}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
+  </section>
+);
+
+const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
+  <motion.section
+    className="bg-amber-400 py-16 mt-16"
+    variants={fadeIn}
+    initial="initial"
+    animate="animate"
+  >
+    <div className="container mx-auto flex items-center justify-center space-x-6">
+      <h2 className="text-3xl font-bold text-black">{title}</h2>
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Button variant="default" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+          {buttonText}
+          <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
+      </motion.div>
+    </div>
+  </motion.section>
+);
+
 const StrataServiceDetails: React.FC = () => {
   return (
     <div className="bg-white mt-24">
       <main className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <aside className="lg:col-span-1 h-full">
-            <ServiceList services={StrataServicesContent.services} title={StrataServicesContent.servicesTitle} />
-          </aside>
-          <section className="lg:col-span-2">
+        {/* Mobile-first layout: Stack video/description above checkmarks */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
+          {/* Video and description section - full width on mobile, 2/3 width on desktop */}
+          <section className="order-1 lg:order-2 lg:col-span-2">
             <FeaturedProject 
               title="Staples in Burnaby: Exterior Power Washing and Repainting"
               subtitle={StrataServicesContent.descriptionTitle}
@@ -248,10 +248,26 @@ const StrataServiceDetails: React.FC = () => {
               videoSrc={StrataServicesContent.descriptionVideo}
             />
           </section>
+          
+          {/* Checkmarks section - full width on mobile, 1/3 width on desktop */}
+          <aside className="order-2 lg:order-1 lg:col-span-1">
+            <ServiceList 
+              services={StrataServicesContent.services} 
+              title={StrataServicesContent.servicesTitle} 
+            />
+          </aside>
         </div>
-        <ProjectShowcase projects={StrataServicesContent.projects} title={StrataServicesContent.projectShowcaseTitle} />
+        
+        <ProjectShowcase 
+          projects={StrataServicesContent.projects} 
+          title={StrataServicesContent.projectShowcaseTitle} 
+        />
       </main>
-      <CallToAction title={StrataServicesContent.ctaTitle} buttonText={StrataServicesContent.ctaButtonText} />
+      
+      <CallToAction 
+        title={StrataServicesContent.ctaTitle} 
+        buttonText={StrataServicesContent.ctaButtonText} 
+      />
     </div>
   );
 };

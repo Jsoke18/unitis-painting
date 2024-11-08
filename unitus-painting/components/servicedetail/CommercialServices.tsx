@@ -125,120 +125,117 @@ const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, 
   </motion.section>
 );
 
-
 const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.5);
-    const [muted, setMuted] = useState(true);
-    const [played, setPlayed] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const playerRef = useRef(null);
-  
-    const handlePlayPause = () => setIsPlaying(!isPlaying);
-    const handleVolumeChange = (newValue) => {
-      setVolume(newValue[0]);
-      setMuted(newValue[0] === 0);
-    };
-    const handleProgress = (state) => setPlayed(state.played);
-    const handleMuteToggle = () => setMuted(!muted);
-    const handleSeekChange = (newValue) => {
-      setPlayed(newValue[0]);
-      playerRef.current.seekTo(newValue[0]);
-    };
-  
-    const formatTime = (seconds) => {
-      const date = new Date(seconds * 1000);
-      const hh = date.getUTCHours();
-      const mm = date.getUTCMinutes();
-      const ss = date.getUTCSeconds().toString().padStart(2, "0");
-      if (hh) {
-        return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
-      }
-      return `${mm}:${ss}`;
-    };
-  
-    return (
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          <div className="relative aspect-video">
-            <ReactPlayer
-              ref={playerRef}
-              url={videoSrc}
-              width="100%"
-              height="100%"
-              playing={isPlaying}
-              volume={volume}
-              muted={muted}
-              loop
-              progressInterval={1000}
-              onProgress={handleProgress}
-              onDuration={setDuration}
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-              <div className="flex items-center justify-between mb-2">
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [muted, setMuted] = useState(true);
+  const [played, setPlayed] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const playerRef = useRef(null);
+
+  const handlePlayPause = () => setIsPlaying(!isPlaying);
+  const handleVolumeChange = (newValue) => {
+    setVolume(newValue[0]);
+    setMuted(newValue[0] === 0);
+  };
+  const handleProgress = (state) => setPlayed(state.played);
+  const handleMuteToggle = () => setMuted(!muted);
+  const handleSeekChange = (newValue) => {
+    setPlayed(newValue[0]);
+    playerRef.current.seekTo(newValue[0]);
+  };
+
+  const formatTime = (seconds) => {
+    const date = new Date(seconds * 1000);
+    const hh = date.getUTCHours();
+    const mm = date.getUTCMinutes();
+    const ss = date.getUTCSeconds().toString().padStart(2, "0");
+    if (hh) {
+      return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
+    }
+    return `${mm}:${ss}`;
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="relative aspect-video">
+          <ReactPlayer
+            ref={playerRef}
+            url={videoSrc}
+            width="100%"
+            height="100%"
+            playing={isPlaying}
+            volume={volume}
+            muted={muted}
+            loop
+            progressInterval={1000}
+            onProgress={handleProgress}
+            onDuration={setDuration}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={handlePlayPause}
+                className="text-white hover:bg-white/20"
+              >
+                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </Button>
+              <div className="flex items-center space-x-2">
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={handlePlayPause}
+                  onClick={handleMuteToggle}
                   className="text-white hover:bg-white/20"
                 >
-                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                  {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                 </Button>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={handleMuteToggle}
-                    className="text-white hover:bg-white/20"
-                  >
-                    {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                  </Button>
-                  <Slider
-                    className="w-24"
-                    value={[muted ? 0 : volume]}
-                    max={1}
-                    step={0.1}
-                    onValueChange={handleVolumeChange}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
                 <Slider
-                  className="flex-grow"
-                  value={[played]}
+                  className="w-24"
+                  value={[muted ? 0 : volume]}
                   max={1}
-                  step={0.001}
-                  onValueChange={handleSeekChange}
+                  step={0.1}
+                  onValueChange={handleVolumeChange}
                 />
-                <span className="text-white text-sm">
-                  {formatTime(played * duration)} / {formatTime(duration)}
-                </span>
               </div>
             </div>
+            <div className="flex items-center space-x-2">
+              <Slider
+                className="flex-grow"
+                value={[played]}
+                max={1}
+                step={0.001}
+                onValueChange={handleSeekChange}
+              />
+              <span className="text-white text-sm">
+                {formatTime(played * duration)} / {formatTime(duration)}
+              </span>
+            </div>
           </div>
-          <div className="p-6">
-            <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
-              Featured Project
-            </Badge>
-            <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
-            <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
-            <p className="text-gray-700 leading-relaxed">{description}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-  
+        </div>
+        <div className="p-6">
+          <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
+            Featured Project
+          </Badge>
+          <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
+          <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
+          <p className="text-gray-700 leading-relaxed">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const CommercialServices: React.FC = () => {
   return (
     <div className="bg-white mt-24">
       <main className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <aside className="lg:col-span-1 h-full">
-            <ServiceList services={commercialServicesContent.services} title={commercialServicesContent.servicesTitle} />
-          </aside>
-          <section className="lg:col-span-2">
+        {/* Mobile-first layout with flex column that converts to grid on larger screens */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
+          {/* Video and description section - appears first on mobile */}
+          <section className="order-1 lg:order-2 lg:col-span-2">
             <FeaturedProject 
               title="Staples in Burnaby: Exterior Power Washing and Repainting"
               subtitle={commercialServicesContent.descriptionTitle}
@@ -246,10 +243,26 @@ const CommercialServices: React.FC = () => {
               videoSrc={commercialServicesContent.descriptionVideo}
             />
           </section>
+          
+          {/* Services checklist section - appears second on mobile */}
+          <aside className="order-2 lg:order-1 lg:col-span-1">
+            <ServiceList 
+              services={commercialServicesContent.services} 
+              title={commercialServicesContent.servicesTitle} 
+            />
+          </aside>
         </div>
-        <ProjectShowcase projects={commercialServicesContent.projects} title={commercialServicesContent.projectShowcaseTitle} />
+
+        <ProjectShowcase 
+          projects={commercialServicesContent.projects} 
+          title={commercialServicesContent.projectShowcaseTitle} 
+        />
       </main>
-      <CallToAction title={commercialServicesContent.ctaTitle} buttonText={commercialServicesContent.ctaButtonText} />
+      
+      <CallToAction 
+        title={commercialServicesContent.ctaTitle} 
+        buttonText={commercialServicesContent.ctaButtonText} 
+      />
     </div>
   );
 };

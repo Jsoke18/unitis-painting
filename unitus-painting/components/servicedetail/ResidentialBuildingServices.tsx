@@ -1,4 +1,3 @@
-'use client'
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Check, Play, Pause, Volume2, VolumeX } from 'lucide-react';
@@ -8,88 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import QuoteRequestDialog from "@/components/landing/QuoteRequestDialog";
+import { ResidentalContent, ServiceItem, ProjectItem } from './ResidentialServices';
 
-// Types
-interface ServiceItem {
-  name: string;
-  link: string;
-}
-
-interface ProjectItem {
-  title: string;
-  image: string;
-}
-
-interface HeaderProps {
-  title: string;
-  image: string;
-}
-
-interface ServiceListProps {
-  services: ServiceItem[];
-  title: string;
-}
-
-interface ProjectShowcaseProps {
-  projects: ProjectItem[];
-  title: string;
-}
-
-interface CallToActionProps {
-  title: string;
-  buttonText: string;
-}
-
-interface FeaturedProjectProps {
-  title: string;
-  subtitle: string;
-  description: string;
-  videoSrc: string;
-}
-
-// Content Data
-export const ResidentalContent = {
-  servicesTitle: "Our Residential Services",
-  services: [
-    { name: "Interior Painting", link: "/services/interior-painting" },
-    { name: "Exterior Painting", link: "/services/exterior-painting" },
-    { name: "Cabinet Painting", link: "/services/cabinet-painting" },
-    { name: "Power Washing", link: "/services/power-washing" },
-    { name: "Carpentry", link: "/services/carpentry" },
-    { name: "Drywall Repair", link: "/services/drywall-repair" },
-    { name: "Staining", link: "/services/staining" },
-  ],
-  descriptionTitle: "Professional House Painting Services",
-  descriptionText: "Transform your home with our professional painting services. We handle everything from surface preparation to the final coat, ensuring a beautiful and lasting finish.",
-  descriptionVideo: "https://example.com/sample-video.mp4",
-  projectShowcaseTitle: "Recent Residential Projects",
-  projects: [
-    { title: "Modern Exterior Makeover", image: "/images/project1.jpg" },
-    { title: "Kitchen Cabinet Refinishing", image: "/images/project2.jpg" },
-    { title: "Complete Interior Repaint", image: "/images/project3.jpg" },
-    { title: "Deck Restoration", image: "/images/project4.jpg" },
-  ],
-  ctaTitle: "Ready to Transform Your Home?",
-  ctaButtonText: "Get Your Free Quote Today"
-};
-
-// Animation variants
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6 }
 };
 
-// Header Component
-const Header: React.FC<HeaderProps> = ({ title, image }) => (
+const Header: React.FC<{ title: string; image: string }> = ({ title, image }) => (
   <motion.header
     className="relative w-full min-h-[389px] text-white"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 1 }}
   >
-    <img src={image} alt="Header background" className="absolute inset-0 object-cover w-full h-full" />
+    <img src={image} alt="Commercial building background" className="absolute inset-0 object-cover w-full h-full" />
     <div className="absolute inset-0 bg-blue-950 bg-opacity-80 flex items-center justify-center">
       <motion.h1
         className="text-6xl font-extrabold tracking-wider text-center px-4"
@@ -103,8 +36,7 @@ const Header: React.FC<HeaderProps> = ({ title, image }) => (
   </motion.header>
 );
 
-// Service List Component
-const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
+const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ services, title }) => (
   <Card className="w-full h-full flex flex-col">
     <CardHeader className="pb-2">
       <CardTitle className="text-3xl font-bold text-blue-950">{title}</CardTitle>
@@ -121,7 +53,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
             transition={{ delay: index * 0.1 }}
           >
             <Check className="text-green-500 h-6 w-6 flex-shrink-0" />
-            <Link href={service.link}>
+            <Link href={service.link} passHref>
               <span className="text-zinc-700 text-lg leading-tight cursor-pointer hover:text-blue-600 transition-colors duration-200">
                 {service.name}
               </span>
@@ -133,8 +65,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
   </Card>
 );
 
-// Project Showcase Component
-const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) => (
+const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
   <section className="mt-16">
     <motion.h2
       className="text-3xl font-extrabold text-blue-950 text-center mb-8"
@@ -177,56 +108,49 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) =>
   </section>
 );
 
-// Call to Action Component
-const CallToAction: React.FC<CallToActionProps> = ({ title, buttonText }) => (
+const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
   <motion.section
     className="bg-amber-400 py-16 mt-16"
     variants={fadeIn}
     initial="initial"
     animate="animate"
   >
-    <div className="container mx-auto flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 px-4">
-      <h2 className="text-3xl font-bold text-black text-center md:text-left">{title}</h2>
+    <div className="container mx-auto flex items-center justify-center space-x-6">
+      <h2 className="text-3xl font-bold text-black">{title}</h2>
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <QuoteRequestDialog
-          buttonClassName="bg-white text-gray-900 hover:bg-gray-100 inline-flex items-center px-6 py-3 rounded-md font-medium shadow-lg"
-          buttonContent={
-            <>
-              {buttonText}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </>
-          }
-        />
+        <Button variant="default" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+          {buttonText}
+          <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
       </motion.div>
     </div>
   </motion.section>
 );
 
-// Featured Project Component with Video Player
-const FeaturedProject: React.FC<FeaturedProjectProps> = ({ title, subtitle, description, videoSrc }) => {
+const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [muted, setMuted] = useState(true);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
-  const playerRef = useRef<ReactPlayer>(null);
+  const playerRef = useRef(null);
 
   const handlePlayPause = () => setIsPlaying(!isPlaying);
-  const handleVolumeChange = (newValue: number[]) => {
+  const handleVolumeChange = (newValue) => {
     setVolume(newValue[0]);
     setMuted(newValue[0] === 0);
   };
-  const handleProgress = (state: { played: number }) => setPlayed(state.played);
+  const handleProgress = (state) => setPlayed(state.played);
   const handleMuteToggle = () => setMuted(!muted);
-  const handleSeekChange = (newValue: number[]) => {
+  const handleSeekChange = (newValue) => {
     setPlayed(newValue[0]);
-    playerRef.current?.seekTo(newValue[0]);
+    playerRef.current.seekTo(newValue[0]);
   };
 
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds) => {
     const date = new Date(seconds * 1000);
     const hh = date.getUTCHours();
     const mm = date.getUTCMinutes();
@@ -302,26 +226,20 @@ const FeaturedProject: React.FC<FeaturedProjectProps> = ({ title, subtitle, desc
           </Badge>
           <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
           <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
-          <p className="text-lg lg:text-xl text-gray-700 leading-relaxed">{description}</p>
+          <p className="text-gray-700 leading-relaxed">{description}</p>
         </div>
       </CardContent>
     </Card>
   );
 };
-
-// Main Residential Page Component
-const ResidentialPage: React.FC = () => {
+const ResidentalPage: React.FC = () => {
   return (
-    <div className="bg-white mt-12 lg:mt-24">
-      <main className="container mx-auto px-4 py-8 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Services section - hidden on mobile, shown first on desktop */}
-          <aside className="lg:col-span-1 h-full order-2 lg:order-1 hidden lg:block">
-            <ServiceList services={ResidentalContent.services} title={ResidentalContent.servicesTitle} />
-          </aside>
-
-          {/* Featured Project section */}
-          <section className="lg:col-span-2 order-1 lg:order-2">
+    <div className="bg-white mt-24">
+      <main className="container mx-auto px-4 py-16">
+        {/* Mobile-first layout with flex column that converts to grid on larger screens */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
+          {/* Video and description section - appears first on mobile */}
+          <section className="order-1 lg:order-2 lg:col-span-2">
             <FeaturedProject 
               title="Staples in Burnaby: Exterior Power Washing and Repainting"
               subtitle={ResidentalContent.descriptionTitle}
@@ -329,20 +247,15 @@ const ResidentialPage: React.FC = () => {
               videoSrc={ResidentalContent.descriptionVideo}
             />
           </section>
-
-          {/* Mobile-only services section */}
-          <aside className="lg:col-span-1 h-full order-2 lg:hidden">
-            <ServiceList services={ResidentalContent.services} title={ResidentalContent.servicesTitle} />
+          
+          {/* Services checklist section - appears second on mobile */}
+          <aside className="order-2 lg:order-1 lg:col-span-1">
+            <ServiceList 
+              services={ResidentalContent.services} 
+              title={ResidentalContent.servicesTitle} 
+            />
           </aside>
         </div>
-        
-        <motion.div
-          className="mt-16 mb-8"
-          variants={fadeIn}
-          initial="initial"
-          animate="animate"
-        >
-        </motion.div>
 
         <ProjectShowcase 
           projects={ResidentalContent.projects} 
@@ -358,4 +271,4 @@ const ResidentialPage: React.FC = () => {
   );
 };
 
-export default ResidentialPage;
+export default ResidentalPage;
