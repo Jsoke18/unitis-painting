@@ -106,28 +106,29 @@ const StatisticsCard: React.FC<{
       whileTap={{ scale: 0.95 }}
       className="w-full sm:w-64"
     >
-      <Card className="h-auto sm:h-64 flex flex-row sm:flex-col items-center sm:justify-between p-4 sm:p-6 my-2 sm:my-8
+      <Card className="h-auto sm:h-64 flex flex-col justify-center items-center p-6 my-2 sm:my-8
                       backdrop-blur-sm bg-white/90 hover:bg-white transition-colors duration-300">
-        <div className="flex items-center sm:flex-col flex-1">
+        <div className="flex flex-col items-center justify-center w-full space-y-4">
           <motion.div
             variants={iconVariants}
             whileHover="hover"
-            className="relative"
+            className="relative flex items-center justify-center"
           >
             <motion.div
               className="absolute inset-0 bg-gray-100 rounded-full opacity-20"
               whileHover={{ scale: 1.5, opacity: 0.1 }}
+              style={{ width: '80px', height: '80px' }}
             />
-            <Icon className={`w-12 h-12 sm:w-16 sm:h-16 sm:mb-4 ${iconColor} relative z-10`} />
+            <Icon className={`w-16 h-16 ${iconColor} relative z-10`} />
           </motion.div>
           
-          <CardContent className="text-left sm:text-center pl-4 sm:pl-0 flex-1">
+          <CardContent className="text-center p-0 mt-4">
             <motion.div
               variants={numberVariants}
               className="overflow-hidden"
             >
               <motion.h3
-                className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2"
+                className="text-2xl font-bold mb-2"
                 whileHover={{ 
                   scale: 1.1, 
                   color: "#3B82F6",
@@ -138,7 +139,7 @@ const StatisticsCard: React.FC<{
               </motion.h3>
             </motion.div>
             <motion.p 
-              className="text-gray-600 text-sm sm:text-base"
+              className="text-gray-600 text-base"
               initial={{ opacity: 0, y: 10 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
               transition={{ delay: index * 0.2 + 0.5, duration: 0.4 }}
@@ -185,7 +186,7 @@ const StatisticsSection: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto">
         <motion.main
-          className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-8 justify-center my-8 sm:my-14"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-8 justify-items-center my-8 sm:my-14"
         >
           {statisticsData.map((stat, index) => (
             <StatisticsCard
