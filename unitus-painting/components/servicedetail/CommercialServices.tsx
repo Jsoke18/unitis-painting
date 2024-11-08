@@ -1,4 +1,3 @@
-'use client'
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Check, Play, Pause, Volume2, VolumeX } from 'lucide-react';
@@ -7,81 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import QuoteRequestDialog from "@/components/landing/QuoteRequestDialog";
+import { commercialServicesContent, ServiceItem, ProjectItem } from './CommercialServiceContent';
 
-// Types
-interface ServiceItem {
-  name: string;
-  link: string;
-}
-
-interface ProjectItem {
-  title: string;
-  image: string;
-}
-
-interface HeaderProps {
-  title: string;
-  image: string;
-}
-
-interface ServiceListProps {
-  services: ServiceItem[];
-  title: string;
-}
-
-interface ProjectShowcaseProps {
-  projects: ProjectItem[];
-  title: string;
-}
-
-interface CallToActionProps {
-  title: string;
-  buttonText: string;
-}
-
-interface FeaturedProjectProps {
-  title: string;
-  subtitle: string;
-  description: string;
-  videoSrc: string;
-}
-
-// Content Data
-export const commercialServicesContent = {
-  servicesTitle: "Our Commercial Services",
-  services: [
-    { name: "Interior Commercial Painting", link: "/services/interior-commercial" },
-    { name: "Exterior Commercial Painting", link: "/services/exterior-commercial" },
-    { name: "Line Painting", link: "/services/line-painting" },
-    { name: "Parkade Painting", link: "/services/parkade" },
-    { name: "Industrial Coatings", link: "/services/industrial-coatings" },
-    { name: "Project Management", link: "/services/project-management" },
-    { name: "After Hours Service", link: "/services/after-hours" },
-  ],
-  descriptionTitle: "Commercial & Industrial Painting Solutions",
-  descriptionText: "We specialize in providing comprehensive commercial painting services with minimal disruption to your business operations. Our team works efficiently to deliver outstanding results on schedule.",
-  descriptionVideo: "https://example.com/commercial-video.mp4",
-  projectShowcaseTitle: "Featured Commercial Projects",
-  projects: [
-    { title: "Office Complex Renovation", image: "/images/commercial1.jpg" },
-    { title: "Industrial Facility Coating", image: "/images/commercial2.jpg" },
-    { title: "Retail Space Transformation", image: "/images/commercial3.jpg" },
-    { title: "Warehouse Line Marking", image: "/images/commercial4.jpg" },
-  ],
-  ctaTitle: "Ready to Transform Your Commercial Space?",
-  ctaButtonText: "Get Your Free Quote"
-};
-
-// Animation variants
 const fadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6 }
 };
 
-// Header Component
-const Header: React.FC<HeaderProps> = ({ title, image }) => (
+const Header: React.FC<{ title: string; image: string }> = ({ title, image }) => (
   <motion.header
     className="relative w-full min-h-[389px] text-white"
     initial={{ opacity: 0 }}
@@ -102,8 +35,7 @@ const Header: React.FC<HeaderProps> = ({ title, image }) => (
   </motion.header>
 );
 
-// Service List Component
-const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
+const ServiceList: React.FC<{ services: ServiceItem[]; title: string }> = ({ services, title }) => (
   <Card className="w-full h-full flex flex-col">
     <CardHeader className="pb-2">
       <CardTitle className="text-3xl font-bold text-blue-950">{title}</CardTitle>
@@ -120,9 +52,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
             transition={{ delay: index * 0.1 }}
           >
             <Check className="text-green-500 h-6 w-6 flex-shrink-0" />
-            <span className="text-zinc-700 text-lg leading-tight cursor-pointer hover:text-blue-600 transition-colors duration-200">
-              {service.name}
-            </span>
+            <span className="text-zinc-700 text-lg leading-tight">{service.name}</span>
           </motion.li>
         ))}
       </ul>
@@ -130,8 +60,7 @@ const ServiceList: React.FC<ServiceListProps> = ({ services, title }) => (
   </Card>
 );
 
-// Project Showcase Component
-const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) => (
+const ProjectShowcase: React.FC<{ projects: ProjectItem[]; title: string }> = ({ projects, title }) => (
   <section className="mt-16">
     <motion.h2
       className="text-3xl font-extrabold text-blue-950 text-center mb-8"
@@ -162,11 +91,7 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) =>
         >
           <Card className="h-full transition-all duration-300 ease-in-out hover:shadow-xl">
             <CardContent className="p-0">
-              <img 
-                src={project.image} 
-                alt={project.title} 
-                className="w-full h-48 object-cover rounded-t-lg" 
-              />
+              <img src={project.image} alt={project.title} className="w-full h-48 object-cover rounded-t-lg" />
               <div className="p-4">
                 <h3 className="text-xl font-bold text-blue-950">{project.title}</h3>
               </div>
@@ -178,178 +103,153 @@ const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ projects, title }) =>
   </section>
 );
 
-// Call to Action Component with Quote Request Dialog
-const CallToAction: React.FC<CallToActionProps> = ({ title, buttonText }) => (
+const CallToAction: React.FC<{ title: string; buttonText: string }> = ({ title, buttonText }) => (
   <motion.section
     className="bg-amber-400 py-16 mt-16"
     variants={fadeIn}
     initial="initial"
     animate="animate"
   >
-    <div className="container mx-auto flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 px-4">
-      <h2 className="text-3xl font-bold text-black text-center md:text-left">{title}</h2>
+    <div className="container mx-auto flex items-center justify-center space-x-6">
+      <h2 className="text-3xl font-bold text-black">{title}</h2>
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <QuoteRequestDialog
-          buttonClassName="bg-white text-gray-900 hover:bg-gray-100 inline-flex items-center px-6 py-3 text-lg font-medium rounded-md shadow-lg"
-          buttonContent={
-            <>
-              {buttonText}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </>
-          }
-        />
+        <Button variant="default" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+          {buttonText}
+          <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
       </motion.div>
     </div>
   </motion.section>
 );
 
-// Featured Project Component with Video Player
-const FeaturedProject: React.FC<FeaturedProjectProps> = ({ title, subtitle, description, videoSrc }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [muted, setMuted] = useState(true);
-  const [played, setPlayed] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const playerRef = useRef<ReactPlayer>(null);
 
-  const handlePlayPause = () => setIsPlaying(!isPlaying);
-  const handleVolumeChange = (newValue: number[]) => {
-    setVolume(newValue[0]);
-    setMuted(newValue[0] === 0);
-  };
-  const handleProgress = (state: { played: number }) => setPlayed(state.played);
-  const handleMuteToggle = () => setMuted(!muted);
-  const handleSeekChange = (newValue: number[]) => {
-    setPlayed(newValue[0]);
-    playerRef.current?.seekTo(newValue[0]);
-  };
-
-  const formatTime = (seconds: number) => {
-    const date = new Date(seconds * 1000);
-    const hh = date.getUTCHours();
-    const mm = date.getUTCMinutes();
-    const ss = date.getUTCSeconds().toString().padStart(2, "0");
-    if (hh) {
-      return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
-    }
-    return `${mm}:${ss}`;
-  };
-
-  return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-0">
-        <div className="relative aspect-video">
-          <ReactPlayer
-            ref={playerRef}
-            url={videoSrc}
-            width="100%"
-            height="100%"
-            playing={isPlaying}
-            volume={volume}
-            muted={muted}
-            loop
-            progressInterval={1000}
-            onProgress={handleProgress}
-            onDuration={setDuration}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-            <div className="flex items-center justify-between mb-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handlePlayPause}
-                className="text-white hover:bg-white/20"
-              >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-              </Button>
-              <div className="flex items-center space-x-2">
+const FeaturedProject = ({ title, subtitle, description, videoSrc }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [volume, setVolume] = useState(0.5);
+    const [muted, setMuted] = useState(true);
+    const [played, setPlayed] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const playerRef = useRef(null);
+  
+    const handlePlayPause = () => setIsPlaying(!isPlaying);
+    const handleVolumeChange = (newValue) => {
+      setVolume(newValue[0]);
+      setMuted(newValue[0] === 0);
+    };
+    const handleProgress = (state) => setPlayed(state.played);
+    const handleMuteToggle = () => setMuted(!muted);
+    const handleSeekChange = (newValue) => {
+      setPlayed(newValue[0]);
+      playerRef.current.seekTo(newValue[0]);
+    };
+  
+    const formatTime = (seconds) => {
+      const date = new Date(seconds * 1000);
+      const hh = date.getUTCHours();
+      const mm = date.getUTCMinutes();
+      const ss = date.getUTCSeconds().toString().padStart(2, "0");
+      if (hh) {
+        return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
+      }
+      return `${mm}:${ss}`;
+    };
+  
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="relative aspect-video">
+            <ReactPlayer
+              ref={playerRef}
+              url={videoSrc}
+              width="100%"
+              height="100%"
+              playing={isPlaying}
+              volume={volume}
+              muted={muted}
+              loop
+              progressInterval={1000}
+              onProgress={handleProgress}
+              onDuration={setDuration}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+              <div className="flex items-center justify-between mb-2">
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={handleMuteToggle}
+                  onClick={handlePlayPause}
                   className="text-white hover:bg-white/20"
                 >
-                  {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleMuteToggle}
+                    className="text-white hover:bg-white/20"
+                  >
+                    {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                  </Button>
+                  <Slider
+                    className="w-24"
+                    value={[muted ? 0 : volume]}
+                    max={1}
+                    step={0.1}
+                    onValueChange={handleVolumeChange}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
                 <Slider
-                  className="w-24"
-                  value={[muted ? 0 : volume]}
+                  className="flex-grow"
+                  value={[played]}
                   max={1}
-                  step={0.1}
-                  onValueChange={handleVolumeChange}
+                  step={0.001}
+                  onValueChange={handleSeekChange}
                 />
+                <span className="text-white text-sm">
+                  {formatTime(played * duration)} / {formatTime(duration)}
+                </span>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Slider
-                className="flex-grow"
-                value={[played]}
-                max={1}
-                step={0.001}
-                onValueChange={handleSeekChange}
-              />
-              <span className="text-white text-sm">
-                {formatTime(played * duration)} / {formatTime(duration)}
-              </span>
-            </div>
           </div>
-        </div>
-        <div className="p-6">
-          <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
-            Featured Project
-          </Badge>
-          <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
-          <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
-          <p className="text-lg lg:text-xl text-gray-700 leading-relaxed">{description}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+          <div className="p-6">
+            <Badge variant="default" className="mb-4 bg-blue-950 text-white hover:bg-blue-700">
+              Featured Project
+            </Badge>
+            <h2 className="text-2xl font-bold text-blue-950 mb-2">{title}</h2>
+            <h3 className="text-xl font-semibold text-black mb-4">{subtitle}</h3>
+            <p className="text-gray-700 leading-relaxed">{description}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+  
 
-// Main Commercial Services Page Component
 const CommercialServices: React.FC = () => {
   return (
-    <div className="bg-white mt-12 lg:mt-24">
-      <main className="container mx-auto px-4 py-8 lg:py-16">
+    <div className="bg-white mt-24">
+      <main className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <aside className="lg:col-span-1 h-full order-2 lg:order-1 hidden lg:block">
-            <ServiceList 
-              services={commercialServicesContent.services} 
-              title={commercialServicesContent.servicesTitle} 
-            />
+          <aside className="lg:col-span-1 h-full">
+            <ServiceList services={commercialServicesContent.services} title={commercialServicesContent.servicesTitle} />
           </aside>
-
-          <section className="lg:col-span-2 order-1 lg:order-2">
+          <section className="lg:col-span-2">
             <FeaturedProject 
-              title="Commercial Services Portfolio"
+              title="Staples in Burnaby: Exterior Power Washing and Repainting"
               subtitle={commercialServicesContent.descriptionTitle}
               description={commercialServicesContent.descriptionText}
               videoSrc={commercialServicesContent.descriptionVideo}
             />
           </section>
-
-          <aside className="lg:col-span-1 h-full order-2 lg:hidden">
-            <ServiceList 
-              services={commercialServicesContent.services} 
-              title={commercialServicesContent.servicesTitle} 
-            />
-          </aside>
         </div>
-
-        <ProjectShowcase 
-          projects={commercialServicesContent.projects} 
-          title={commercialServicesContent.projectShowcaseTitle} 
-        />
+        <ProjectShowcase projects={commercialServicesContent.projects} title={commercialServicesContent.projectShowcaseTitle} />
       </main>
-      
-      <CallToAction 
-        title={commercialServicesContent.ctaTitle} 
-        buttonText={commercialServicesContent.ctaButtonText} 
-      />
+      <CallToAction title={commercialServicesContent.ctaTitle} buttonText={commercialServicesContent.ctaButtonText} />
     </div>
   );
 };

@@ -73,7 +73,7 @@ export const ResidentalContent = {
   servicesTitle: "Our Residential Services Include",
   projectShowcaseTitle: "",
   descriptionTitle: "About Our Residential Services",
-  descriptionVideo: "/videos/164-Townhomes-in-Langley-BC-carpentry-painting-joint sealant.mp4",
+  descriptionVideo: "https://storage.googleapis.com/unitis-videos/164_townhomes_in_langley%2C_bc_-_carpentry_-_painting_-_joint_sealant%20(720p).mp4",
   descriptionText: "Unitus Painting is dedicated to providing top-tier commercial building services tailored to your needs. We understand the importance of maintaining a professional and inviting environment for your tenants, customers, and visitors. Our team of skilled professionals is committed to ensuring that your commercial property is both visually appealing and structurally sound. From exterior painting and line marking to power washing and carpentry repairs, we take pride in delivering high-quality services with efficiency and attention to detail. At Unitus Painting, our focus is on building lasting relationships with our clients by offering reliable, timely, and effective solutions for every project, regardless of its size.",
   
   ctaTitle: "Ready To Get Started?",
