@@ -37,7 +37,7 @@ const defaultSettings = {
     formSuccessMessage: "Thank you! We'll be in touch soon.",
     formErrorMessage: "There was an error sending your message. Please try again.",
     directCallText: "Prefer to talk now?",
-    phoneNumber: "(555) 123-4567"
+    phoneNumber: "(833)-300-6888"
   }
 };
 
