@@ -1,26 +1,51 @@
-"use client";
-
-import React from 'react';
+// components/sections/GetQuote.tsx
+'use client';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { QuoteContent, defaultQuoteContent } from '@/app/types/quote';
 
 const GetQuote: React.FC = () => {
+  const [content, setContent] = useState<QuoteContent>(defaultQuoteContent);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch('/api/quote');
+        if (!response.ok) throw new Error('Failed to fetch quote content');
+        const data = await response.json();
+        setContent(data);
+      } catch (error) {
+        console.error('Error fetching quote content:', error);
+        setContent(defaultQuoteContent);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a better loading state
+  }
+
   return (
     <section className="bg-amber-400 py-20 mt-24">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 mb-8 md:mb-0">
             <h2 className="text-3xl font-extrabold text-blue-950 mb-4">
-              Get a Free Quote Today
+              {content.heading}
             </h2>
             <p className="text-lg text-blue-950 mb-6">
-              Ready to transform your space? Whether it's a residential, commercial, strata, or hospitality we're here to bring your vision to life. Get a personalized quote for your painting needs.
+              {content.description}
             </p>
             <ul className="list-disc list-inside text-blue-950">
-              <li>Expert consultation</li>
-              <li>Tailored solutions for your project</li>
-              <li>Competitive pricing</li>
-              <li>Quick response time</li>
+              {content.bulletPoints.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
             </ul>
           </div>
           <div className="md:w-1/2 max-w-md">
@@ -28,7 +53,7 @@ const GetQuote: React.FC = () => {
               <div className="mb-4">
                 <Input
                   type="text"
-                  placeholder="Your Name"
+                  placeholder={content.formLabels.name}
                   className="w-full"
                   required
                 />
@@ -36,7 +61,7 @@ const GetQuote: React.FC = () => {
               <div className="mb-4">
                 <Input
                   type="email"
-                  placeholder="Your Email"
+                  placeholder={content.formLabels.email}
                   className="w-full"
                   required
                 />
@@ -44,7 +69,7 @@ const GetQuote: React.FC = () => {
               <div className="mb-4">
                 <Input
                   type="tel"
-                  placeholder="Your Phone"
+                  placeholder={content.formLabels.phone}
                   className="w-full"
                   required
                 />
@@ -54,16 +79,16 @@ const GetQuote: React.FC = () => {
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
-                  <option value="">Select Project Type</option>
-                  <option value="residential">Residential</option>
-                  <option value="commercial">Commercial</option>
-                  <option value="strata">Strata</option>
-                  <option value="strata">Other</option>
-
+                  <option value="">{content.formLabels.projectType}</option>
+                  {content.projectTypes.map((type, index) => (
+                    <option key={index} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <Button type="submit" className="w-full bg-blue-950 text-white hover:bg-blue-800">
-                Get Your Free Quote
+                {content.formLabels.submitButton}
               </Button>
             </form>
           </div>
