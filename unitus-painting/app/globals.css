@@ -65,7 +65,13 @@ body {
 .wmde-markdown h2 {
   @apply text-2xl font-semibold mb-4 mt-6;
 }
+.cursor-grab {
+  cursor: grab;
+}
 
+.cursor-grabbing {
+  cursor: grabbing;
+}
 .wmde-markdown h3 {
   @apply text-xl font-semibold mb-3 mt-5;
 }

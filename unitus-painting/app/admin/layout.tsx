@@ -61,6 +61,12 @@ const menuItems: MenuItem[] = [
     href: "/admin/services",
   },
   {
+    key: "clients",
+    icon: <MessageSquare className="w-4 h-4" />,
+    label: "Clients",
+    href: "/admin/clients",
+  },
+  {
     key: "hero",
     icon: <MessageSquare className="w-4 h-4" />,
     label: "Hero",
