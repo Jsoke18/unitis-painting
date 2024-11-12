@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Minimize2, Maximize2 } from 'lucide-react';
+import { AboutHeroContent } from '@/types/AboutHero';
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
@@ -23,6 +24,7 @@ type State = {
   isLoaded: boolean;
   isMinimized: boolean;
   isMobile: boolean;
+  content: AboutHeroContent | null;
 };
 
 const AboutUsPage = () => {
@@ -36,6 +38,7 @@ const AboutUsPage = () => {
     isLoaded: false,
     isMinimized: false,
     isMobile: false,
+    content: null,
   });
 
   useEffect(() => {
@@ -43,6 +46,21 @@ const AboutUsPage = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch('/api/about-hero');
+        if (!response.ok) throw new Error('Failed to fetch content');
+        const data = await response.json();
+        setState(prev => ({ ...prev, content: data }));
+      } catch (error) {
+        console.error('Error fetching about hero content:', error);
+      }
+    };
+
+    fetchContent();
   }, []);
 
   const containerVariants = {
@@ -88,12 +106,24 @@ const AboutUsPage = () => {
     }
   };
 
+  if (!state.content) {
+    return (
+      <div className="w-full min-h-[60vh] bg-navy-blue flex items-center justify-center">
+        <motion.div 
+          className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+    );
+  }
+
   return (
     <section 
       ref={containerRef}
       className="relative w-full min-h-[60vh] md:aspect-[21/9] overflow-hidden"
     >
-      {state.isMobile ? (
+      {state.isMobile && state.content.isMobileEnabled ? (
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-slate-900 to-blue-950" />
           <motion.div 
@@ -113,7 +143,7 @@ const AboutUsPage = () => {
       ) : (
         <div className="absolute inset-0">
           <ReactPlayer
-            url="https://player.vimeo.com/video/836294434"
+            url={state.content.videoUrl}
             width="100%"
             height="100%"
             style={{
@@ -224,7 +254,7 @@ const AboutUsPage = () => {
                         transition={{ delay: 0.2 }}
                         className="block"
                       >
-                        Crafting Excellence in
+                        {state.content.mainHeading.line1}
                       </motion.span>
                       <motion.span
                         variants={textVariants}
@@ -233,7 +263,7 @@ const AboutUsPage = () => {
                         transition={{ delay: 0.4 }}
                         className="text-amber-400 mt-2 block"
                       >
-                        Every Stroke
+                        {state.content.mainHeading.line2}
                       </motion.span>
                     </h1>
                     <motion.p 
@@ -243,7 +273,7 @@ const AboutUsPage = () => {
                       animate="animate"
                       transition={{ delay: 0.6 }}
                     >
-                      Since our founding, Unitis Painting has been dedicated to delivering exceptional painting services across British Columbia and Alberta. Our commitment to quality and attention to detail has made us a trusted name in residential, commercial, and strata painting.
+                      {state.content.description}
                     </motion.p>
                   </motion.div>
                 </motion.div>

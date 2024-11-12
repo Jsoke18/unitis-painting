@@ -9,6 +9,7 @@ import {
   Bell,
   User,
   MessageSquare,
+  Layout as LayoutIcon,
 } from "lucide-react";
 import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from "antd";
 import Link from "next/link";
@@ -18,23 +19,30 @@ const { Header, Sider, Content } = Layout;
 
 interface MenuItem {
   key: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
-  href: string;
+  href?: string;
+  children?: MenuItem[];
 }
 
 const menuItems: MenuItem[] = [
   {
-    key: "blogs",
+    key: "Blog",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Blogs",
+    label: "Blog Management",
     href: "/admin",
   },
   {
     key: "projects",
     icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Projects",
+    label: "Project Showcase",
     href: "/admin/projects",
+  },
+  {
+    key: "about-hero",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "About Hero",
+    href: "/admin/about-hero",
   },
   {
     key: "pages",
@@ -43,40 +51,47 @@ const menuItems: MenuItem[] = [
     href: "/admin/customerFeedback",
   },
   {
-    key: "reviews",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "Reviews",
-    href: "/admin/reviews",
-  },
-  {
-    key: "about",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "About",
-    href: "/admin/about",
-  },
-  {
-    key: "services",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "Services",
-    href: "/admin/services",
-  },
-  {
-    key: "clients",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "Clients",
-    href: "/admin/clients",
-  },
-  {
-    key: "quote",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "Get a Quote",
-    href: "/admin/quote",
-  },
-  {
-    key: "hero",
-    icon: <MessageSquare className="w-4 h-4" />,
-    label: "Hero",
-    href: "/admin/hero",
+    key: "landing",
+    icon: <LayoutIcon className="w-4 h-4" />,
+    label: "Update Home Page",
+    children: [
+      {
+        key: "hero",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Hero",
+        href: "/admin/hero",
+      },
+      {
+        key: "reviews",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Reviews",
+        href: "/admin/reviews",
+      },
+      {
+        key: "about",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "About",
+        href: "/admin/about",
+      },
+      {
+        key: "services",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Services",
+        href: "/admin/services",
+      },
+      {
+        key: "clients",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Clients",
+        href: "/admin/clients",
+      },
+      {
+        key: "quote",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Get a Quote",
+        href: "/admin/quote",
+      },
+    ],
   },
   {
     key: "users",
@@ -109,6 +124,25 @@ export default function AdminLayout({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  // Helper function to transform menu items
+  const transformMenuItem = (item: MenuItem) => {
+    const menuItem: any = {
+      key: item.key,
+      icon: item.icon,
+      label: item.href ? (
+        <Link href={item.href}>{item.label}</Link>
+      ) : (
+        item.label
+      ),
+    };
+
+    if (item.children) {
+      menuItem.children = item.children.map(transformMenuItem);
+    }
+
+    return menuItem;
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -132,11 +166,7 @@ export default function AdminLayout({
         <Menu
           mode="inline"
           selectedKeys={[pathname.split("/")[2] || "dashboard"]}
-          items={menuItems.map((item) => ({
-            key: item.key,
-            icon: item.icon,
-            label: <Link href={item.href}>{item.label}</Link>,
-          }))}
+          items={menuItems.map(transformMenuItem)}
           className="border-none"
         />
       </Sider>

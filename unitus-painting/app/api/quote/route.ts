@@ -1,8 +1,7 @@
-// app/api/quote/route.ts
 import { promises as fs } from 'fs';
 import { NextResponse } from 'next/server';
 import path from 'path';
-import { QuoteContent, defaultQuoteContent } from '@/app/types/quote';
+import { QuoteContent } from '@/app/types/quote';
 
 const dataFilePath = path.join(process.cwd(), 'public', 'data', 'quote-content.json');
 
@@ -14,35 +13,25 @@ async function ensureDirectoryExists() {
   }
 }
 
-async function ensureFileExists() {
-  try {
-    await fs.access(dataFilePath);
-  } catch {
-    await ensureDirectoryExists();
-    await fs.writeFile(
-      dataFilePath,
-      JSON.stringify(defaultQuoteContent, null, 2),
-      'utf8'
-    );
-  }
-}
-
 export async function GET() {
   try {
-    await ensureFileExists();
     const fileContent = await fs.readFile(dataFilePath, 'utf8');
     const data = JSON.parse(fileContent);
     return NextResponse.json(data);
   } catch (error) {
     console.error('GET Error:', error);
-    return NextResponse.json(defaultQuoteContent);
+    // If file doesn't exist, return an error instead of default content
+    return NextResponse.json(
+      { error: 'Failed to load quote content' },
+      { status: 500 }
+    );
   }
 }
 
 export async function PUT(request: Request) {
   try {
     await ensureDirectoryExists();
-    const newContent = await request.json();
+    const newContent: QuoteContent = await request.json();
     await fs.writeFile(
       dataFilePath,
       JSON.stringify(newContent, null, 2),
