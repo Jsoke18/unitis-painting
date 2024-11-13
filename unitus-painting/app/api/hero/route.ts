@@ -1,66 +1,73 @@
-// app/api/hero/route.ts
 import { promises as fs } from 'fs';
 import { NextResponse } from 'next/server';
 import path from 'path';
-import { HeroContent, defaultHeroContent } from '../../types/Hero.ts';
+import { HeroContent } from '@/types/Hero';
 
-// Update path to use public directory
-const dataFilePath = path.join(process.cwd(), 'public', 'data', 'hero-content.json');
+const dataFilePath = path.join(process.cwd(), 'public', 'data', 'hero.json');
 
-async function ensureDirectoryExists() {
-  const dir = path.dirname(dataFilePath);
-  try {
-    await fs.access(dir);
-  } catch {
-    await fs.mkdir(dir, { recursive: true });
+async function validateHeroContent(content: unknown): Promise<HeroContent> {
+  if (!content || typeof content !== 'object') {
+    throw new Error('Invalid content structure');
   }
-}
 
-async function ensureFileExists() {
-  try {
-    await fs.access(dataFilePath);
-  } catch {
-    await ensureDirectoryExists();
-    await fs.writeFile(
-      dataFilePath,
-      JSON.stringify(defaultHeroContent, null, 2),
-      'utf8'
-    );
+  const heroContent = content as HeroContent;
+  
+  if (!heroContent.location?.text ||
+      !heroContent.mainHeading?.line1 ||
+      !heroContent.mainHeading?.line2 ||
+      !heroContent.subheading ||
+      !heroContent.buttons?.primary?.text ||
+      !heroContent.buttons?.primary?.link ||
+      !heroContent.buttons?.secondary?.text ||
+      !heroContent.buttons?.secondary?.link ||
+      !heroContent.videoUrl) {
+    throw new Error('Missing required fields');
   }
+
+  return heroContent;
 }
 
 export async function GET() {
   try {
-    // Ensure the file exists before trying to read it
-    await ensureFileExists();
-    
     const fileContent = await fs.readFile(dataFilePath, 'utf8');
-    const data = JSON.parse(fileContent);
-    return NextResponse.json(data);
+    const content = JSON.parse(fileContent);
+    const validatedContent = await validateHeroContent(content);
+    
+    return NextResponse.json(validatedContent);
   } catch (error) {
     console.error('GET Error:', error);
-    // Return default content if there's an error
-    return NextResponse.json(defaultHeroContent);
+    return NextResponse.json(
+      { error: 'Failed to fetch hero content' },
+      { status: 500 }
+    );
   }
 }
 
 export async function PUT(request: Request) {
   try {
-    await ensureDirectoryExists();
-    
     const newContent = await request.json();
+    const validatedContent = await validateHeroContent(newContent);
+    
     await fs.writeFile(
       dataFilePath,
-      JSON.stringify(newContent, null, 2),
+      JSON.stringify(validatedContent, null, 2),
       'utf8'
     );
     
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Content updated successfully',
-      content: newContent 
+      content: validatedContent
     });
   } catch (error) {
     console.error('PUT Error:', error);
+    
+    if (error instanceof Error && error.message === 'Missing required fields') {
+      return NextResponse.json(
+        { error: 'Invalid content structure: ' + error.message },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to update hero content' },
       { status: 500 }

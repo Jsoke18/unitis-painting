@@ -1,4 +1,3 @@
-// types/Hero.ts
 export type HeroContent = {
   location: {
     text: string;
@@ -19,26 +18,4 @@ export type HeroContent = {
     };
   };
   videoUrl: string;
-};
-
-export const defaultHeroContent: HeroContent = {
-  location: {
-    text: "Serving Greater Vancouver, Fraser Valley, BC Interior, and Calgary"
-  },
-  mainHeading: {
-    line1: "Transform Your Space",
-    line2: "Professional Painting Services"
-  },
-  subheading: "Expert residential and commercial painting solutions delivered with precision, professionalism, and attention to detail.",
-  buttons: {
-    primary: {
-      text: "Explore Our Services",
-      link: "/services"
-    },
-    secondary: {
-      text: "Get Free Quote",
-      link: "/contact"
-    }
-  },
-  videoUrl: "https://storage.googleapis.com/unitis-videos/Banner%20Video.mp4"
 };

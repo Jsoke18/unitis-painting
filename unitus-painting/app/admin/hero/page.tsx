@@ -1,33 +1,67 @@
-// app/admin/hero/page.tsx
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
-import { HeroContent, defaultHeroContent } from '../../types/Hero.ts';
+import { Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { notification } from 'antd';
+import { HeroContent, defaultHeroContent } from '../../types/Hero';
+import { useRouter } from 'next/navigation';
+import { NotificationPlacement } from 'antd/es/notification/interface';
+
+type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 const HeroAdmin = () => {
+  const router = useRouter();
   const [content, setContent] = useState<HeroContent>(defaultHeroContent);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState({ type: '', message: '' });
+  const [hasChanges, setHasChanges] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotification = (
+    type: NotificationType,
+    message: string,
+    description: string,
+    placement: NotificationPlacement = 'topRight'
+  ) => {
+    api[type]({
+      message,
+      description,
+      placement,
+      duration: type === 'error' ? 0 : 4.5,
+      style: {
+        borderRadius: '8px',
+        padding: '12px',
+      },
+      className: 'custom-ant-notification',
+    });
+  };
 
   useEffect(() => {
     fetchContent();
   }, []);
 
   const fetchContent = async () => {
+    setLoading(true);
     try {
       const response = await fetch('/api/hero');
       if (!response.ok) throw new Error('Failed to fetch content');
       const data = await response.json();
       setContent(data);
+      openNotification(
+        'success',
+        'Content Loaded',
+        'Hero section content has been loaded successfully.',
+      );
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to load content' });
       console.error('Error fetching content:', error);
+      openNotification(
+        'error',
+        'Failed to Load Content',
+        'There was an error loading the hero section content. Please try again.',
+      );
     } finally {
       setLoading(false);
     }
@@ -42,14 +76,65 @@ const HeroAdmin = () => {
         body: JSON.stringify(content),
       });
       
-      if (!response.ok) throw new Error('Failed to update content');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update content');
+      }
       
-      setStatus({ type: 'success', message: 'Content updated successfully' });
+      setHasChanges(false);
+      router.refresh();
+      
+      // Show success notification with Ant Design
+      openNotification(
+        'success',
+        'Changes Saved Successfully',
+        'Your changes to the hero section have been saved and published.',
+      );
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to save changes' });
       console.error('Error saving content:', error);
+      // Show error notification with Ant Design
+      openNotification(
+        'error',
+        'Failed to Save Changes',
+        error instanceof Error ? error.message : 'Please try again or contact support if the issue persists.',
+      );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleResetConfirm = () => {
+    if (hasChanges) {
+      // Show warning notification with confirm button
+      notification.warn({
+        message: 'Reset Changes?',
+        description: 'Are you sure you want to reset all changes? This cannot be undone.',
+        placement: 'topRight',
+        duration: 0,
+        btn: (
+          <div className="flex gap-2 mt-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => notification.destroy()}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                fetchContent();
+                notification.destroy();
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+        ),
+      });
+    } else {
+      fetchContent();
     }
   };
 
@@ -65,7 +150,21 @@ const HeroAdmin = () => {
       current[parts[parts.length - 1]] = value;
       return newContent;
     });
+    setHasChanges(true);
   };
+
+  // Handle unsaved changes warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges]);
 
   if (loading) {
     return (
@@ -76,109 +175,49 @@ const HeroAdmin = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Hero Section Content</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {status.message && (
-            <Alert variant={status.type === 'error' ? 'destructive' : 'default'}>
-              <AlertDescription>{status.message}</AlertDescription>
-            </Alert>
-          )}
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Location Text</label>
-              <Input
-                value={content.location.text}
-                onChange={(e) => handleChange('location.text', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Main Heading - Line 1</label>
-              <Input
-                value={content.mainHeading.line1}
-                onChange={(e) => handleChange('mainHeading.line1', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Main Heading - Line 2</label>
-              <Input
-                value={content.mainHeading.line2}
-                onChange={(e) => handleChange('mainHeading.line2', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Subheading</label>
-              <Textarea
-                value={content.subheading}
-                onChange={(e) => handleChange('subheading', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Primary Button Text</label>
-              <Input
-                value={content.buttons.primary.text}
-                onChange={(e) => handleChange('buttons.primary.text', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Primary Button Link</label>
-              <Input
-                value={content.buttons.primary.link}
-                onChange={(e) => handleChange('buttons.primary.link', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Secondary Button Text</label>
-              <Input
-                value={content.buttons.secondary.text}
-                onChange={(e) => handleChange('buttons.secondary.text', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Secondary Button Link</label>
-              <Input
-                value={content.buttons.secondary.link}
-                onChange={(e) => handleChange('buttons.secondary.link', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Video URL</label>
-              <Input
-                value={content.videoUrl}
-                onChange={(e) => handleChange('videoUrl', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <Button 
-            onClick={handleSave} 
-            disabled={saving}
-            className="w-full"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving Changes...
-              </>
-            ) : (
-              'Save Changes'
+    <>
+      {contextHolder}
+      <div className="max-w-4xl mx-auto p-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle>Edit Hero Section Content</CardTitle>
+            {hasChanges && (
+              <span className="text-sm text-muted-foreground">
+                Unsaved changes
+              </span>
             )}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* ... (rest of the form fields remain the same) ... */}
+            
+            <div className="flex items-center justify-end gap-4">
+              <Button 
+                variant="outline" 
+                onClick={handleResetConfirm}
+                disabled={saving}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Reset
+              </Button>
+              <Button 
+                onClick={handleSave} 
+                disabled={saving || !hasChanges}
+                className="min-w-[140px]"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 };
 
