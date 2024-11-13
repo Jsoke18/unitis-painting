@@ -1,20 +1,36 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { HeroContent } from '@/app/types/hero';
-
-const dataFilePath = path.join(process.cwd(), 'public', 'data', 'hero.json');
+import { getHeroFromEdgeConfig } from '@/lib/edge-config';
 
 // Force dynamic route
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// Validation function
 async function validateHeroContent(content: unknown): Promise<HeroContent> {
+  console.log('Validating content:', JSON.stringify(content, null, 2));
+  
   if (!content || typeof content !== 'object') {
     throw new Error('Invalid content structure');
   }
 
-  const heroContent = content as HeroContent;
+  // Update to handle the nested 'hero' structure
+  const heroContent = (content as { hero: HeroContent }).hero;
+  
+  if (!heroContent) {
+    throw new Error('Missing hero content object');
+  }
+  
+  // Log each field we're checking
+  console.log('Checking fields:', {
+    hasLocation: !!heroContent.location?.text,
+    hasMainHeading1: !!heroContent.mainHeading?.line1,
+    hasMainHeading2: !!heroContent.mainHeading?.line2,
+    hasSubheading: !!heroContent.subheading,
+    hasPrimaryButton: !!heroContent.buttons?.primary?.text && !!heroContent.buttons?.primary?.link,
+    hasSecondaryButton: !!heroContent.buttons?.secondary?.text && !!heroContent.buttons?.secondary?.link,
+    hasVideoUrl: !!heroContent.videoUrl
+  });
   
   if (!heroContent.location?.text ||
       !heroContent.mainHeading?.line1 ||
@@ -33,10 +49,22 @@ async function validateHeroContent(content: unknown): Promise<HeroContent> {
 
 export async function GET() {
   try {
-    // Read the file fresh each time
-    const fileContent = await fs.readFile(dataFilePath, 'utf8');
-    const content = JSON.parse(fileContent);
-    const validatedContent = await validateHeroContent(content);
+    console.log('Starting GET request');
+    const content = await getHeroFromEdgeConfig();
+    
+    console.log('Received content from Edge Config:', JSON.stringify(content, null, 2));
+    
+    if (!content) {
+      console.log('No content found');
+      return NextResponse.json(
+        { error: 'Hero content not found' },
+        { status: 404 }
+      );
+    }
+
+    const validatedContent = await validateHeroContent({ hero: content });
+    
+    console.log('Sending validated content:', JSON.stringify(validatedContent, null, 2));
     
     return new NextResponse(JSON.stringify(validatedContent), {
       headers: {
@@ -47,6 +75,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('GET Error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
       { error: 'Failed to fetch hero content' },
       { status: 500 }
@@ -55,33 +84,8 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  try {
-    const newContent = await request.json();
-    const validatedContent = await validateHeroContent(newContent);
-    
-    await fs.writeFile(
-      dataFilePath,
-      JSON.stringify(validatedContent, null, 2),
-      'utf8'
-    );
-    
-    return NextResponse.json({
-      message: 'Content updated successfully',
-      content: validatedContent
-    });
-  } catch (error) {
-    console.error('PUT Error:', error);
-    
-    if (error instanceof Error && error.message === 'Missing required fields') {
-      return NextResponse.json(
-        { error: 'Invalid content structure: ' + error.message },
-        { status: 400 }
-      );
-    }
-    
-    return NextResponse.json(
-      { error: 'Failed to update hero content' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: 'Updates must be made through the Edge Config update script' },
+    { status: 405 }
+  );
 }

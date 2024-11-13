@@ -1,4 +1,5 @@
-export type HeroContent = {
+// app/types/hero.ts
+export interface HeroContent {
   location: {
     text: string;
   };
@@ -18,4 +19,4 @@ export type HeroContent = {
     };
   };
   videoUrl: string;
-};
+}

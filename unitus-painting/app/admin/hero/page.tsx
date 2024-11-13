@@ -4,10 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { HeroContent } from "@/app/types/hero";
 import { useRouter } from "next/navigation";
+
+// Define the type inline to avoid import issues
+interface HeroContent {
+  location: {
+    text: string;
+  };
+  mainHeading: {
+    line1: string;
+    line2: string;
+  };
+  subheading: string;
+  buttons: {
+    primary: {
+      text: string;
+      link: string;
+    };
+    secondary: {
+      text: string;
+      link: string;
+    };
+  };
+  videoUrl: string;
+}
 
 const defaultHeroContent: HeroContent = {
   location: {
@@ -38,28 +60,52 @@ const HeroAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  
+
+  // Initial content fetch
   useEffect(() => {
     fetchContent();
   }, []);
+
+  // Handle unsaved changes warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasChanges]);
 
   const fetchContent = async () => {
     setLoading(true);
     
     try {
-      const response = await fetch("/api/hero");
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/hero?t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch content");
       }
+
       const data = await response.json();
       setContent(data);
       setHasChanges(false);
     } catch (error) {
       console.error("Error fetching content:", error);
       toast.error("Failed to load content", {
-        icon: <AlertCircle className="w-4 h-4" />,
-        description: "Please refresh the page or try again later",
+        duration: 4000,
         action: {
           label: "Retry",
           onClick: () => fetchContent(),
@@ -69,18 +115,18 @@ const HeroAdmin = () => {
       setLoading(false);
     }
   };
-  
 
   const handleSave = async () => {
     setSaving(true);
-    const toastId = toast.loading("Saving changes...", {
-      description: "Publishing updates to the hero section"
-    });
+    const toastId = toast.loading("Saving changes...");
 
     try {
       const response = await fetch("/api/hero", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        },
         body: JSON.stringify(content),
       });
 
@@ -91,27 +137,23 @@ const HeroAdmin = () => {
       }
 
       setHasChanges(false);
-      router.refresh();
 
-      toast.success("Changes saved successfully", {
+      // Force refresh content
+      router.refresh();
+      
+      // Show success message
+      toast.success("Changes saved", {
         id: toastId,
-        icon: <CheckCircle2 className="w-4 h-4" />,
-        description: "Your changes are now live on the website. Refresh the home page to see updates.",
-        duration: 5000,
-        action: {
-          label: "View Site",
-          onClick: () => window.open('/', '_blank'),
-        },
+        duration: 2000,
       });
+      
+      // Fetch fresh content
+      await fetchContent();
     } catch (error) {
       console.error("Error saving content:", error);
-      toast.error("Failed to save changes", {
+      toast.error("Failed to save", {
         id: toastId,
-        icon: <AlertCircle className="w-4 h-4" />,
-        description: error instanceof Error 
-          ? `Error: ${error.message}. Please try again or contact support if the issue persists.`
-          : "An unexpected error occurred. Please try again.",
-        duration: 7000,
+        duration: 3000,
         action: {
           label: "Retry",
           onClick: () => handleSave(),
@@ -127,10 +169,12 @@ const HeroAdmin = () => {
       const newContent = { ...prev };
       const parts = path.split(".");
       let current = newContent as any;
+      
       for (let i = 0; i < parts.length - 1; i++) {
         if (!current[parts[i]]) current[parts[i]] = {};
         current = current[parts[i]];
       }
+      
       current[parts[parts.length - 1]] = value;
       return newContent;
     });
@@ -141,27 +185,14 @@ const HeroAdmin = () => {
     const confirmReset = window.confirm(
       "Are you sure you want to reset your changes? All unsaved changes will be lost."
     );
+    
     if (confirmReset) {
       fetchContent();
       toast.info("Content reset", {
-        description: "All changes have been reset to the last saved version",
-        duration: 3000,
+        duration: 2000,
       });
     }
   };
-
-  // Handle unsaved changes warning
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasChanges) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasChanges]);
 
   if (loading) {
     return (
@@ -317,7 +348,7 @@ const HeroAdmin = () => {
               className="min-w-[130px]"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
-              Reset Changes
+              Reset
             </Button>
             <Button
               onClick={handleSave}
@@ -330,7 +361,7 @@ const HeroAdmin = () => {
                   Saving...
                 </>
               ) : (
-                "Publish Changes"
+                "Save Changes"
               )}
             </Button>
           </div>
