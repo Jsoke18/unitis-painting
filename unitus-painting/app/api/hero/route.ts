@@ -1,9 +1,13 @@
-import { promises as fs } from 'fs';
 import { NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { HeroContent } from '@/types/Hero';
 
 const dataFilePath = path.join(process.cwd(), 'public', 'data', 'hero.json');
+
+// Force dynamic route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function validateHeroContent(content: unknown): Promise<HeroContent> {
   if (!content || typeof content !== 'object') {
@@ -29,11 +33,18 @@ async function validateHeroContent(content: unknown): Promise<HeroContent> {
 
 export async function GET() {
   try {
+    // Read the file fresh each time
     const fileContent = await fs.readFile(dataFilePath, 'utf8');
     const content = JSON.parse(fileContent);
     const validatedContent = await validateHeroContent(content);
     
-    return NextResponse.json(validatedContent);
+    return new NextResponse(JSON.stringify(validatedContent), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
   } catch (error) {
     console.error('GET Error:', error);
     return NextResponse.json(
