@@ -1,13 +1,37 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
-import { toast } from 'sonner';
-import { HeroContent, defaultHeroContent } from '../../types/Hero';
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { HeroContent } from "@/app/types/hero";
+import { useRouter } from "next/navigation";
+
+// Define default content locally
+const defaultHeroContent: HeroContent = {
+  location: {
+    text: "Serving Greater Vancouver, Fraser Valley, BC Interior, and Calgary",
+  },
+  mainHeading: {
+    line1: "Transform Your Space",
+    line2: "Professional Painting Services",
+  },
+  subheading:
+    "Expert residential and commercial painting solutions delivered with precision, professionalism, and attention to detail.",
+  buttons: {
+    primary: {
+      text: "Explore Our Services",
+      link: "/services",
+    },
+    secondary: {
+      text: "Get Free Quote",
+      link: "/contact",
+    },
+  },
+  videoUrl: "https://storage.googleapis.com/unitis-videos/Banner%20Video.mp4",
+};
 
 const HeroAdmin = () => {
   const router = useRouter();
@@ -15,29 +39,30 @@ const HeroAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-
+  
   useEffect(() => {
     fetchContent();
   }, []);
 
   const fetchContent = async () => {
-    const toastId = toast.loading('Loading content...');
+    const toastId = toast.loading("Loading content...");
     try {
-      const response = await fetch('/api/hero');
-      if (!response.ok) throw new Error('Failed to fetch content');
+      const response = await fetch("/api/hero");
+      [hasChanges, setHasChanges] = useState(false);
+      if (!response.ok) throw new Error("Failed to fetch content");
       const data = await response.json();
       setContent(data);
-      toast.success('Content loaded successfully', {
+      toast.success("Content loaded successfully", {
         id: toastId,
         icon: <CheckCircle2 className="w-4 h-4" />,
       });
     } catch (error) {
-      console.error('Error fetching content:', error);
-      toast.error('Failed to load content. Please try again.', {
+      console.error("Error fetching content:", error);
+      toast.error("Failed to load content. Please try again.", {
         id: toastId,
         icon: <AlertCircle className="w-4 h-4" />,
         action: {
-          label: 'Retry',
+          label: "Retry",
           onClick: () => fetchContent(),
         },
       });
@@ -48,36 +73,37 @@ const HeroAdmin = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    const toastId = toast.loading('Saving changes...');
-    
+    const toastId = toast.loading("Saving changes...");
+
     try {
-      const response = await fetch('/api/hero', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/hero", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(content),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update content');
+        throw new Error(errorData.error || "Failed to update content");
       }
-      
+
       setHasChanges(false);
       router.refresh(); // Refresh the page to show updated content
-      
-      toast.success('Changes saved successfully', {
+
+      toast.success("Changes saved successfully", {
         id: toastId,
         icon: <CheckCircle2 className="w-4 h-4" />,
-        description: 'Your changes have been published.',
+        description: "Your changes have been published.",
       });
     } catch (error) {
-      console.error('Error saving content:', error);
-      toast.error('Failed to save changes', {
+      console.error("Error saving content:", error);
+      toast.error("Failed to save changes", {
         id: toastId,
         icon: <AlertCircle className="w-4 h-4" />,
-        description: error instanceof Error ? error.message : 'Please try again',
+        description:
+          error instanceof Error ? error.message : "Please try again",
         action: {
-          label: 'Retry',
+          label: "Retry",
           onClick: () => handleSave(),
         },
       });
@@ -87,9 +113,9 @@ const HeroAdmin = () => {
   };
 
   const handleChange = (path: string, value: string) => {
-    setContent(prev => {
+    setContent((prev) => {
       const newContent = { ...prev };
-      const parts = path.split('.');
+      const parts = path.split(".");
       let current = newContent as any;
       for (let i = 0; i < parts.length - 1; i++) {
         if (!current[parts[i]]) current[parts[i]] = {};
@@ -106,12 +132,12 @@ const HeroAdmin = () => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasChanges) {
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = "";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
   if (loading) {
@@ -136,37 +162,49 @@ const HeroAdmin = () => {
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Location Text</label>
+              <label className="text-sm font-medium mb-1.5 block">
+                Location Text
+              </label>
               <Input
                 value={content.location.text}
-                onChange={(e) => handleChange('location.text', e.target.value)}
+                onChange={(e) => handleChange("location.text", e.target.value)}
                 placeholder="Enter location text..."
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Main Heading - Line 1</label>
+              <label className="text-sm font-medium mb-1.5 block">
+                Main Heading - Line 1
+              </label>
               <Input
                 value={content.mainHeading.line1}
-                onChange={(e) => handleChange('mainHeading.line1', e.target.value)}
+                onChange={(e) =>
+                  handleChange("mainHeading.line1", e.target.value)
+                }
                 placeholder="Enter main heading first line..."
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Main Heading - Line 2</label>
+              <label className="text-sm font-medium mb-1.5 block">
+                Main Heading - Line 2
+              </label>
               <Input
                 value={content.mainHeading.line2}
-                onChange={(e) => handleChange('mainHeading.line2', e.target.value)}
+                onChange={(e) =>
+                  handleChange("mainHeading.line2", e.target.value)
+                }
                 placeholder="Enter main heading second line..."
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Subheading</label>
+              <label className="text-sm font-medium mb-1.5 block">
+                Subheading
+              </label>
               <Textarea
                 value={content.subheading}
-                onChange={(e) => handleChange('subheading', e.target.value)}
+                onChange={(e) => handleChange("subheading", e.target.value)}
                 placeholder="Enter subheading text..."
                 className="min-h-[100px]"
               />
@@ -174,19 +212,27 @@ const HeroAdmin = () => {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Primary Button Text</label>
+                <label className="text-sm font-medium mb-1.5 block">
+                  Primary Button Text
+                </label>
                 <Input
                   value={content.buttons.primary.text}
-                  onChange={(e) => handleChange('buttons.primary.text', e.target.value)}
+                  onChange={(e) =>
+                    handleChange("buttons.primary.text", e.target.value)
+                  }
                   placeholder="Enter primary button text..."
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Primary Button Link</label>
+                <label className="text-sm font-medium mb-1.5 block">
+                  Primary Button Link
+                </label>
                 <Input
                   value={content.buttons.primary.link}
-                  onChange={(e) => handleChange('buttons.primary.link', e.target.value)}
+                  onChange={(e) =>
+                    handleChange("buttons.primary.link", e.target.value)
+                  }
                   placeholder="Enter primary button link..."
                 />
               </div>
@@ -194,45 +240,51 @@ const HeroAdmin = () => {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Secondary Button Text</label>
+                <label className="text-sm font-medium mb-1.5 block">
+                  Secondary Button Text
+                </label>
                 <Input
                   value={content.buttons.secondary.text}
-                  onChange={(e) => handleChange('buttons.secondary.text', e.target.value)}
+                  onChange={(e) =>
+                    handleChange("buttons.secondary.text", e.target.value)
+                  }
                   placeholder="Enter secondary button text..."
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Secondary Button Link</label>
+                <label className="text-sm font-medium mb-1.5 block">
+                  Secondary Button Link
+                </label>
                 <Input
                   value={content.buttons.secondary.link}
-                  onChange={(e) => handleChange('buttons.secondary.link', e.target.value)}
+                  onChange={(e) =>
+                    handleChange("buttons.secondary.link", e.target.value)
+                  }
                   placeholder="Enter secondary button link..."
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Video URL</label>
+              <label className="text-sm font-medium mb-1.5 block">
+                Video URL
+              </label>
               <Input
                 value={content.videoUrl}
-                onChange={(e) => handleChange('videoUrl', e.target.value)}
+                onChange={(e) => handleChange("videoUrl", e.target.value)}
                 placeholder="Enter video URL..."
               />
             </div>
           </div>
 
           <div className="flex items-center justify-end gap-4">
-            <Button 
-              variant="outline" 
-              onClick={fetchContent}
-              disabled={saving}
-            >
+            <Button variant="outline" onClick={fetchContent} disabled={saving}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Reset
             </Button>
-            <Button 
-              onClick={handleSave} 
+            <Button
+              onClick={handleSave}
               disabled={saving || !hasChanges}
               className="min-w-[140px]"
             >
@@ -242,7 +294,7 @@ const HeroAdmin = () => {
                   Saving...
                 </>
               ) : (
-                'Save Changes'
+                "Save Changes"
               )}
             </Button>
           </div>
