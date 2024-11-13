@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { HeroContent } from "@/app/types/hero";
 import { useRouter } from "next/navigation";
 
-// Define default content locally
 const defaultHeroContent: HeroContent = {
   location: {
     text: "Serving Greater Vancouver, Fraser Valley, BC Interior, and Calgary",
@@ -48,10 +47,10 @@ const HeroAdmin = () => {
     const toastId = toast.loading("Loading content...");
     try {
       const response = await fetch("/api/hero");
-      [hasChanges, setHasChanges] = useState(false);
       if (!response.ok) throw new Error("Failed to fetch content");
       const data = await response.json();
       setContent(data);
+      setHasChanges(false); // Reset changes after successful fetch
       toast.success("Content loaded successfully", {
         id: toastId,
         icon: <CheckCircle2 className="w-4 h-4" />,
@@ -70,6 +69,7 @@ const HeroAdmin = () => {
       setLoading(false);
     }
   };
+
 
   const handleSave = async () => {
     setSaving(true);
