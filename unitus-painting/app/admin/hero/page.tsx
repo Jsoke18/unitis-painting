@@ -44,9 +44,7 @@ const HeroAdmin = () => {
   }, []);
 
   const fetchContent = async () => {
-    const toastId = toast.loading("Loading content...", {
-      description: "Retrieving the latest hero section content"
-    });
+    setLoading(true);
     
     try {
       const response = await fetch("/api/hero");
@@ -57,20 +55,11 @@ const HeroAdmin = () => {
       const data = await response.json();
       setContent(data);
       setHasChanges(false);
-      
-      toast.success("Content loaded successfully", {
-        id: toastId,
-        icon: <CheckCircle2 className="w-4 h-4" />,
-        description: "Hero section content is ready to edit",
-        duration: 3000,
-      });
     } catch (error) {
       console.error("Error fetching content:", error);
       toast.error("Failed to load content", {
-        id: toastId,
         icon: <AlertCircle className="w-4 h-4" />,
-        description: error instanceof Error ? error.message : "Please try again or contact support",
-        duration: 5000,
+        description: "Please refresh the page or try again later",
         action: {
           label: "Retry",
           onClick: () => fetchContent(),
@@ -80,6 +69,7 @@ const HeroAdmin = () => {
       setLoading(false);
     }
   };
+  
 
   const handleSave = async () => {
     setSaving(true);
