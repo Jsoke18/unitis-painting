@@ -1,84 +1,84 @@
 {
-    "hero": {
-      "title": "Our Approach",
-      "subtitle": "Efficient, systematic execution for commercial, hospitality, and multi-unit projects."
+  "hero": {
+    "title": "Our Approach",
+    "subtitle": "Efficient, systematic execution for commercial, hospitality, and multi-unit projects."
+  },
+  "keyFeatures": [
+    {
+      "id": 1,
+      "icon": "Shield",
+      "label": "Industry Certified"
     },
-    "keyFeatures": [
-      {
-        "id": 1,
-        "icon": "Shield",
-        "label": "Industry Certified"
-      },
-      {
-        "id": 2,
-        "icon": "Calendar",
-        "label": "On-Time Delivery"
-      },
-      {
-        "id": 3,
-        "icon": "Paintbrush",
-        "label": "Commercial Grade"
-      },
-      {
-        "id": 4,
-        "icon": "CheckCircle",
-        "label": "Quality Assured"
-      }
-    ],
-    "processSteps": [
-      {
-        "id": 1,
-        "icon": "ClipboardList",
-        "title": "Assessment",
-        "description": "Comprehensive site evaluation and project scope definition. We outline requirements, timeline, and logistics for minimal business disruption."
-      },
-      {
-        "id": 2,
-        "icon": "Ruler",
-        "title": "Planning",
-        "description": "Detailed project specifications, timeline mapping, and resource allocation. All methods and materials are documented for stakeholder approval."
-      },
-      {
-        "id": 3,
-        "icon": "Calendar",
-        "title": "Scheduling",
-        "description": "Flexible execution windows including after-hours and weekend options to accommodate your operational needs."
-      },
-      {
-        "id": 4,
-        "icon": "Droplets",
-        "title": "Preparation",
-        "description": "Thorough surface preparation with full area protection. We maintain site safety and cleanliness throughout the project."
-      },
-      {
-        "id": 5,
-        "icon": "SprayCan",
-        "title": "Application",
-        "description": "Premium commercial-grade materials applied using industry-leading techniques for durability and aesthetics."
-      },
-      {
-        "id": 6,
-        "icon": "Eye",
-        "title": "Quality Control",
-        "description": "Rigorous quality assurance process ensuring all work meets project specifications and industry standards."
-      },
-      {
-        "id": 7,
-        "icon": "HeartHandshake",
-        "title": "Project Completion",
-        "description": "Final inspection and sign-off process, ensuring all deliverables meet your requirements."
-      }
-    ],
-    "cta": {
-      "title": "Ready to Discuss Your Project?",
-      "subtitle": "Learn how our proven approach can deliver results for your property.",
-      "primaryButton": {
-        "text": "Request Project Consultation",
-        "link": "/contact"
-      },
-      "secondaryButton": {
-        "text": "See Our Services",
-        "link": "/services"
-      }
+    {
+      "id": 2,
+      "icon": "Calendar",
+      "label": "On-Time Delivery"
+    },
+    {
+      "id": 3,
+      "icon": "Paintbrush",
+      "label": "Commercial Grade"
+    },
+    {
+      "id": 4,
+      "icon": "CheckCircle",
+      "label": "Quality Assured"
+    }
+  ],
+  "processSteps": [
+    {
+      "id": 1,
+      "icon": "ClipboardList",
+      "title": "Assessment",
+      "description": "Comprehensive site evaluation and project scope definition. We outline requirements, timeline, and logistics for minimal business disruption."
+    },
+    {
+      "id": 2,
+      "icon": "Ruler",
+      "title": "Planning",
+      "description": "Detailed project specifications, timeline mapping, and resource allocation. All methods and materials are documented for stakeholder approval."
+    },
+    {
+      "id": 3,
+      "icon": "Calendar",
+      "title": "Scheduling",
+      "description": "Flexible execution windows including after-hours and weekend options to accommodate your operational needs."
+    },
+    {
+      "id": 4,
+      "icon": "Droplets",
+      "title": "Preparation",
+      "description": "Thorough surface preparation with full area protection. We maintain site safety and cleanliness throughout the project."
+    },
+    {
+      "id": 5,
+      "icon": "SprayCan",
+      "title": "Application",
+      "description": "Premium commercial-grade materials applied using industry-leading techniques for durability and aesthetics."
+    },
+    {
+      "id": 6,
+      "icon": "Eye",
+      "title": "Quality Control",
+      "description": "Rigorous quality assurance process ensuring all work meets project specifications and industry standards."
+    },
+    {
+      "id": 7,
+      "icon": "HeartHandshake",
+      "title": "Project Completion",
+      "description": "Final inspection and sign-off process, ensuring all deliverables meet your requirements."
+    }
+  ],
+  "cta": {
+    "title": "Ready to Discuss Your Project?",
+    "subtitle": "Learn how our proven approach can deliver results for your property.",
+    "primaryButton": {
+      "text": "Request Project Consultation",
+      "link": "/contact"
+    },
+    "secondaryButton": {
+      "text": "See Our Services",
+      "link": "/services"
     }
   }
+}

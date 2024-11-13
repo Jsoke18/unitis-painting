@@ -33,7 +33,7 @@ const WarrantyPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header openingHours="8:00 am - 5:00 pm"/>
-      <main className="flex-grow bg-gray-100 pt-32"> {/* Increased top padding */}
+      <main className="flex-grow bg-gray-100 pt-16"> {/* Increased top padding */}
         <motion.div
           className="container mx-auto px-4 py-24 max-w-3xl" /* Increased vertical padding */
           variants={containerVariants}
@@ -42,7 +42,7 @@ const WarrantyPage = () => {
         >
           {/* Hero Section */}
           <motion.div 
-            className="text-center mb-24" /* Increased bottom margin */
+            className="text-center mb-20" /* Increased bottom margin */
             variants={itemVariants}
           >
             <h1 className="text-4xl font-bold mb-6 text-blue-950">
@@ -55,7 +55,7 @@ const WarrantyPage = () => {
 
           {/* Main Content */}
           <motion.div 
-            className="space-y-12" /* Increased spacing between cards */
+            className="space-y-8" /* Increased spacing between cards */
             variants={itemVariants}
           >
             <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
