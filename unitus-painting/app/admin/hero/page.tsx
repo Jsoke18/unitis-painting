@@ -44,22 +44,33 @@ const HeroAdmin = () => {
   }, []);
 
   const fetchContent = async () => {
-    const toastId = toast.loading("Loading content...");
+    const toastId = toast.loading("Loading content...", {
+      description: "Retrieving the latest hero section content"
+    });
+    
     try {
       const response = await fetch("/api/hero");
-      if (!response.ok) throw new Error("Failed to fetch content");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch content");
+      }
       const data = await response.json();
       setContent(data);
-      setHasChanges(false); // Reset changes after successful fetch
+      setHasChanges(false);
+      
       toast.success("Content loaded successfully", {
         id: toastId,
         icon: <CheckCircle2 className="w-4 h-4" />,
+        description: "Hero section content is ready to edit",
+        duration: 3000,
       });
     } catch (error) {
       console.error("Error fetching content:", error);
-      toast.error("Failed to load content. Please try again.", {
+      toast.error("Failed to load content", {
         id: toastId,
         icon: <AlertCircle className="w-4 h-4" />,
+        description: error instanceof Error ? error.message : "Please try again or contact support",
+        duration: 5000,
         action: {
           label: "Retry",
           onClick: () => fetchContent(),
@@ -70,10 +81,11 @@ const HeroAdmin = () => {
     }
   };
 
-
   const handleSave = async () => {
     setSaving(true);
-    const toastId = toast.loading("Saving changes...");
+    const toastId = toast.loading("Saving changes...", {
+      description: "Publishing updates to the hero section"
+    });
 
     try {
       const response = await fetch("/api/hero", {
@@ -82,26 +94,34 @@ const HeroAdmin = () => {
         body: JSON.stringify(content),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update content");
+        throw new Error(data.error || "Failed to update content");
       }
 
       setHasChanges(false);
-      router.refresh(); // Refresh the page to show updated content
+      router.refresh();
 
       toast.success("Changes saved successfully", {
         id: toastId,
         icon: <CheckCircle2 className="w-4 h-4" />,
-        description: "Your changes have been published.",
+        description: "Your changes are now live on the website. Refresh the home page to see updates.",
+        duration: 5000,
+        action: {
+          label: "View Site",
+          onClick: () => window.open('/', '_blank'),
+        },
       });
     } catch (error) {
       console.error("Error saving content:", error);
       toast.error("Failed to save changes", {
         id: toastId,
         icon: <AlertCircle className="w-4 h-4" />,
-        description:
-          error instanceof Error ? error.message : "Please try again",
+        description: error instanceof Error 
+          ? `Error: ${error.message}. Please try again or contact support if the issue persists.`
+          : "An unexpected error occurred. Please try again.",
+        duration: 7000,
         action: {
           label: "Retry",
           onClick: () => handleSave(),
@@ -125,6 +145,19 @@ const HeroAdmin = () => {
       return newContent;
     });
     setHasChanges(true);
+  };
+
+  const handleReset = () => {
+    const confirmReset = window.confirm(
+      "Are you sure you want to reset your changes? All unsaved changes will be lost."
+    );
+    if (confirmReset) {
+      fetchContent();
+      toast.info("Content reset", {
+        description: "All changes have been reset to the last saved version",
+        duration: 3000,
+      });
+    }
   };
 
   // Handle unsaved changes warning
@@ -154,8 +187,8 @@ const HeroAdmin = () => {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle>Edit Hero Section Content</CardTitle>
           {hasChanges && (
-            <span className="text-sm text-muted-foreground">
-              Unsaved changes
+            <span className="text-sm text-yellow-600 font-medium">
+              ⚠️ Unsaved changes
             </span>
           )}
         </CardHeader>
@@ -169,6 +202,7 @@ const HeroAdmin = () => {
                 value={content.location.text}
                 onChange={(e) => handleChange("location.text", e.target.value)}
                 placeholder="Enter location text..."
+                className="bg-white"
               />
             </div>
 
@@ -182,6 +216,7 @@ const HeroAdmin = () => {
                   handleChange("mainHeading.line1", e.target.value)
                 }
                 placeholder="Enter main heading first line..."
+                className="bg-white"
               />
             </div>
 
@@ -195,6 +230,7 @@ const HeroAdmin = () => {
                   handleChange("mainHeading.line2", e.target.value)
                 }
                 placeholder="Enter main heading second line..."
+                className="bg-white"
               />
             </div>
 
@@ -206,7 +242,7 @@ const HeroAdmin = () => {
                 value={content.subheading}
                 onChange={(e) => handleChange("subheading", e.target.value)}
                 placeholder="Enter subheading text..."
-                className="min-h-[100px]"
+                className="min-h-[100px] bg-white"
               />
             </div>
 
@@ -221,6 +257,7 @@ const HeroAdmin = () => {
                     handleChange("buttons.primary.text", e.target.value)
                   }
                   placeholder="Enter primary button text..."
+                  className="bg-white"
                 />
               </div>
 
@@ -234,6 +271,7 @@ const HeroAdmin = () => {
                     handleChange("buttons.primary.link", e.target.value)
                   }
                   placeholder="Enter primary button link..."
+                  className="bg-white"
                 />
               </div>
             </div>
@@ -249,6 +287,7 @@ const HeroAdmin = () => {
                     handleChange("buttons.secondary.text", e.target.value)
                   }
                   placeholder="Enter secondary button text..."
+                  className="bg-white"
                 />
               </div>
 
@@ -262,6 +301,7 @@ const HeroAdmin = () => {
                     handleChange("buttons.secondary.link", e.target.value)
                   }
                   placeholder="Enter secondary button link..."
+                  className="bg-white"
                 />
               </div>
             </div>
@@ -274,14 +314,20 @@ const HeroAdmin = () => {
                 value={content.videoUrl}
                 onChange={(e) => handleChange("videoUrl", e.target.value)}
                 placeholder="Enter video URL..."
+                className="bg-white"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-4">
-            <Button variant="outline" onClick={fetchContent} disabled={saving}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Reset
+          <div className="flex items-center justify-end gap-4 pt-4 border-t">
+            <Button 
+              variant="outline" 
+              onClick={handleReset} 
+              disabled={saving || !hasChanges}
+              className="min-w-[130px]"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${saving ? 'animate-spin' : ''}`} />
+              Reset Changes
             </Button>
             <Button
               onClick={handleSave}
@@ -294,7 +340,7 @@ const HeroAdmin = () => {
                   Saving...
                 </>
               ) : (
-                "Save Changes"
+                "Publish Changes"
               )}
             </Button>
           </div>
