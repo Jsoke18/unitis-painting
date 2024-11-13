@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { HeroContent } from '@/types/Hero';
+import { HeroContent } from '@/app/types/hero';
 
 const dataFilePath = path.join(process.cwd(), 'public', 'data', 'hero.json');
 
