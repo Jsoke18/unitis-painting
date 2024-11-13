@@ -1,19 +1,8 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { 
-  ClipboardList,
-  Paintbrush, 
-  Shield, 
-  CheckCircle,
-  Droplets,
-  Eye,
-  Calendar,
-  SprayCan,
-  HeartHandshake,
-  Ruler
-} from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -42,51 +31,33 @@ const itemVariants = {
 
 const OurApproach = () => {
   const [activeStep, setActiveStep] = useState<number | null>(null);
+  const [content, setContent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const processSteps = [
-    {
-      icon: <ClipboardList className="w-6 h-6" />,
-      title: "Assessment",
-      description: "Comprehensive site evaluation and project scope definition. We outline requirements, timeline, and logistics for minimal business disruption."
-    },
-    {
-      icon: <Ruler className="w-6 h-6" />,
-      title: "Planning",
-      description: "Detailed project specifications, timeline mapping, and resource allocation. All methods and materials are documented for stakeholder approval."
-    },
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: "Scheduling",
-      description: "Flexible execution windows including after-hours and weekend options to accommodate your operational needs."
-    },
-    {
-      icon: <Droplets className="w-6 h-6" />,
-      title: "Preparation",
-      description: "Thorough surface preparation with full area protection. We maintain site safety and cleanliness throughout the project."
-    },
-    {
-      icon: <SprayCan className="w-6 h-6" />,
-      title: "Application",
-      description: "Premium commercial-grade materials applied using industry-leading techniques for durability and aesthetics."
-    },
-    {
-      icon: <Eye className="w-6 h-6" />,
-      title: "Quality Control",
-      description: "Rigorous quality assurance process ensuring all work meets project specifications and industry standards."
-    },
-    {
-      icon: <HeartHandshake className="w-6 h-6" />,
-      title: "Project Completion",
-      description: "Final inspection and sign-off process, ensuring all deliverables meet your requirements."
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    try {
+      const response = await fetch('/api/our-approach');
+      const data = await response.json();
+      setContent(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch content:', error);
+      setLoading(false);
     }
-  ];
+  };
 
-  const keyFeatures = [
-    { icon: <Shield className="w-6 h-6" />, label: "Industry Certified" },
-    { icon: <Calendar className="w-6 h-6" />, label: "On-Time Delivery" },
-    { icon: <Paintbrush className="w-6 h-6" />, label: "Commercial Grade" },
-    { icon: <CheckCircle className="w-6 h-6" />, label: "Quality Assured" }
-  ];
+  if (loading || !content) {
+    return <div>Loading...</div>;
+  }
+
+  const getIcon = (iconName: string) => {
+    const Icon = (LucideIcons as any)[iconName];
+    return Icon ? <Icon className="w-6 h-6" /> : null;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -101,10 +72,10 @@ const OurApproach = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 text-blue-950 tracking-tight">
-            Our Approach
+            {content.hero.title}
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            Efficient, systematic execution for commercial, hospitality, and multi-unit projects.
+            {content.hero.subtitle}
           </p>
         </motion.div>
 
@@ -116,13 +87,15 @@ const OurApproach = () => {
           animate="visible"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {keyFeatures.map((feature, index) => (
+            {content.keyFeatures.map((feature: any, index: number) => (
               <motion.div
                 key={index}
                 variants={itemVariants}
                 className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="text-blue-950 mb-2 flex justify-center">{feature.icon}</div>
+                <div className="text-blue-950 mb-2 flex justify-center">
+                  {getIcon(feature.icon)}
+                </div>
                 <div className="text-sm font-medium text-blue-950">{feature.label}</div>
               </motion.div>
             ))}
@@ -138,7 +111,7 @@ const OurApproach = () => {
           initial="hidden"
           animate="visible"
         >
-          {processSteps.map((step, index) => (
+          {content.processSteps.map((step: any, index: number) => (
             <motion.div
               key={index}
               variants={itemVariants}
@@ -151,7 +124,7 @@ const OurApproach = () => {
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-full transition-colors duration-300
                     ${activeStep === index ? 'bg-blue-100 text-blue-950' : 'bg-gray-100 text-gray-600'}`}>
-                    {step.icon}
+                    {getIcon(step.icon)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -178,27 +151,27 @@ const OurApproach = () => {
           transition={{ delay: 0.8 }}
         >
           <h2 className="text-2xl md:text-3xl font-bold text-blue-950 mb-4">
-            Ready to Discuss Your Project?
+            {content.cta.title}
           </h2>
           <p className="text-gray-600 mb-6">
-            Learn how our proven approach can deliver results for your property.
+            {content.cta.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact">
+            <Link href={content.cta.primaryButton.link}>
               <Button 
                 size="lg"
                 className="bg-blue-950 hover:bg-blue-900 text-white px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform duration-300"
               >
-                Request Project Consultation
+                {content.cta.primaryButton.text}
               </Button>
             </Link>
-            <Link href="/services">
+            <Link href={content.cta.secondaryButton.link}>
               <Button 
                 size="lg"
                 variant="outline"
                 className="border-blue-950 text-blue-950 hover:bg-blue-50 px-8 py-6 text-lg rounded-full hover:scale-105 transition-transform duration-300"
               >
-                See Our Services
+                {content.cta.secondaryButton.text}
               </Button>
             </Link>
           </div>

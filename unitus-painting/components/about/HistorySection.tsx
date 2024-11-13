@@ -1,27 +1,43 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import type { HistoryContent } from '@/app/types/history';
+
+const defaultContent: HistoryContent = {
+  title: {
+    badge: "Our History",
+    mainHeading: "Let's Build Something Together",
+    subHeading: ""
+  },
+  historyCards: [],
+  timelineItems: []
+};
 
 const HistorySection = () => {
-  const historyCards = [
-    {
-      title: "Our Company",
-      description: "Founded with a mission to deliver top-quality painting services, Unitus Painting quickly earned a reputation for reliability and attention to detail. Over the years, we have expanded our expertise across Canada, serving homes, businesses, and large-scale developments with the same dedication to excellence."
-    },
-    {
-      title: "Our Mission",
-      description: "We aim to exceed client expectations with every job, offering expert service, quality work, and competitive pricing for both residential and industrial painting needs."
-    }
-  ];
+  const [content, setContent] = useState<HistoryContent>(defaultContent);
+  const [loading, setLoading] = useState(true);
 
-  const timelineItems = [
-    { year: "2013", description: "Unitus Painting is founded, focusing on high-quality residential and commercial painting services" },
-    { year: "2015", description: "Expansion into large-scale commercial and industrial painting across Canada" },
-    { year: "2020", description: "Recognition as a trusted industry leader in residential, strata, and industrial painting services" },
-    { year: "2023", description: "Further expansion of services, with a focus on high-rise buildings, warehousing, and hospitality sectors, reinforcing their role as a premier painting contractor across the nation" }
-  ];
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/history');
+        if (!response.ok) throw new Error('Failed to fetch content');
+        const data = await response.json();
+        setContent(data);
+      } catch (error) {
+        console.error('Error fetching history content:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Reveal animation variants
+    fetchContent();
+  }, []);
+
+  // Animation variants remain the same...
   const revealVariants = {
     hidden: { opacity: 0, clipPath: "inset(0 100% 0 0)" },
     visible: {
@@ -34,7 +50,6 @@ const HistorySection = () => {
     }
   };
 
-  // Floating animation for cards
   const floatingVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
@@ -47,10 +62,9 @@ const HistorySection = () => {
     }
   };
 
-  // Timeline dot animation
   const dotVariants = {
     hidden: { scale: 0, opacity: 0 },
-    visible: (custom) => ({
+    visible: (custom: number) => ({
       scale: 1,
       opacity: 1,
       transition: {
@@ -62,7 +76,6 @@ const HistorySection = () => {
     })
   };
 
-  // Line drawing animation for timeline
   const pathVariants = {
     hidden: { pathLength: 0 },
     visible: {
@@ -73,6 +86,16 @@ const HistorySection = () => {
       }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-96 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const { title, historyCards, timelineItems } = content;
 
   return (
     <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-4 md:px-8 lg:px-16 overflow-hidden">
@@ -89,13 +112,13 @@ const HistorySection = () => {
             >
               <div className="inline-flex items-center bg-blue-100 px-3 py-1 rounded-full mb-6">
                 <Calendar className="w-4 h-4 text-blue-600 mr-2" />
-                <span className="text-sm font-medium text-blue-600">Our History</span>
+                <span className="text-sm font-medium text-blue-600">{title.badge}</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-8 leading-tight">
-                Let's Build Something <br /> Together
+                {title.mainHeading}
               </h1>
               <p className="text-gray-600 text-lg leading-relaxed">
-                With the company officially becoming operational in 2015, we aim to create unmatched positive relationships with our valued customers and help them with any electrical problem.
+                {title.subHeading}
               </p>
             </motion.div>
 

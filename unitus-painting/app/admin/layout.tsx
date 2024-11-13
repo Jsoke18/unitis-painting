@@ -39,10 +39,34 @@ const menuItems: MenuItem[] = [
     href: "/admin/projects",
   },
   {
+    key: "commitment",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Commitment Component",
+    href: "/admin/commitment",
+  },
+  {
+    key: "statistics",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Statistics Cards",
+    href: "/admin/statistics",
+  },
+  {
     key: "about-hero",
     icon: <LayoutDashboard className="w-4 h-4" />,
     label: "About Hero",
     href: "/admin/about-hero",
+  },
+  {
+    key: "history",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Company History",
+    href: "/admin/history",
+  },
+  {
+    key: "our-approach",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Our Approach",
+    href: "/admin/our-approach",
   },
   {
     key: "pages",

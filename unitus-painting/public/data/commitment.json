@@ -1,0 +1,15 @@
+{
+  "title": "We're Committed to Excellence",
+  "paragraphs": [
+    "At Unitus Painting, we specialize in delivering high-quality painting services for residential, commercial, strata, and industrial properties across Canada. With a team of highly skilled professionals and over a decade of experience, we're dedicated to transforming spaces with precision and care.",
+    "We pride ourselves on using advanced techniques and the finest materials to ensure long-lasting and beautiful results. Our commitment to customer satisfaction drives everything we do, from the initial consultation to the final walkthrough."
+  ],
+  "button": {
+    "text": "Get a Quote",
+    "link": "/quote"
+  },
+  "image": {
+    "src": "https://cdn.builder.io/api/v1/image/assets/TEMP/41eeac9f89794c72f10ec685f097bc94eb8fee928a606d4ebffbd2a9bc69b97a?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
+    "alt": "Unitus Painting professionals at work"
+  }
+}

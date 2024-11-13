@@ -1,0 +1,35 @@
+{
+  "title": {
+    "badge": "Our History",
+    "mainHeading": "Let's Build Something Together",
+    "subHeading": "With the company officially becoming operational in 2015, we aim to create unmatched positive relationships with our valued customers and help them with any electrical problem."
+  },
+  "historyCards": [
+    {
+      "title": "Our Company",
+      "description": "Founded with a mission to deliver top-quality painting services, Unitus Painting quickly earned a reputation for reliability and attention to detail. Over the years, we have expanded our expertise across Canada, serving homes, businesses, and large-scale developments with the same dedication to excellence."
+    },
+    {
+      "title": "Our Mission",
+      "description": "We aim to exceed client expectations with every job, offering expert service, quality work, and competitive pricing for both residential and industrial painting needs."
+    }
+  ],
+  "timelineItems": [
+    {
+      "year": "2013",
+      "description": "Unitus Painting is founded, focusing on high-quality residential and commercial painting services"
+    },
+    {
+      "year": "2015",
+      "description": "Expansion into large-scale commercial and industrial painting across Canada"
+    },
+    {
+      "year": "2020",
+      "description": "Recognition as a trusted industry leader in residential, strata, and industrial painting services"
+    },
+    {
+      "year": "2023",
+      "description": "Further expansion of services, with a focus on high-rise buildings, warehousing, and hospitality sectors, reinforcing their role as a premier painting contractor across the nation"
+    }
+  ]
+}

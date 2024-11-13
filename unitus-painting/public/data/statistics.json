@@ -1,0 +1,22 @@
+{
+  "statistics": [
+    {
+      "value": "4,500+",
+      "description": "Projects Completed",
+      "iconType": "CheckCircle",
+      "iconColor": "text-green-500"
+    },
+    {
+      "value": "5.0",
+      "description": "Average Google Rating",
+      "iconType": "Star",
+      "iconColor": "text-yellow-400"
+    },
+    {
+      "value": "5/5",
+      "description": "Better Business Bureau® Rating",
+      "iconType": "Award",
+      "iconColor": "text-blue-500"
+    }
+  ]
+}

@@ -1,10 +1,31 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { CommitmentContent } from '@/types/Commitment';
+import Link from 'next/link';
 
 const CommitmentCard = () => {
+  const [content, setContent] = useState<CommitmentContent | null>(null);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch('/api/commitment');
+        if (!response.ok) throw new Error('Failed to fetch content');
+        const data = await response.json();
+        setContent(data);
+      } catch (error) {
+        console.error('Error fetching commitment content:', error);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, x: -20 },
@@ -74,6 +95,14 @@ const CommitmentCard = () => {
     }
   };
 
+  if (!content) {
+    return (
+      <div className="w-full h-96 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <Card className="overflow-hidden shadow-lg">
       <CardContent className="p-0">
@@ -90,24 +119,16 @@ const CommitmentCard = () => {
                 className="text-4xl lg:text-5xl font-bold text-blue-900 mb-8"
                 variants={textVariants}
               >
-                We're Committed to Excellence
+                {content.title}
               </motion.h2>
               
               <motion.div
                 className="space-y-6 text-gray-600 text-lg lg:text-xl"
                 variants={textVariants}
               >
-                <p>
-                  At Unitus Painting, we specialize in delivering high-quality painting services for
-                  residential, commercial, strata, and industrial properties across Canada. With a team
-                  of highly skilled professionals and over a decade of experience, we're dedicated to
-                  transforming spaces with precision and care.
-                </p>
-                <p>
-                  We pride ourselves on using advanced techniques and the finest materials to ensure
-                  long-lasting and beautiful results. Our commitment to customer satisfaction drives
-                  everything we do, from the initial consultation to the final walkthrough.
-                </p>
+                {content.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
               </motion.div>
             </div>
 
@@ -115,17 +136,19 @@ const CommitmentCard = () => {
               variants={buttonVariants}
               whileHover="hover"
             >
-              <Button
-                className="mt-10 bg-amber-400 text-blue-900 hover:bg-amber-500
-                         transition-all duration-300 text-xl py-6 px-8"
-              >
-                Get a Quote
-                <motion.div
-                  variants={arrowVariants}
+              <Link href={content.button.link}>
+                <Button
+                  className="mt-10 bg-amber-400 text-blue-900 hover:bg-amber-500
+                           transition-all duration-300 text-xl py-6 px-8"
                 >
-                  <ChevronRight className="ml-2 h-6 w-6" />
-                </motion.div>
-              </Button>
+                  {content.button.text}
+                  <motion.div
+                    variants={arrowVariants}
+                  >
+                    <ChevronRight className="ml-2 h-6 w-6" />
+                  </motion.div>
+                </Button>
+              </Link>
             </motion.div>
           </motion.div>
 
@@ -137,8 +160,8 @@ const CommitmentCard = () => {
             viewport={{ once: true }}
           >
             <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/41eeac9f89794c72f10ec685f097bc94eb8fee928a606d4ebffbd2a9bc69b97a?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8"
-              alt="Unitus Painting professionals at work"
+              src={content.image.src}
+              alt={content.image.alt}
               className="w-full h-full object-cover"
             />
           </motion.div>
