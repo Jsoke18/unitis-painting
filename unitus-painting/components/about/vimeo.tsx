@@ -2,15 +2,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, Minimize2, Maximize2 } from 'lucide-react';
-import { AboutHeroContent } from '@/types/AboutHero';
+import { Play, Pause, Volume2, VolumeX, Minimize2, Maximize2, ChevronDown } from 'lucide-react';
+import { AboutHeroContent } from '@/app/types/AboutHero';
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
   loading: () => (
     <div className="absolute inset-0 bg-navy-blue flex items-center justify-center">
       <motion.div 
-        className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full"
+        className="w-12 h-12 md:w-16 md:h-16 border-4 border-amber-400 border-t-transparent rounded-full"
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
       />
@@ -25,6 +25,7 @@ type State = {
   isMinimized: boolean;
   isMobile: boolean;
   content: AboutHeroContent | null;
+  showMobileControls: boolean;
 };
 
 const AboutUsPage = () => {
@@ -39,6 +40,7 @@ const AboutUsPage = () => {
     isMinimized: false,
     isMobile: false,
     content: null,
+    showMobileControls: false,
   });
 
   useEffect(() => {
@@ -106,11 +108,23 @@ const AboutUsPage = () => {
     }
   };
 
+  const mobileControlsVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  };
+
   if (!state.content) {
     return (
       <div className="w-full min-h-[60vh] bg-navy-blue flex items-center justify-center">
         <motion.div 
-          className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full"
+          className="w-12 h-12 md:w-16 md:h-16 border-4 border-amber-400 border-t-transparent rounded-full"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
@@ -121,7 +135,7 @@ const AboutUsPage = () => {
   return (
     <section 
       ref={containerRef}
-      className="relative w-full min-h-[60vh] md:aspect-[21/9] overflow-hidden"
+      className="relative w-full min-h-[65vh] md:min-h-[60vh] md:aspect-[21/9] overflow-hidden"
     >
       {state.isMobile && state.content.isMobileEnabled ? (
         <div className="absolute inset-0">
@@ -187,7 +201,7 @@ const AboutUsPage = () => {
       <div className="absolute inset-0">
         {!state.isMinimized ? (
           <div className="h-full flex items-center">
-            <div className="w-full container mx-auto px-6 md:px-8 lg:px-16">
+            <div className="w-full container mx-auto px-4 md:px-8 lg:px-16">
               <motion.div 
                 className="w-full md:max-w-4xl"
                 variants={containerVariants}
@@ -196,13 +210,25 @@ const AboutUsPage = () => {
                 exit="exit"
               >
                 <motion.div 
-                  className="backdrop-blur-lg bg-black/40 rounded-2xl border border-white/10 shadow-2xl w-full p-8"
+                  className="backdrop-blur-lg bg-black/40 rounded-xl md:rounded-2xl border border-white/10 shadow-2xl w-full p-6 md:p-8"
                   layout
                   transition={{
                     layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
                   }}
                 >
-                  {!state.isMobile && (
+                  {state.isMobile ? (
+                    <motion.button
+                      className="w-full flex justify-center items-center mb-4"
+                      onClick={() => setState(prev => ({ ...prev, showMobileControls: !prev.showMobileControls }))}
+                    >
+                      <motion.div
+                        animate={{ rotate: state.showMobileControls ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronDown className="w-6 h-6 text-white/70" />
+                      </motion.div>
+                    </motion.button>
+                  ) : (
                     <motion.div className="flex justify-between mb-6">
                       <div className="flex items-center space-x-4">
                         <motion.button
@@ -239,14 +265,47 @@ const AboutUsPage = () => {
                     </motion.div>
                   )}
 
+                  <AnimatePresence>
+                    {state.isMobile && state.showMobileControls && (
+                      <motion.div 
+                        className="flex items-center justify-center space-x-4 mb-6"
+                        variants={mobileControlsVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                      >
+                        <motion.button
+                          className="p-2 rounded-full bg-white/20 active:bg-white/30 transition-colors"
+                          onClick={() => setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {state.isPlaying ? 
+                            <Pause className="w-5 h-5 text-white" /> : 
+                            <Play className="w-5 h-5 text-white" />
+                          }
+                        </motion.button>
+                        <motion.button
+                          className="p-2 rounded-full bg-white/20 active:bg-white/30 transition-colors"
+                          onClick={() => setState(prev => ({ ...prev, isMuted: !prev.isMuted }))}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {state.isMuted ? 
+                            <VolumeX className="w-5 h-5 text-white" /> : 
+                            <Volume2 className="w-5 h-5 text-white" />
+                          }
+                        </motion.button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <motion.div 
-                    className="space-y-6 md:space-y-8"
+                    className="space-y-4 md:space-y-8"
                     variants={containerVariants}
                     initial="initial"
                     animate="animate"
                     exit="exit"
                   >
-                    <h1 className="font-bold text-white text-4xl md:text-5xl leading-tight tracking-tight">
+                    <h1 className="font-bold text-white text-3xl md:text-5xl leading-tight tracking-tight">
                       <motion.span
                         variants={textVariants}
                         initial="initial"
@@ -267,7 +326,7 @@ const AboutUsPage = () => {
                       </motion.span>
                     </h1>
                     <motion.p 
-                      className="text-lg md:text-xl leading-relaxed text-white/95 max-w-3xl"
+                      className="text-base md:text-xl leading-relaxed text-white/95 max-w-3xl"
                       variants={textVariants}
                       initial="initial"
                       animate="animate"
