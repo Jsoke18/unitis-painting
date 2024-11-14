@@ -10,7 +10,7 @@
   "buttons": {
     "primary": {
       "text": "Explore Our Services",
-      "link": "/services"
+      "link": "/services"        
     },
     "secondary": {
       "text": "Get Free Quote",

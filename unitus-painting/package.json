@@ -6,7 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:migrate": "node --loader ts-node/esm migrations/001_create_hero_schema.ts",
+    "db:init": "ts-node -r tsconfig-paths/register scripts/init-hero.ts",
+    "db:setup": "npm run db:migrate && npm run db:init",
+    "db:init-data": "ts-node --project scripts/tsconfig.json scripts/init-hero-data.ts"
+
+    
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
@@ -16,6 +28,8 @@
     "@google-cloud/storage": "^7.13.0",
     "@headlessui/react": "^2.1.10",
     "@hello-pangea/dnd": "^17.0.0",
+    "@neondatabase/serverless": "^0.10.3",
+    "@prisma/client": "^5.22.0",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
     "@radix-ui/react-avatar": "^1.1.1",
@@ -38,6 +52,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "framer-motion": "^11.11.9",
     "lodash": "^4.17.21",
     "lucide-react": "^0.452.0",
@@ -72,7 +87,10 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "postcss": "^8",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   }
 }

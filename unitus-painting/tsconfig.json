@@ -27,11 +27,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@migrations/*": ["./migrations/*"]
+
     },
     "baseUrl": "."
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "scripts/update-edge-config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "scripts/update-edge-config.js", "prisma/seed.ts"],
   "exclude": ["node_modules"],
   "ts-node": {
     "transpileOnly": true,

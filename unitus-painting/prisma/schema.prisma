@@ -1,0 +1,20 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  // Remove directUrl since we're using connection pooling
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Hero {
+  id          Int      @id @default(autoincrement())
+  location    Json
+  mainHeading Json
+  subheading  String
+  buttons     Json
+  videoUrl    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
