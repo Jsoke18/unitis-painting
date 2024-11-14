@@ -16,9 +16,7 @@
     "db:init-data": "ts-node --project scripts/tsconfig.json scripts/init-hero-data.ts",
     "init-hero": "ts-node scripts/init-hero-data.ts",
     "init-about": "ts-node scripts/init-about-data.ts",
-    "init-services": "ts-node scripts/init-services-landing-content.ts",
-    "init-project-content": "ts-node scripts/init-project-content.ts"
-
+    "init-services": "ts-node scripts/init-services-landing-content.ts"
 
 
     

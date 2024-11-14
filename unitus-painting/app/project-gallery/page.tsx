@@ -18,17 +18,11 @@ interface Project {
   id: number;
   title: string;
   category: string;
-  imageSrc: string;  // Note: Changed from imageUrl to imageSrc to match API
+  imageUrl: string;  // Updated to match the API response
   description: string;
   completionDate?: string;
   location?: string;
   specs?: ProjectSpecs;
-}
-
-interface ProjectsData {
-  heading: string;
-  description: string;
-  projects: Project[];
 }
 
 const categories = [
@@ -39,7 +33,7 @@ const categories = [
   "Commercial",
 ];
 
-// Helper functions remain the same
+// Helper functions for handling optional data
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Date TBA";
   try {
@@ -53,7 +47,6 @@ const formatLocation = (location?: string) => {
   return location || "Location TBA";
 };
 
-// ProjectSpecs component remains the same
 const ProjectSpecs: React.FC<{ specs?: ProjectSpecs }> = ({ specs }) => {
   const defaultSpecs = {
     area: "Area TBA",
@@ -84,12 +77,11 @@ const ProjectSpecs: React.FC<{ specs?: ProjectSpecs }> = ({ specs }) => {
   );
 };
 
-// Updated ProjectCard to use imageSrc instead of imageUrl
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
   <Card className="group overflow-hidden h-full flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300">
     <AspectRatio ratio={4 / 3} className="overflow-hidden">
       <img
-        src={project.imageSrc}
+        src={project.imageUrl}
         alt={project.title}
         className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
       />
@@ -118,23 +110,19 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
 
 const ProjectGallery: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [projectsData, setProjectsData] = useState<ProjectsData>({
-    heading: "",
-    description: "",
-    projects: []
-  });
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('/api/projects');
+        const response = await fetch('/data/projects.json');
         if (!response.ok) {
           throw new Error('Failed to fetch projects');
         }
         const data = await response.json();
-        setProjectsData(data);
+        setProjects(data.projects || []);
       } catch (error) {
         console.error('Failed to load projects:', error);
         setError('Failed to load projects. Please try again later.');
@@ -148,8 +136,8 @@ const ProjectGallery: React.FC = () => {
 
   const filteredProjects =
     selectedIndex === 0
-      ? projectsData.projects
-      : projectsData.projects.filter(
+      ? projects
+      : projects.filter(
           (project) => project.category === categories[selectedIndex]
         );
 
@@ -184,10 +172,10 @@ const ProjectGallery: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">
-              {projectsData.heading}
+              Our Project Portfolio
             </h2>
             <p className="text-xl text-gray-600">
-              {projectsData.description}
+              Explore our diverse range of professional painting projects
             </p>
           </div>
 
