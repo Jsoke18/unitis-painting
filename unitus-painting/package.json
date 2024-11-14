@@ -13,7 +13,11 @@
     "db:migrate": "node --loader ts-node/esm migrations/001_create_hero_schema.ts",
     "db:init": "ts-node -r tsconfig-paths/register scripts/init-hero.ts",
     "db:setup": "npm run db:migrate && npm run db:init",
-    "db:init-data": "ts-node --project scripts/tsconfig.json scripts/init-hero-data.ts"
+    "db:init-data": "ts-node --project scripts/tsconfig.json scripts/init-hero-data.ts",
+    "init-hero": "ts-node scripts/init-hero-data.ts",
+    "init-about": "ts-node scripts/init-about-data.ts",
+    "init-services": "ts-node scripts/init-services-landing-content.ts"
+
 
     
   },
