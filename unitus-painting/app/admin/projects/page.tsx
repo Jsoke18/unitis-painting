@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Button, message, Table, Upload, Modal, Popconfirm, Image, Collapse } from 'antd';
 import { UploadOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import type { UploadFile } from 'antd/es/upload/interface';
 import axios from 'axios';
 
 const { TextArea } = Input;
@@ -20,16 +19,20 @@ interface Project {
   id: number;
   title: string;
   description: string;
-  imageUrl?: string;
+  image_src: string;
   category?: string;
   location?: string;
   completionDate?: string;
   specs?: ProjectSpecs;
-  createdAt: string;
-  updatedAt?: string;
 }
 
-interface FormValues extends Omit<Project, 'id' | 'imageUrl' | 'createdAt' | 'updatedAt'> {
+interface ProjectContent {
+  heading: string;
+  description: string;
+  projects: Project[];
+}
+
+interface FormValues extends Omit<Project, 'id' | 'image_src'> {
   specs?: ProjectSpecs;
 }
 
@@ -43,7 +46,11 @@ const categories = [
 const ProjectAdmin: React.FC = () => {
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectContent, setProjectContent] = useState<ProjectContent>({
+    heading: '',
+    description: '',
+    projects: []
+  });
   const [loading, setLoading] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -59,14 +66,15 @@ const ProjectAdmin: React.FC = () => {
   const fetchProjects = async () => {
     setTableLoading(true);
     try {
-      const response = await fetch('/data/projects.json');
+      const response = await fetch('/api/projects');
+      if (!response.ok) {
+        throw new Error('Failed to fetch projects');
+      }
       const data = await response.json();
-      const projectsArray = data.projects || [];
-      setProjects(Array.isArray(projectsArray) ? projectsArray : []);
+      setProjectContent(data);
     } catch (error) {
       console.error('Failed to load projects:', error);
-      message.error('Failed to load projects');
-      setProjects([]);
+      message.error('Failed to fetch projects');
     } finally {
       setTableLoading(false);
     }
@@ -111,7 +119,7 @@ const ProjectAdmin: React.FC = () => {
         }
         message.success('Upload successful!');
       } catch (error) {
-        message.error('Upload failed.'); 
+        message.error('Upload failed.');
       }
       return false;
     },
@@ -128,26 +136,32 @@ const ProjectAdmin: React.FC = () => {
         return;
       }
 
-      const newProject: Project = {
-        id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1,
-        title: values.title,
-        description: values.description,
-        category: values.category,
-        location: values.location,
-        completionDate: values.completionDate,
-        specs: values.specs,
-        imageUrl: imageUrl,
-        createdAt: new Date().toISOString(),
+      const updatedContent = {
+        ...projectContent,
+        projects: [
+          ...projectContent.projects,
+          {
+            title: values.title,
+            description: values.description,
+            category: values.category,
+            location: values.location,
+            completionDate: values.completionDate,
+            specs: values.specs,
+            image_src: imageUrl,
+          }
+        ]
       };
 
-      const updatedProjects = [...projects, newProject];
-      await axios.post('/api/projects', { projects: updatedProjects });
-      
-      setProjects(updatedProjects);
-      message.success('Project added successfully');
-      setAddModalVisible(false);
-      form.resetFields();
-      setImageUrl('');
+      const response = await axios.post('/api/projects', updatedContent);
+      if (response.data.success) {
+        message.success('Project added successfully');
+        setAddModalVisible(false);
+        form.resetFields();
+        setImageUrl('');
+        await fetchProjects();
+      } else {
+        throw new Error('Failed to add project');
+      }
     } catch (error) {
       console.error('Failed to add project:', error);
       message.error('Failed to add project');
@@ -161,28 +175,62 @@ const ProjectAdmin: React.FC = () => {
 
     setLoading(true);
     try {
-      const updatedProject: Project = {
-        ...editingProject,
-        title: values.title,
-        description: values.description,
-        category: values.category,
-        location: values.location,
-        completionDate: values.completionDate,
-        specs: values.specs,
-        imageUrl: editImageUrl || editingProject.imageUrl,
-        updatedAt: new Date().toISOString(),
+      const updatedProjects = projectContent.projects.map(project => 
+        project.id === editingProject.id
+          ? {
+              ...project,
+              title: values.title,
+              description: values.description,
+              category: values.category,
+              location: values.location,
+              completionDate: values.completionDate,
+              specs: values.specs,
+              image_src: editImageUrl || project.image_src,
+            }
+          : project
+      );
+
+      const updatedContent = {
+        ...projectContent,
+        projects: updatedProjects
       };
 
-      await axios.put('/api/projects', { project: updatedProject });
-      message.success('Project updated successfully');
-      setEditModalVisible(false);
-      await fetchProjects();
-      setEditImageUrl('');
+      const response = await axios.put('/api/projects', updatedContent);
+      if (response.data.success) {
+        message.success('Project updated successfully');
+        setEditModalVisible(false);
+        setEditingProject(null);
+        setEditImageUrl('');
+        await fetchProjects();
+      } else {
+        throw new Error('Failed to update project');
+      }
     } catch (error) {
       console.error('Failed to update project:', error);
       message.error('Failed to update project');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const updatedProjects = projectContent.projects.filter(project => project.id !== id);
+      const updatedContent = {
+        ...projectContent,
+        projects: updatedProjects
+      };
+
+      const response = await axios.put('/api/projects', updatedContent);
+      if (response.data.success) {
+        message.success('Project deleted successfully');
+        await fetchProjects();
+      } else {
+        throw new Error('Failed to delete project');
+      }
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      message.error('Failed to delete project');
     }
   };
 
@@ -217,9 +265,9 @@ const ProjectAdmin: React.FC = () => {
       key: 'image',
       width: '20%',
       render: (_: any, record: Project) => (
-        record.imageUrl && (
+        record.image_src && (
           <Image
-            src={record.imageUrl}
+            src={record.image_src}
             alt={record.title}
             width={100}
             height={100}
@@ -267,19 +315,8 @@ const ProjectAdmin: React.FC = () => {
       ...record,
       specs: record.specs,
     });
-    setEditImageUrl(record.imageUrl || '');
+    setEditImageUrl(record.image_src);
     setEditModalVisible(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await axios.delete(`/api/projects?id=${id}`);
-      message.success('Project deleted successfully');
-      await fetchProjects();
-    } catch (error) {
-      console.error('Failed to delete project:', error);
-      message.error('Failed to delete project');
-    }
   };
 
   const ProjectForm = ({ form, onFinish, submitText, loading, currentImageUrl }: any) => (
@@ -401,7 +438,7 @@ const ProjectAdmin: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <Table
             columns={columns}
-            dataSource={projects}
+            dataSource={projectContent.projects}
             rowKey="id"
             pagination={{ pageSize: 10 }}
             loading={tableLoading}
@@ -445,7 +482,7 @@ const ProjectAdmin: React.FC = () => {
             onFinish={updateProject}
             submitText="Update Project"
             loading={loading}
-            currentImageUrl={editImageUrl || editingProject?.imageUrl}
+            currentImageUrl={editImageUrl || editingProject?.image_src}
           />
         </Modal>
       </div>
