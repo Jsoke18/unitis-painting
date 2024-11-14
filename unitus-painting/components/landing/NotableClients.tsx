@@ -1,8 +1,25 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { ClientsContent, defaultClientsContent } from '@/app/types/clients';
+
+// Define proper types for the API response
+interface Client {
+  id: number;
+  src: string;
+  alt: string;
+}
+
+interface ClientsContent {
+  heading: string;
+  clients: Client[];
+}
+
+const defaultClientsContent: ClientsContent = {
+  heading: "Our Notable Clients",
+  clients: []
+};
 
 const NotableClients: React.FC = () => {
   const controls = useAnimation();
@@ -12,18 +29,38 @@ const NotableClients: React.FC = () => {
   });
   const [containerWidth, setContainerWidth] = useState(0);
   const [content, setContent] = useState<ClientsContent>(defaultClientsContent);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchContent = async () => {
+      console.log('🔄 Frontend: Starting to fetch clients data');
+      setIsLoading(true);
       try {
-        const response = await fetch('/api/clients');
-        if (!response.ok) throw new Error('Failed to fetch clients content');
-        const data = await response.json();
+        const response = await fetch('/api/clients', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('📡 Frontend: Received response status:', response.status);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: ClientsContent = await response.json();
+        console.log('✅ Frontend: Successfully fetched clients data:', data);
         setContent(data);
+        setError(null);
       } catch (error) {
-        console.error('Error fetching clients content:', error);
+        console.error('❌ Frontend: Error fetching clients content:', error);
+        setError('Failed to load clients data');
         setContent(defaultClientsContent);
+      } finally {
+        setIsLoading(false);
+        console.log('🏁 Frontend: Finished fetching clients data');
       }
     };
 
@@ -70,6 +107,22 @@ const NotableClients: React.FC = () => {
     },
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-600 p-4">
+        {error}
+      </div>
+    );
+  }
+
   return (
     <motion.section
       ref={ref}
@@ -106,7 +159,7 @@ const NotableClients: React.FC = () => {
           >
             {[...content.clients, ...content.clients].map((client, index) => (
               <motion.div
-                key={index}
+                key={`${client.id}-${index}`}
                 className="flex-shrink-0 flex items-center justify-center w-48 h-32 bg-white rounded-lg shadow-sm p-4"
               >
                 <img
