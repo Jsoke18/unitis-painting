@@ -7,27 +7,61 @@ import { Input } from "@/components/ui/input";
 import { Search, ChevronUp, Loader2 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { useBlogStore } from "@/lib/blogService";
 import Link from "next/link";
 import debounce from "lodash/debounce";
+
+// Types
+interface BlogPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  author: string;
+  category: string;
+  tags: string[];
+  readTime: string;
+  date: string;
+}
+
+interface BlogData {
+  posts: BlogPost[];
+  categories: string[];
+}
 
 const BlogPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [blogData, setBlogData] = useState<BlogData>({ posts: [], categories: [] });
   
-  const { posts = [], categories = [], fetchPosts, isLoading } = useBlogStore();
-
-  // Handle initial data loading
+  // Fetch blog data
   useEffect(() => {
-    setMounted(true);
-    fetchPosts();
-  }, [fetchPosts]);
+    const fetchBlogData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/blogs');
+        if (!response.ok) {
+          throw new Error('Failed to fetch blog data');
+        }
+        
+        const data: BlogData = await response.json();
+        setBlogData(data);
+      } catch (err) {
+        console.error('Error fetching blog data:', err);
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Combine All with other categories
-  const allCategories = ["All", ...categories];
+    fetchBlogData();
+  }, []);
 
   // Handle scroll to top button visibility
   useEffect(() => {
@@ -50,8 +84,11 @@ const BlogPage = () => {
     });
   };
 
+  // Combine All with other categories
+  const allCategories = ["All", ...blogData.categories];
+
   // Filter posts based on category and search query
-  const filteredPosts = posts.filter(post => {
+  const filteredPosts = blogData.posts.filter(post => {
     const matchesCategory = selectedCategory === "All" || post.category === selectedCategory;
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch = searchLower === '' || 
@@ -84,14 +121,33 @@ const BlogPage = () => {
     }
   };
 
-  // Don't render anything on the server side or while loading
-  if (!mounted || isLoading) {
+  // Loading state
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-blue-900 mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">Loading Blog</h2>
           <p className="text-gray-500">Please wait while we prepare the content</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">⚠️</div>
+          <h2 className="text-2xl font-semibold text-gray-700 mb-2">Error Loading Blog</h2>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );

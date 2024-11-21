@@ -1,25 +1,68 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, Clock, Calendar, User } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, Clock, Calendar, User, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { useBlogStore } from "@/lib/blogService";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
 
-// Dynamically import markdown components
+// Types
+interface BlogPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  author: string;
+  category: string;
+  tags: string[];
+  readTime: string;
+  date: string;
+}
+
+// Dynamic imports for markdown rendering
 const ReactMarkdown = dynamic(() => import('react-markdown'), {
   ssr: false,
-  loading: () => <div className="animate-pulse h-4 bg-gray-200 rounded"></div>
+  loading: () => <LoadingPlaceholder />
 });
 
 const RemarkGfm = dynamic(() => import('remark-gfm'), {
   ssr: false
 });
+
+// Reusable components
+const LoadingPlaceholder = () => (
+  <div className="space-y-4">
+    <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4" />
+    <div className="animate-pulse h-4 bg-gray-200 rounded w-1/2" />
+    <div className="animate-pulse h-4 bg-gray-200 rounded w-5/6" />
+  </div>
+);
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-4">
+    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+  </div>
+);
+
+const ErrorMessage = ({ message }: { message: string }) => (
+  <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
+    <div className="flex">
+      <div className="flex-shrink-0">
+        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div className="ml-3">
+        <p className="text-sm text-red-700">{message}</p>
+      </div>
+    </div>
+  </div>
+);
 
 const MarkdownRenderer = ({ content }: { content: string }) => {
   const [isClient, setIsClient] = useState(false);
@@ -29,13 +72,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
   }, []);
 
   if (!isClient) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-      </div>
-    );
+    return <LoadingPlaceholder />;
   }
 
   return (
@@ -73,7 +110,36 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
               <code {...props}>{children}</code>
             </pre>
           );
-        }
+        },
+        ul: ({ ...props }) => (
+          <ul className="list-disc list-inside mt-4 mb-4 space-y-2" {...props} />
+        ),
+        ol: ({ ...props }) => (
+          <ol className="list-decimal list-inside mt-4 mb-4 space-y-2" {...props} />
+        ),
+        li: ({ ...props }) => (
+          <li className="text-gray-700" {...props} />
+        ),
+        blockquote: ({ ...props }) => (
+          <blockquote className="border-l-4 border-gray-200 pl-4 italic my-4" {...props} />
+        ),
+        a: ({ ...props }) => (
+          <a className="text-blue-600 hover:text-blue-800 underline" {...props} />
+        ),
+        img: ({ ...props }) => (
+          <img className="max-w-full h-auto my-4 rounded-lg" {...props} />
+        ),
+        table: ({ ...props }) => (
+          <div className="overflow-x-auto my-4">
+            <table className="min-w-full divide-y divide-gray-200" {...props} />
+          </div>
+        ),
+        th: ({ ...props }) => (
+          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" {...props} />
+        ),
+        td: ({ ...props }) => (
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" {...props} />
+        ),
       }}
     >
       {content}
@@ -112,25 +178,51 @@ const NotFoundState = () => (
   </div>
 );
 
+// Main component
 const BlogPostPage = () => {
   const params = useParams();
-  const { getPost, fetchPosts, isLoading } = useBlogStore();
-  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-    fetchPosts();
-  }, [fetchPosts]);
+    const fetchPost = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-  // Show loading state
-  if (!mounted || isLoading) {
+        const response = await fetch(`/api/blogs?id=${params.id}`);
+        
+        if (!response.ok) {
+          throw new Error(response.status === 404 ? 'Post not found' : 'Failed to fetch post');
+        }
+        
+        const data = await response.json();
+        setPost(data);
+      } catch (err) {
+        console.error('Error fetching post:', err);
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchPost();
+    } else {
+      setError('Invalid post ID');
+      setIsLoading(false);
+    }
+  }, [params.id]);
+
+  // Handle loading state
+  if (isLoading) {
     return <LoadingState />;
   }
 
-  const post = getPost(Number(params.id));
-
-  // Show not found state
-  if (!post) {
+  // Handle error state
+  if (error || !post) {
     return <NotFoundState />;
   }
 
@@ -138,7 +230,7 @@ const BlogPostPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header openingHours="8:00 am - 5:00 pm" />
 
-      {/* Hero Section with Featured Image */}
+      {/* Hero Section */}
       <motion.section 
         className="relative h-[60vh] min-h-[400px] bg-blue-900"
         initial={{ opacity: 0 }}
@@ -209,14 +301,19 @@ const BlogPostPage = () => {
                   {post.category}
                 </span>
 
-                {/* Markdown Content */}
+                {/* Content */}
                 <div className="prose prose-lg max-w-none">
                   <MarkdownRenderer content={post.content} />
                 </div>
 
                 {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
-                  <div className="mt-8 pt-8 border-t border-gray-200">
+                  <motion.div 
+                    className="mt-8 pt-8 border-t border-gray-200"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Topics</h3>
                     <div className="flex flex-wrap gap-2">
                       {post.tags.map((tag) => (
@@ -228,7 +325,7 @@ const BlogPostPage = () => {
                         </span>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 )}
               </motion.div>
             </CardContent>
