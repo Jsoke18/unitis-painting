@@ -1,189 +1,84 @@
-// app/api/areas-served/route.ts
 import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { db } from '@/lib/db';
-import { z } from 'zod';
+import { AreasServedContent } from '@/lib/db/areas-served';
+import { getAreasServedContent, updateAreasServedContent } from '@/lib/db/areas-served';
 
-// Schema for validation
-const AddressSchema = z.object({
-  title: z.string(),
-  lines: z.array(z.string())
-}).optional();
+// Force dynamic route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const MapPropsSchema = z.object({
-  longitude: z.number(),
-  latitude: z.number(),
-  zoom: z.number()
-});
+// Validation function
+async function validateAreasServedContent(content: unknown): Promise<AreasServedContent> {
+  if (!content || typeof content !== 'object') {
+    throw new Error('Invalid content structure');
+  }
 
-const ContactSchema = z.object({
-  phone: z.string(),
-  email: z.string().email(),
-  hours: z.string()
-});
+  const areasContent = content as AreasServedContent;
 
-const AreaServedSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  address: AddressSchema,
-  mapProps: MapPropsSchema,
-  contact: ContactSchema
-});
+  // Validate page content
+  if (!areasContent.page?.title || 
+      !areasContent.page?.subtitle || 
+      !areasContent.page?.metaDescription) {
+    throw new Error('Missing required page content fields');
+  }
+
+  // Validate locations
+  if (!Array.isArray(areasContent.locations) || areasContent.locations.length === 0) {
+    throw new Error('Locations must be a non-empty array');
+  }
+
+  for (const location of areasContent.locations) {
+    if (!location.title ||
+        !location.description ||
+        !location.mapProps?.longitude ||
+        !location.mapProps?.latitude ||
+        !location.mapProps?.zoom ||
+        !location.contact?.phone ||
+        !location.contact?.email ||
+        !location.contact?.hours) {
+      throw new Error('Missing required location fields');
+    }
+  }
+
+  return areasContent;
+}
 
 export async function GET() {
   try {
-    const result = await db.query(`
-      SELECT 
-        as_main.id,
-        as_main.title,
-        as_main.description,
-        CASE 
-          WHEN addr.id IS NOT NULL THEN
-            json_build_object(
-              'title', addr.title,
-              'lines', addr.address_lines
-            )
-          ELSE NULL
-        END as address,
-        json_build_object(
-          'longitude', mc.longitude,
-          'latitude', mc.latitude,
-          'zoom', mc.zoom
-        ) as map_props,
-        json_build_object(
-          'phone', ci.phone,
-          'email', ci.email,
-          'hours', ci.hours
-        ) as contact
-      FROM areas_served as_main
-      LEFT JOIN location_addresses addr ON addr.area_id = as_main.id
-      LEFT JOIN map_coordinates mc ON mc.area_id = as_main.id
-      LEFT JOIN contact_information ci ON ci.area_id = as_main.id
-      ORDER BY as_main.created_at DESC
-    `);
+    console.log('Starting GET request for areas served content');
+    const content = await getAreasServedContent();
 
-    return NextResponse.json(result.rows);
+    return new NextResponse(JSON.stringify(content), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
   } catch (error) {
-    console.error('Failed to fetch areas served:', error);
+    console.error('GET Error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch areas served' },
+      { error: 'Failed to fetch areas served content' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: Request) {
-  const headersList = headers();
-  const apiKey = headersList.get('x-api-key');
-  
-  // Check API key (you'll need to set up your own API key validation)
-  if (!apiKey || apiKey !== process.env.API_KEY) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
-  }
-
+export async function PUT(request: Request) {
   try {
-    const body = await request.json();
+    const content = await request.json();
+    const validatedContent = await validateAreasServedContent(content);
     
-    // Validate request body
-    const validatedData = AreaServedSchema.parse(body);
-    
-    const client = await db.connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // Insert main area content
-      const areaResult = await client.query(`
-        INSERT INTO areas_served (title, description)
-        VALUES ($1, $2)
-        RETURNING id
-      `, [validatedData.title, validatedData.description]);
-      
-      const areaId = areaResult.rows[0].id;
-      
-      // Insert address if provided
-      if (validatedData.address) {
-        await client.query(`
-          INSERT INTO location_addresses (area_id, title, address_lines)
-          VALUES ($1, $2, $3)
-        `, [areaId, validatedData.address.title, validatedData.address.lines]);
+    const updatedContent = await updateAreasServedContent(validatedContent);
+
+    return new NextResponse(JSON.stringify(updatedContent), {
+      headers: {
+        'Content-Type': 'application/json'
       }
-      
-      // Insert map coordinates
-      await client.query(`
-        INSERT INTO map_coordinates (area_id, longitude, latitude, zoom)
-        VALUES ($1, $2, $3, $4)
-      `, [
-        areaId,
-        validatedData.mapProps.longitude,
-        validatedData.mapProps.latitude,
-        validatedData.mapProps.zoom
-      ]);
-      
-      // Insert contact information
-      await client.query(`
-        INSERT INTO contact_information (area_id, phone, email, hours)
-        VALUES ($1, $2, $3, $4)
-      `, [
-        areaId,
-        validatedData.contact.phone,
-        validatedData.contact.email,
-        validatedData.contact.hours
-      ]);
-      
-      await client.query('COMMIT');
-      
-      // Fetch and return the newly created area
-      const result = await client.query(`
-        SELECT 
-          as_main.id,
-          as_main.title,
-          as_main.description,
-          CASE 
-            WHEN addr.id IS NOT NULL THEN
-              json_build_object(
-                'title', addr.title,
-                'lines', addr.address_lines
-              )
-            ELSE NULL
-          END as address,
-          json_build_object(
-            'longitude', mc.longitude,
-            'latitude', mc.latitude,
-            'zoom', mc.zoom
-          ) as map_props,
-          json_build_object(
-            'phone', ci.phone,
-            'email', ci.email,
-            'hours', ci.hours
-          ) as contact
-        FROM areas_served as_main
-        LEFT JOIN location_addresses addr ON addr.area_id = as_main.id
-        LEFT JOIN map_coordinates mc ON mc.area_id = as_main.id
-        LEFT JOIN contact_information ci ON ci.area_id = as_main.id
-        WHERE as_main.id = $1
-      `, [areaId]);
-      
-      return NextResponse.json(result.rows[0]);
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   } catch (error) {
-    console.error('Failed to create area served:', error);
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
-        { status: 400 }
-      );
-    }
+    console.error('PUT Error:', error);
     return NextResponse.json(
-      { error: 'Failed to create area served' },
+      { error: 'Failed to update areas served content' },
       { status: 500 }
     );
   }

@@ -1,6 +1,12 @@
 import { db } from '@/lib/db';
 
 // Types
+export interface PageContent {
+  title: string;
+  subtitle: string;
+  metaDescription: string;
+}
+
 export interface Address {
   title: string;
   lines: string[];
@@ -18,14 +24,7 @@ export interface Contact {
   hours: string;
 }
 
-export interface PageContent {
-  title: string;
-  subtitle: string;
-  metaDescription?: string;
-}
-
-export interface AreaServed {
-  id: number;
+export interface Location {
   title: string;
   description: string;
   address?: Address;
@@ -33,167 +32,115 @@ export interface AreaServed {
   contact: Contact;
 }
 
-export async function getPageContent(): Promise<PageContent> {
-  const result = await db.query(`
-    SELECT 
-      title,
-      subtitle,
-      meta_description as "metaDescription"
-    FROM page_content
-    ORDER BY created_at DESC
-    LIMIT 1
-  `);
-
-  if (result.rows.length === 0) {
-    throw new Error('No page content found');
-  }
-
-  return result.rows[0];
+export interface AreasServedContent {
+  page: PageContent;
+  locations: Location[];
 }
 
-export async function getAreasServed(): Promise<AreaServed[]> {
-  const result = await db.query(`
-    SELECT 
-      a.id,
-      a.title,
-      a.description,
-      CASE 
-        WHEN addr.title IS NOT NULL THEN
-          json_build_object(
-            'title', addr.title,
-            'lines', addr.address_lines
-          )
-        ELSE NULL
-      END as address,
-      json_build_object(
-        'longitude', mc.longitude,
-        'latitude', mc.latitude,
-        'zoom', mc.zoom
-      ) as "mapProps",
-      json_build_object(
-        'phone', ci.phone,
-        'email', ci.email,
-        'hours', ci.hours
-      ) as contact
-    FROM areas_served a
-    LEFT JOIN location_addresses addr ON addr.area_id = a.id
-    JOIN map_coordinates mc ON mc.area_id = a.id
-    JOIN contact_information ci ON ci.area_id = a.id
-    ORDER BY a.created_at DESC
-  `);
-
-  return result.rows;
-}
-
-export async function updateAreaServed(area: Omit<AreaServed, 'id'>): Promise<AreaServed> {
+export async function getAreasServedContent(): Promise<AreasServedContent> {
   const client = await db.connect();
   
   try {
-    await client.query('BEGIN');
-    
-    // Insert main area content
-    const areaResult = await client.query(`
-      INSERT INTO areas_served (title, description)
-      VALUES ($1, $2)
-      RETURNING id
-    `, [area.title, area.description]);
-    
-    const areaId = areaResult.rows[0].id;
-    
-    // Insert address if provided
-    if (area.address) {
-      await client.query(`
-        INSERT INTO location_addresses (area_id, title, address_lines)
-        VALUES ($1, $2, $3)
-      `, [areaId, area.address.title, area.address.lines]);
-    }
-    
-    // Insert map coordinates
-    await client.query(`
-      INSERT INTO map_coordinates (area_id, longitude, latitude, zoom)
-      VALUES ($1, $2, $3, $4)
-    `, [areaId, area.mapProps.longitude, area.mapProps.latitude, area.mapProps.zoom]);
-    
-    // Insert contact information
-    await client.query(`
-      INSERT INTO contact_information (area_id, phone, email, hours)
-      VALUES ($1, $2, $3, $4)
-    `, [areaId, area.contact.phone, area.contact.email, area.contact.hours]);
-    
-    await client.query('COMMIT');
-    
-    // Fetch and return the newly created area
-    const result = await client.query(`
-      SELECT 
-        a.id,
-        a.title,
-        a.description,
-        CASE 
-          WHEN addr.title IS NOT NULL THEN
-            json_build_object(
-              'title', addr.title,
-              'lines', addr.address_lines
-            )
-          ELSE NULL
-        END as address,
-        json_build_object(
-          'longitude', mc.longitude,
-          'latitude', mc.latitude,
-          'zoom', mc.zoom
-        ) as "mapProps",
-        json_build_object(
-          'phone', ci.phone,
-          'email', ci.email,
-          'hours', ci.hours
-        ) as contact
-      FROM areas_served a
-      LEFT JOIN location_addresses addr ON addr.area_id = a.id
-      JOIN map_coordinates mc ON mc.area_id = a.id
-      JOIN contact_information ci ON ci.area_id = a.id
-      WHERE a.id = $1
-    `, [areaId]);
+    // Get page content
+    const pageResult = await client.query(`
+      SELECT title, subtitle, meta_description
+      FROM page_content
+      ORDER BY created_at DESC
+      LIMIT 1
+    `);
 
-    return result.rows[0];
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
+    // Get locations with all related data using the get_areas_served function
+    const locationsResult = await client.query(`
+      SELECT * FROM get_areas_served()
+    `);
+
+    // Transform the database results into the expected format
+    const page: PageContent = {
+      title: pageResult.rows[0].title,
+      subtitle: pageResult.rows[0].subtitle,
+      metaDescription: pageResult.rows[0].meta_description
+    };
+
+    const locations: Location[] = locationsResult.rows.map(row => ({
+      title: row.title,
+      description: row.description,
+      ...(row.address_title && {
+        address: {
+          title: row.address_title,
+          lines: row.address_lines
+        }
+      }),
+      mapProps: {
+        longitude: Number(row.longitude),
+        latitude: Number(row.latitude),
+        zoom: row.zoom
+      },
+      contact: {
+        phone: row.phone,
+        email: row.email,
+        hours: row.hours
+      }
+    }));
+
+    return { page, locations };
   } finally {
     client.release();
   }
 }
 
-export async function updatePageContent(content: PageContent): Promise<PageContent> {
+export async function updateAreasServedContent(content: AreasServedContent): Promise<AreasServedContent> {
   const client = await db.connect();
   
   try {
     await client.query('BEGIN');
-    
-    const result = await client.query(`
+
+    // Update page content
+    await client.query(`
       INSERT INTO page_content (title, subtitle, meta_description)
       VALUES ($1, $2, $3)
-      RETURNING 
-        title,
-        subtitle,
-        meta_description as "metaDescription"
-    `, [content.title, content.subtitle, content.metaDescription]);
-    
-    await client.query('COMMIT');
-    return result.rows[0];
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-}
+    `, [content.page.title, content.page.subtitle, content.page.metaDescription]);
 
-export async function deleteAreaServed(id: number): Promise<void> {
-  const client = await db.connect();
-  
-  try {
-    await client.query('BEGIN');
-    await client.query('DELETE FROM areas_served WHERE id = $1', [id]);
+    // Delete existing data to avoid duplicates
+    await client.query(`
+      DELETE FROM areas_served CASCADE
+    `);
+
+    // Insert each location
+    for (const location of content.locations) {
+      // Insert main location data
+      const areaResult = await client.query(`
+        INSERT INTO areas_served (title, description)
+        VALUES ($1, $2)
+        RETURNING id
+      `, [location.title, location.description]);
+
+      const areaId = areaResult.rows[0].id;
+
+      // Insert address if provided
+      if (location.address) {
+        await client.query(`
+          INSERT INTO location_addresses (area_id, title, address_lines)
+          VALUES ($1, $2, $3)
+        `, [areaId, location.address.title, location.address.lines]);
+      }
+
+      // Insert map coordinates
+      await client.query(`
+        INSERT INTO map_coordinates (area_id, longitude, latitude, zoom)
+        VALUES ($1, $2, $3, $4)
+      `, [areaId, location.mapProps.longitude, location.mapProps.latitude, location.mapProps.zoom]);
+
+      // Insert contact information
+      await client.query(`
+        INSERT INTO contact_information (area_id, phone, email, hours)
+        VALUES ($1, $2, $3, $4)
+      `, [areaId, location.contact.phone, location.contact.email, location.contact.hours]);
+    }
+
     await client.query('COMMIT');
+    
+    // Return the newly updated content
+    return getAreasServedContent();
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;

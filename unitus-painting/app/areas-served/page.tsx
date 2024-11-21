@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPinIcon, Phone, Mail, Clock } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import Map from "react-map-gl";
+import { AreasServedContent, Location } from '@/lib/db/areas-served';
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1Ijoiam9zaHNva2UiLCJhIjoiY20yaHV1Ym85MGg5czJpcHZpeW9jenE2YSJ9.dQL_m4RdWh4gRjR144s-ww";
@@ -84,87 +85,89 @@ const LocationCard = ({ title, address, description, mapProps, contact }) => (
   </Card>
 );
 
+const LoadingState = () => (
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto animate-pulse">
+    {[1, 2, 3].map((index) => (
+      <div key={index} className="bg-white rounded-lg shadow-lg h-[600px]">
+        <div className="h-16 bg-blue-950 rounded-t-lg" />
+        <div className="p-6">
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4" />
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8" />
+          <div className="space-y-2">
+            {[1, 2, 3].map((line) => (
+              <div key={line} className="h-4 bg-gray-200 rounded w-full" />
+            ))}
+          </div>
+          <div className="mt-6 h-[300px] bg-gray-200 rounded" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const ErrorState = ({ error }: { error: string }) => (
+  <div className="text-center py-12">
+    <div className="text-red-600 text-xl mb-4">
+      {error}
+    </div>
+    <button 
+      onClick={() => window.location.reload()}
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+    >
+      Try Again
+    </button>
+  </div>
+);
+
 const AreasServedPage = () => {
-  const locations = [
-    {
-      title: "British Columbia",
-      address: {
-        title: "Unitus Painting Ltd. (Head office)",
-        lines: [
-          "PO Box 21126",
-          "Maple Ridge Square RPO",
-          "Maple Ridge, BC V2X 1P7"
-        ]
-      },
-      description: "Serving the Greater Vancouver Area and Fraser Valley",
-      mapProps: {
-        longitude: -122.5976,
-        latitude: 49.2194,
-        zoom: 9
-      },
-      contact: {
-        phone: "1-833-300-6888",
-        email: "info@unituspainting.com",
-        hours: "8:00 am - 5:00 pm"
+  const [content, setContent] = useState<AreasServedContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/areas-served');
+        if (!response.ok) throw new Error('Failed to fetch areas served content');
+        const data = await response.json();
+        setContent(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while loading the content');
+        console.error('Error fetching areas served content:', err);
+      } finally {
+        setLoading(false);
       }
-    },
-    {
-      title: "Okanagan",
-      description: "Serving Kamloops, Vernon, and Kelowna areas",
-      mapProps: {
-        longitude: -119.4960,
-        latitude: 49.8880,
-        zoom: 8
-      },
-      contact: {
-        phone: "1-833-300-6888",
-        email: "info@unituspainting.com",
-        hours: "8:00 am - 5:00 pm"
-      }
-    },
-    {
-      title: "Alberta",
-      address: {
-        title: "Unitus Painting Ltd. (Calgary)",
-        lines: [
-          "PO Box 81041",
-          "RPO Lake Bonavista",
-          "Calgary, AB T2J 7C9"
-        ]
-      },
-      description: "Serving Calgary and surrounding areas",
-      mapProps: {
-        longitude: -114.0719,
-        latitude: 51.0447,
-        zoom: 9
-      },
-      contact: {
-        phone: "1-833-300-6888",
-        email: "info@unituspainting.com",
-        hours: "8:00 am - 5:00 pm"
-      }
-    }
-  ];
+    };
+
+    fetchContent();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header openingHours="8:00 am - 5:00 pm"/>
+      <Header openingHours={content?.locations[0]?.contact?.hours || "8:00 am - 5:00 pm"} />
       <main className="flex-grow bg-gradient-to-b from-gray-50 to-gray-100 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-24">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-blue-950 mb-6">
-              Areas We Serve
+              {content?.page?.title || 'Areas We Serve'}
             </h1>
             <p className="text-xl text-gray-600">
-              Professional painting services across Western Canada
+              {content?.page?.subtitle || 'Professional painting services across Western Canada'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {locations.map((location, index) => (
-              <LocationCard key={index} {...location} />
-            ))}
-          </div>
+          {loading ? (
+            <LoadingState />
+          ) : error ? (
+            <ErrorState error={error} />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              {content?.locations.map((location, index) => (
+                <LocationCard key={index} {...location} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
       <Footer />
