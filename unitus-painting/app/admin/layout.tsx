@@ -39,39 +39,58 @@ const menuItems: MenuItem[] = [
     href: "/admin/projects",
   },
   {
-    key: "commitment",
-    icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Commitment Component",
-    href: "/admin/commitment",
-  },
-  {
-    key: "statistics",
-    icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Statistics Cards",
-    href: "/admin/statistics",
-  },
-  {
-    key: "about-hero",
-    icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "About Hero",
-    href: "/admin/about-hero",
-  },
-  {
-    key: "history",
-    icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Company History",
-    href: "/admin/history",
-  },
-  {
-    key: "our-approach",
-    icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Our Approach",
-    href: "/admin/our-approach",
+    key: "about",
+    icon: <LayoutIcon className="w-4 h-4" />,
+    label: "Update About",
+    children: [
+      {
+        key: "about-hero",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "About Hero",
+        href: "/admin/about-hero",
+      },
+      {
+        key: "commitment",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Commitment Component",
+        href: "/admin/commitment",
+      },
+      {
+        key: "statistics",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Statistics Cards",
+        href: "/admin/statistics",
+      },
+      {
+        key: "history",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Company History",
+        href: "/admin/history",
+      },
+      {
+        key: "our-approach",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Our Approach",
+        href: "/admin/our-approach",
+      },
+      {
+        key: "our-approach",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Our Approach",
+        href: "/admin/our-approach",
+      },
+      {
+        key: "warranty",
+        icon: <MessageSquare className="w-4 h-4" />,
+        label: "Warranty Page",
+        href: "/admin/warranty",
+      }
+    ]
   },
   {
     key: "landing",
     icon: <LayoutIcon className="w-4 h-4" />,
-    label: "Update Home Page",
+    label: "Update Home",
     children: [
       {
         key: "hero",
@@ -142,7 +161,6 @@ export default function AdminLayout({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // Helper function to transform menu items
   const transformMenuItem = (item: MenuItem) => {
     const menuItem: any = {
       key: item.key,
@@ -168,7 +186,13 @@ export default function AdminLayout({
         collapsible
         collapsed={collapsed}
         className="border-r border-gray-200"
-        style={{ background: colorBgContainer }}
+        style={{ 
+          background: colorBgContainer,
+          width: collapsed ? 80 : 320,          // Increased from 280 to 320
+          minWidth: collapsed ? 80 : 320,       // Increased min width
+          maxWidth: collapsed ? 80 : 320,       // Increased max width
+          flex: '0 0 320px'                     // Increased flex basis
+        }}
       >
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           <Link href="/admin">
@@ -184,8 +208,15 @@ export default function AdminLayout({
         <Menu
           mode="inline"
           selectedKeys={[pathname.split("/")[2] || "dashboard"]}
+          defaultOpenKeys={['about', 'landing']} // Auto-expand these sections
           items={menuItems.map(transformMenuItem)}
           className="border-none"
+          style={{
+            fontSize: '14px',
+            width: '100%'
+          }}
+          // Added padding to menu items
+          itemStyle={{ padding: '0 24px 0 16px' }}
         />
       </Sider>
       <Layout>

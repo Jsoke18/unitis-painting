@@ -20,13 +20,8 @@
     "project-content": "ts-node scripts/init-project-content.ts",
     "init-clients": "ts-node scripts/init-clients.ts",
     "init-reviews": "ts-node scripts/init-reviews.ts",
-    "init-blogs": "ts-node scripts/init-blog.ts"
-
-
-
-
-
-    
+    "init-blogs": "ts-node scripts/init-blog.ts",
+    "init-warranty": "ts-node scripts/init-warranty-data.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -90,6 +85,7 @@
     "tailwindcss-animate": "^1.0.7",
     "toast": "^0.5.4",
     "video.js": "^8.18.1",
+    "zod": "^3.23.8",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
