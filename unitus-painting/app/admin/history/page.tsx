@@ -1,71 +1,65 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, message, Card, Typography, Tabs, Space } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { HistoryContent } from '@/app/types/history';
+import { Form, Input, Button, message, Card, Typography, Tabs, Space, Spin } from 'antd';
+import { PlusOutlined, DeleteOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 const { TextArea } = Input;
 
-const HistoryCMS: React.FC = () => {
+const HistoryCMS = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Fetch content
+  const fetchContent = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/history');
+      if (!response.ok) throw new Error('Failed to fetch content');
+      const data = await response.json();
+      form.setFieldsValue(data);
+    } catch (error) {
+      console.error('Error:', error);
+      message.error('Failed to load content');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/history');
-        if (!response.ok) throw new Error('Failed to fetch content');
-        const data = await response.json();
-        form.setFieldsValue(data);
-      } catch (error) {
-        console.error('Error fetching content:', error);
-        message.error('Failed to load content');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchContent();
-  }, [form]);
+  }, []);
 
-  const onFinish = async (values: HistoryContent) => {
+  // Save content
+  const onFinish = async (values) => {
     try {
       setSaving(true);
       const response = await fetch('/api/history', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });
 
-      if (!response.ok) throw new Error('Failed to update content');
-      
-      message.success('History content updated successfully');
+      if (!response.ok) throw new Error('Failed to update');
+      message.success('Updated successfully');
+      await fetchContent(); // Refresh content
     } catch (error) {
-      console.error('Error updating content:', error);
-      message.error('Failed to update content');
+      console.error('Error:', error);
+      message.error('Failed to update');
     } finally {
       setSaving(false);
     }
   };
 
-  const onReset = async () => {
-    try {
-      const response = await fetch('/api/history');
-      if (!response.ok) throw new Error('Failed to fetch content');
-      const data = await response.json();
-      form.setFieldsValue(data);
-      message.success('Form reset to default values');
-    } catch (error) {
-      console.error('Error resetting form:', error);
-      message.error('Failed to reset form');
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -73,15 +67,20 @@ const HistoryCMS: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <Title level={2} className="mb-0">History Section Management</Title>
           <Space>
-            <Button htmlType="button" onClick={onReset}>
-              Reset to Default
+            <Button 
+              icon={<ReloadOutlined />}
+              onClick={fetchContent}
+              disabled={saving}
+            >
+              Reset
             </Button>
             <Button 
-              type="primary" 
-              onClick={() => form.submit()} 
+              type="primary"
+              icon={<SaveOutlined />}
+              onClick={() => form.submit()}
               loading={saving}
             >
-              Save Changes
+              Save
             </Button>
           </Space>
         </div>
@@ -90,7 +89,7 @@ const HistoryCMS: React.FC = () => {
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          disabled={loading}
+          disabled={saving}
         >
           <Tabs
             defaultActiveKey="1"
@@ -104,28 +103,25 @@ const HistoryCMS: React.FC = () => {
                     <Form.Item
                       label="Badge Text"
                       name={['title', 'badge']}
-                      rules={[{ required: true, message: 'Please input the badge text!' }]}
+                      rules={[{ required: true, message: 'Required' }]}
                     >
-                      <Input placeholder="Enter badge text" />
+                      <Input />
                     </Form.Item>
 
                     <Form.Item
                       label="Main Heading"
                       name={['title', 'mainHeading']}
-                      rules={[{ required: true, message: 'Please input the main heading!' }]}
+                      rules={[{ required: true, message: 'Required' }]}
                     >
-                      <Input placeholder="Enter main heading" />
+                      <Input />
                     </Form.Item>
 
                     <Form.Item
                       label="Sub Heading"
                       name={['title', 'subHeading']}
-                      rules={[{ required: true, message: 'Please input the sub heading!' }]}
+                      rules={[{ required: true, message: 'Required' }]}
                     >
-                      <TextArea 
-                        rows={3} 
-                        placeholder="Enter sub heading"
-                      />
+                      <TextArea rows={3} />
                     </Form.Item>
                   </div>
                 ),
@@ -157,34 +153,29 @@ const HistoryCMS: React.FC = () => {
                                 {...field}
                                 label="Title"
                                 name={[field.name, 'title']}
-                                rules={[{ required: true, message: 'Please input the card title!' }]}
+                                rules={[{ required: true, message: 'Required' }]}
                               >
-                                <Input placeholder="Enter card title" />
+                                <Input />
                               </Form.Item>
 
                               <Form.Item
                                 {...field}
                                 label="Description"
                                 name={[field.name, 'description']}
-                                rules={[{ required: true, message: 'Please input the card description!' }]}
+                                rules={[{ required: true, message: 'Required' }]}
                               >
-                                <TextArea 
-                                  rows={3}
-                                  placeholder="Enter card description" 
-                                />
+                                <TextArea rows={3} />
                               </Form.Item>
                             </Card>
                           ))}
-                          <Form.Item>
-                            <Button
-                              type="dashed"
-                              onClick={() => add()}
-                              block
-                              icon={<PlusOutlined />}
-                            >
-                              Add History Card
-                            </Button>
-                          </Form.Item>
+                          <Button
+                            type="dashed"
+                            onClick={() => add()}
+                            block
+                            icon={<PlusOutlined />}
+                          >
+                            Add History Card
+                          </Button>
                         </>
                       )}
                     </Form.List>
@@ -218,34 +209,29 @@ const HistoryCMS: React.FC = () => {
                                 {...field}
                                 label="Year"
                                 name={[field.name, 'year']}
-                                rules={[{ required: true, message: 'Please input the year!' }]}
+                                rules={[{ required: true, message: 'Required' }]}
                               >
-                                <Input placeholder="Enter year" />
+                                <Input />
                               </Form.Item>
 
                               <Form.Item
                                 {...field}
                                 label="Description"
                                 name={[field.name, 'description']}
-                                rules={[{ required: true, message: 'Please input the description!' }]}
+                                rules={[{ required: true, message: 'Required' }]}
                               >
-                                <TextArea 
-                                  rows={3}
-                                  placeholder="Enter timeline item description" 
-                                />
+                                <TextArea rows={3} />
                               </Form.Item>
                             </Card>
                           ))}
-                          <Form.Item>
-                            <Button
-                              type="dashed"
-                              onClick={() => add()}
-                              block
-                              icon={<PlusOutlined />}
-                            >
-                              Add Timeline Item
-                            </Button>
-                          </Form.Item>
+                          <Button
+                            type="dashed"
+                            onClick={() => add()}
+                            block
+                            icon={<PlusOutlined />}
+                          >
+                            Add Timeline Item
+                          </Button>
                         </>
                       )}
                     </Form.List>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -25,13 +25,31 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import dynamic from "next/dynamic";
-import { useBlogStore, BlogPost } from "@/lib/blogService";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
 import type { ColumnsType } from 'antd/es/table';
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
+
+// Types and Interfaces
+interface BlogPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  author: string;
+  category: string;
+  tags: string[];
+  readTime: string;
+  date: string;
+}
+
+interface CategoryCount {
+  category: string;
+  count: number;
+}
 
 // Image Upload Component
 const ImageUpload: React.FC<{
@@ -72,57 +90,73 @@ const ImageUpload: React.FC<{
 
   return (
     <Upload
-    name="file"
-    listType="picture-card"
-    className="avatar-uploader"
-    showUploadList={false}
-    action="/api/upload"
-    beforeUpload={beforeUpload}
-    onChange={handleChange}
-  >
-    {value ? (
-      <img
-        src={value}
-        alt="featured"
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
-    ) : (
-      <div className="upload-placeholder">
-        {loading ? <LoadingOutlined /> : <PlusOutlined />}
-        <div style={{ marginTop: 8 }}>Upload</div>
-      </div>
-    )}
-  </Upload>
+      name="file"
+      listType="picture-card"
+      className="avatar-uploader"
+      showUploadList={false}
+      action="/api/upload"
+      beforeUpload={beforeUpload}
+      onChange={handleChange}
+    >
+      {value ? (
+        <img
+          src={value}
+          alt="featured"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      ) : (
+        <div className="upload-placeholder">
+          {loading ? <LoadingOutlined /> : <PlusOutlined />}
+          <div style={{ marginTop: 8 }}>Upload</div>
+        </div>
+      )}
+    </Upload>
   );
 };
 
+// Main Component
 const BlogCMS = () => {
+  // State Management
   const [form] = Form.useForm();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [content, setContent] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [selectedRows, setSelectedRows] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const {
-    posts,
-    categories,
-    addPost,
-    updatePost,
-    deletePost,
-    addCategory,
-    deleteCategory,
-  } = useBlogStore();
+  // Fetch Data
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/blogs');
+      if (!response.ok) throw new Error('Failed to fetch posts');
+      const data = await response.json();
+      setPosts(data.posts);
+      setCategories(data.categories);
+    } catch (error) {
+      message.error('Failed to fetch posts');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Table column definitions
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // Table Columns Definition
   const columns: ColumnsType<BlogPost> = [
     {
       title: "Title",
       dataIndex: "title",
       key: "title",
       width: "25%",
-      sorter: (a: BlogPost, b: BlogPost) => a.title.localeCompare(b.title),
+      sorter: (a, b) => a.title.localeCompare(b.title),
       render: (text: string) => (
         <Tooltip title={text}>
           <span className="truncate block max-w-xs">{text}</span>
@@ -136,7 +170,7 @@ const BlogCMS = () => {
       width: "15%",
       filters: categories.map((cat) => ({ text: cat, value: cat })),
       onFilter: (value: string | number | boolean, record: BlogPost) =>
-        record.category === String(value),
+        record.category === value,
       render: (category: string) => <Tag color="blue">{category}</Tag>,
     },
     {
@@ -144,8 +178,7 @@ const BlogCMS = () => {
       dataIndex: "date",
       key: "date",
       width: "15%",
-      sorter: (a: BlogPost, b: BlogPost) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime(),
+      sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
@@ -190,7 +223,7 @@ const BlogCMS = () => {
       title: "Actions",
       key: "actions",
       width: "15%",
-      render: (_: any, record: BlogPost) => (
+      render: (_, record: BlogPost) => (
         <Space>
           <Button
             type="primary"
@@ -211,7 +244,8 @@ const BlogCMS = () => {
       ),
     },
   ];
-  // Post management handlers
+
+  // Post Management Handlers
   const handleEdit = (post: BlogPost) => {
     setEditingPost(post);
     setContent(post.content);
@@ -224,24 +258,51 @@ const BlogCMS = () => {
 
   const handleDelete = async (postId: number) => {
     try {
-      deletePost(postId);
+      const response = await fetch('/api/posts', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: postId }),
+      });
+
+      if (!response.ok) throw new Error('Failed to delete post');
+      
       message.success("Post deleted successfully");
+      fetchPosts();
     } catch (error) {
       message.error("Failed to delete post");
+      console.error(error);
     }
   };
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = async () => {
     Modal.confirm({
       title: `Delete ${selectedRows.length} posts?`,
       content: "This action cannot be undone.",
       okText: "Yes",
       okType: "danger",
       cancelText: "No",
-      onOk() {
-        selectedRows.forEach((post) => deletePost(post.id));
-        setSelectedRows([]);
-        message.success(`${selectedRows.length} posts deleted successfully`);
+      async onOk() {
+        try {
+          await Promise.all(
+            selectedRows.map(post => 
+              fetch('/api/posts', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: post.id }),
+              })
+            )
+          );
+          message.success(`${selectedRows.length} posts deleted successfully`);
+          setSelectedRows([]);
+          fetchPosts();
+        } catch (error) {
+          message.error('Failed to delete some posts');
+          console.error(error);
+        }
       },
     });
   };
@@ -259,15 +320,20 @@ const BlogCMS = () => {
         author: "John Smith", // In a real app, this would come from auth context
       };
 
-      if (editingPost) {
-        updatePost({ ...postData, id: editingPost.id, date: editingPost.date });
-        message.success("Post updated successfully");
-      } else {
-        addPost(postData);
-        message.success("Post created successfully");
-      }
+      const method = editingPost ? 'PUT' : 'POST';
+      const response = await fetch('/api/posts', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingPost ? { ...postData, id: editingPost.id } : postData),
+      });
 
+      if (!response.ok) throw new Error('Failed to save post');
+
+      message.success(`Post ${editingPost ? 'updated' : 'created'} successfully`);
       handleModalClose();
+      fetchPosts();
     } catch (error) {
       console.error("Form submission error:", error);
       message.error("Please check your input and try again");
@@ -281,8 +347,8 @@ const BlogCMS = () => {
     setEditingPost(null);
   };
 
-  // Category management handlers
-  const handleAddCategory = () => {
+  // Category Management Handlers
+  const handleAddCategory = async () => {
     const trimmedCategory = newCategory.trim();
     if (!trimmedCategory) {
       message.error("Category name cannot be empty");
@@ -294,40 +360,37 @@ const BlogCMS = () => {
       return;
     }
 
-    if (trimmedCategory.length > 30) {
-      message.error("Category name is too long");
-      return;
+    try {
+      // Create a dummy post with the new category to trigger category creation
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: "Temporary Post",
+          excerpt: "Temporary",
+          content: "Temporary",
+          image: "/placeholder.jpg",
+          author: "System",
+          category: trimmedCategory,
+          tags: [],
+          readTime: "1 min read"
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to add category');
+
+      setNewCategory("");
+      message.success("Category added successfully");
+      fetchPosts();
+    } catch (error) {
+      message.error("Failed to add category");
+      console.error(error);
     }
-
-    addCategory(trimmedCategory);
-    setNewCategory("");
-    message.success("Category added successfully");
   };
 
-  const handleDeleteCategory = (category: string) => {
-    const postsInCategory = posts.filter(
-      (post) => post.category === category
-    ).length;
-    Modal.confirm({
-      title: "Delete Category",
-      content: `This will affect ${postsInCategory} posts. They will be marked as "Uncategorized". Continue?`,
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-      onOk() {
-        deleteCategory(category);
-        message.success("Category deleted successfully");
-      },
-    });
-  };
-
-  // Table selection configuration
-  const rowSelection = {
-    onChange: (_: React.Key[], selectedRows: BlogPost[]) => {
-      setSelectedRows(selectedRows);
-    },
-  };
-
+  // Render
   return (
     <div className="p-6">
       {/* Header */}
@@ -365,10 +428,15 @@ const BlogCMS = () => {
 
       {/* Posts Table */}
       <Table
+        loading={loading}
         columns={columns}
         dataSource={posts}
         rowKey="id"
-        rowSelection={rowSelection}
+        rowSelection={{
+          onChange: (_: React.Key[], selectedRows: BlogPost[]) => {
+            setSelectedRows(selectedRows);
+          },
+        }}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
@@ -402,9 +470,7 @@ const BlogCMS = () => {
           <Form.Item
             name="title"
             label="Title"
-            rules={[
-              { required: true, message: "Please input the title!" }
-            ]}
+            rules={[{ required: true, message: "Please input the title!" }]}
           >
             <Input />
           </Form.Item>
@@ -444,122 +510,129 @@ const BlogCMS = () => {
               value={content}
               onChange={setContent}
               style={{ height: "200px", marginBottom: "50px" }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="tags"
-            label="Tags"
-            tooltip="Comma-separated list of tags"
-            rules={[
-              { required: true, message: "Please input at least one tag!" },
-              {
-                validator: (_, value) => {
-                  const tags = value
-                    .split(",")
-                    .map((tag: string) => tag.trim());
-                  if (tags.some((tag: string) => tag.length > 20)) {
-                    return Promise.reject(
-                      "Tags must be less than 20 characters"
-                    );
-                  }
-                  return Promise.resolve();
+              />
+            </Form.Item>
+  
+            <Form.Item
+              name="tags"
+              label="Tags"
+              tooltip="Comma-separated list of tags"
+              rules={[
+                { required: true, message: "Please input at least one tag!" },
+                {
+                  validator: (_, value) => {
+                    if (!value) return Promise.resolve();
+                    const tags = value.split(",").map((tag: string) => tag.trim());
+                    if (tags.some((tag: string) => tag.length > 20)) {
+                      return Promise.reject("Tags must be less than 20 characters");
+                    }
+                    if (tags.some((tag: string) => !tag)) {
+                      return Promise.reject("Tags cannot be empty");
+                    }
+                    return Promise.resolve();
+                  },
                 },
-              },
-            ]}
-          >
-            <Input.TextArea
-              rows={2}
-              placeholder="Enter tags separated by commas (e.g., painting, renovation, tips)"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="readTime"
-            label="Read Time"
-            rules={[{ required: true, message: "Please input the read time!" }]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Category Management Modal */}
-      <Modal
-        title="Manage Categories"
-        open={isCategoryModalOpen}
-        onCancel={() => setIsCategoryModalOpen(false)}
-        footer={null}
-      >
-        <div className="mb-4">
-          <Input.Group compact>
-            <Input
-              style={{ width: "calc(100% - 100px)" }}
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              placeholder="New category name"
-              maxLength={30}
-              onPressEnter={handleAddCategory}
-            />
-            <Button
-              type="primary"
-              onClick={handleAddCategory}
-              disabled={!newCategory.trim()}
-            >
-              Add
-            </Button>
-          </Input.Group>
-        </div>
-
-        <List
-          dataSource={categories}
-          renderItem={(category) => (
-            <List.Item
-              actions={[
-                <Popconfirm
-                  key="delete"
-                  title="Delete category?"
-                  description="This will affect all posts in this category"
-                  onConfirm={() => handleDeleteCategory(category)}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button danger icon={<DeleteOutlined />} />
-                </Popconfirm>,
               ]}
             >
-              <div className="flex items-center gap-2">
-                <Tag color="blue">{category}</Tag>
-                <span className="text-gray-500">
-                  ({posts.filter((post) => post.category === category).length}{" "}
-                  posts)
-                </span>
-              </div>
-            </List.Item>
-          )}
-        />
-      </Modal>
-
-      {/* Style for Image Upload */}
-      <style jsx global>{`
-        .avatar-uploader .ant-upload {
-          width: 200px;
-          height: 200px;
-        }
-        .ant-upload-select-picture-card i {
-          font-size: 32px;
-          color: #999;
-        }
-        .ant-upload-select-picture-card .ant-upload-text {
-          margin-top: 8px;
-          color: #666;
-        }
-        .ant-form-item-has-error .ant-upload {
-          border-color: #ff4d4f;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-export default BlogCMS;
+              <Input.TextArea
+                rows={2}
+                placeholder="Enter tags separated by commas (e.g., painting, renovation, tips)"
+              />
+            </Form.Item>
+  
+            <Form.Item
+              name="readTime"
+              label="Read Time"
+              rules={[{ required: true, message: "Please input the read time!" }]}
+            >
+              <Input placeholder="e.g., 5 min read" />
+            </Form.Item>
+          </Form>
+        </Modal>
+  
+        {/* Category Management Modal */}
+        <Modal
+          title="Manage Categories"
+          open={isCategoryModalOpen}
+          onCancel={() => setIsCategoryModalOpen(false)}
+          footer={null}
+        >
+          <div className="mb-4">
+            <Input.Group compact>
+              <Input
+                style={{ width: "calc(100% - 100px)" }}
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="New category name"
+                maxLength={30}
+                onPressEnter={handleAddCategory}
+              />
+              <Button
+                type="primary"
+                onClick={handleAddCategory}
+                disabled={!newCategory.trim()}
+              >
+                Add
+              </Button>
+            </Input.Group>
+          </div>
+  
+          <List
+            dataSource={categories}
+            renderItem={(category) => (
+              <List.Item
+                actions={[
+                  <Popconfirm
+                    key="delete"
+                    title="Delete category?"
+                    description={`This will affect ${
+                      posts.filter((post) => post.category === category).length
+                    } posts. They will be marked as "Uncategorized"`}
+                    onConfirm={() => {
+                      // Note: Category deletion should be implemented in the API
+                      message.info("Category deletion not implemented in this version");
+                    }}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button danger icon={<DeleteOutlined />} />
+                  </Popconfirm>,
+                ]}
+              >
+                <div className="flex items-center gap-2">
+                  <Tag color="blue">{category}</Tag>
+                  <span className="text-gray-500">
+                    ({posts.filter((post) => post.category === category).length} posts)
+                  </span>
+                </div>
+              </List.Item>
+            )}
+          />
+        </Modal>
+  
+        {/* Style for Image Upload */}
+        <style jsx global>{`
+          .avatar-uploader .ant-upload {
+            width: 200px;
+            height: 200px;
+          }
+          .ant-upload-select-picture-card i {
+            font-size: 32px;
+            color: #999;
+          }
+          .ant-upload-select-picture-card .ant-upload-text {
+            margin-top: 8px;
+            color: #666;
+          }
+          .ant-form-item-has-error .ant-upload {
+            border-color: #ff4d4f;
+          }
+          .ql-editor {
+            min-height: 200px;
+          }
+        `}</style>
+      </div>
+    );
+  };
+  
+  export default BlogCMS;

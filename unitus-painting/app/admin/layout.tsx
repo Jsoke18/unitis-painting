@@ -69,12 +69,6 @@ const menuItems: MenuItem[] = [
     href: "/admin/our-approach",
   },
   {
-    key: "pages",
-    icon: <LayoutDashboard className="w-4 h-4" />,
-    label: "Customer Feedback",
-    href: "/admin/customerFeedback",
-  },
-  {
     key: "landing",
     icon: <LayoutIcon className="w-4 h-4" />,
     label: "Update Home Page",

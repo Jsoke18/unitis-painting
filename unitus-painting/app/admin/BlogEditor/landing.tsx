@@ -3,31 +3,35 @@
 import React, { useState, useEffect } from "react";
 import {
   Card,
+  Button,
+  Divider,
+  Table,
+  Space,
+  Modal,
+  message,
   Form,
   Input,
   Select,
   Upload,
-  Button,
   Tag,
-  Space,
-  message,
-  Divider,
-  Modal,
 } from "antd";
-import dynamic from "next/dynamic";
 import {
   PlusOutlined,
   SaveOutlined,
   UploadOutlined,
   DeleteOutlined,
+  EditOutlined,
   ExpandOutlined,
   CompressOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { useBlogStore } from "@/lib/blogService";
+import dynamic from "next/dynamic";
 import type { UploadFile } from "antd/es/upload/interface";
+import type { BlogPost } from "@/lib/db";
 
-// Import MDEditor dynamically to avoid SSR issues
+const { TextArea } = Input;
+
+// Dynamic imports for Markdown editor
 const MDEditor = dynamic(
   () =>
     import("@uiw/react-md-editor").then((mod) => {
@@ -39,7 +43,6 @@ const MDEditor = dynamic(
             transformLinkUri: null,
             breaks: true,
             components: {
-              // Override default header rendering to ensure proper spacing
               h1: (props) => <div>{"\n# " + props.children + "\n"}</div>,
               h2: (props) => <div>{"\n## " + props.children + "\n"}</div>,
               h3: (props) => <div>{"\n### " + props.children + "\n"}</div>,
@@ -54,32 +57,29 @@ const MDEditor = dynamic(
   { ssr: false }
 );
 
-// Import MarkdownPreview for the preview modal
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ssr: false,
 });
 
-const { TextArea } = Input;
+// Main Component
+const BlogAdminPage = () => {
+  // States for managing view modes
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | undefined>();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(false);
 
-interface BlogEditorProps {
-  initialPost?: any;
-  onSuccess?: () => void;
-}
-
-const BlogEditor: React.FC<BlogEditorProps> = ({ initialPost, onSuccess }) => {
+  // States for editor
   const [form] = Form.useForm();
   const [tags, setTags] = useState<string[]>([]);
   const [inputVisible, setInputVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [markdownContent, setMarkdownContent] = useState("");
   const [isPreviewModalVisible, setIsPreviewModalVisible] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-
-  const addPost = useBlogStore((state) => state.addPost);
-  const updatePost = useBlogStore((state) => state.updatePost);
+  const [saving, setSaving] = useState(false);
 
   const categories = [
     { value: "Commercial", label: "Commercial" },
@@ -89,35 +89,78 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ initialPost, onSuccess }) => {
     { value: "Painting Tips", label: "Painting Tips" },
   ];
 
-  // Initialize form with existing post data
+  // Fetch posts on component mount
   useEffect(() => {
-    if (initialPost) {
-      form.setFieldsValue({
-        title: initialPost.title,
-        category: initialPost.category,
-        excerpt: initialPost.excerpt,
-      });
-      setTags(initialPost.tags || []);
-      setMarkdownContent(processMarkdownContent(initialPost.content || ""));
-      setImageUrl(initialPost.image || null);
-    }
-  }, [initialPost, form]);
+    fetchPosts();
+  }, []);
 
-  // Process markdown content to ensure consistent line breaks
+  // Initialize form with selected post data
+  useEffect(() => {
+    if (selectedPost) {
+      form.setFieldsValue({
+        title: selectedPost.title,
+        category: selectedPost.category,
+        excerpt: selectedPost.excerpt,
+      });
+      setTags(selectedPost.tags || []);
+      setMarkdownContent(processMarkdownContent(selectedPost.content || ""));
+      setImageUrl(selectedPost.image || null);
+    }
+  }, [selectedPost, form]);
+
+  // Fetch posts function
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/blogs");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setPosts(data); // Remove the .posts since API returns data directly
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      message.error("Failed to fetch blog posts");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Process markdown content
   const processMarkdownContent = (content: string): string => {
     if (!content) return "";
+    return content
+      .replace(/\r\n/g, "\n")
+      .replace(/^(#{1,6}\s.*?)$/gm, "\n$1\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  };
 
-    return (
-      content
-        // Normalize line endings
-        .replace(/\r\n/g, "\n")
-        // Ensure headers have proper spacing
-        .replace(/^(#{1,6}\s.*?)$/gm, "\n$1\n")
-        // Replace multiple consecutive line breaks with double line breaks
-        .replace(/\n{3,}/g, "\n\n")
-        // Ensure content starts and ends cleanly
-        .trim()
-    );
+  // Handle post deletion
+  const handleDelete = async (id: number) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this post?",
+      content: "This action cannot be undone.",
+      okText: "Yes, delete it",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          const response = await fetch("/api/blogs", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id }),
+          });
+
+          if (!response.ok) throw new Error("Failed to delete post");
+
+          message.success("Post deleted successfully");
+          await fetchPosts();
+        } catch (error) {
+          console.error("Error deleting post:", error);
+          message.error("Failed to delete post");
+        }
+      },
+    });
   };
 
   // Tag handling
@@ -178,48 +221,128 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ initialPost, onSuccess }) => {
   // Form submission
   const onFinish = async (values: any) => {
     try {
-      setLoading(true);
+      setSaving(true);
       const processedContent = processMarkdownContent(markdownContent);
 
+      if (!processedContent) {
+        message.error("Content cannot be empty");
+        return;
+      }
+
       const blogData = {
-        ...values,
+        title: values.title,
+        category: values.category,
+        excerpt: values.excerpt,
         content: processedContent,
         tags,
         image: imageUrl || "/api/placeholder/1200/800",
         readTime: `${Math.ceil(processedContent.length / 1000)} min read`,
-        author: "Admin",
+        author: "John Smith",
       };
 
-      if (initialPost?.id) {
-        await updatePost({ ...blogData, id: initialPost.id });
-        message.success("Blog post updated successfully!");
-      } else {
-        await addPost(blogData);
-        message.success("Blog post created successfully!");
+      const response = await fetch('/api/blogs', {
+        method: selectedPost ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(selectedPost ? { ...blogData, id: selectedPost.id } : blogData),
+      });
+
+      if (!response.ok) throw new Error('Failed to save blog post');
+
+      message.success(`Blog post ${selectedPost ? 'updated' : 'created'} successfully!`);
+      
+      if (!selectedPost) {
+        resetForm();
       }
 
-      onSuccess?.();
+      setIsEditing(false);
+      setSelectedPost(undefined);
+      fetchPosts();
     } catch (error) {
       console.error("Error saving blog post:", error);
       message.error("Failed to save blog post");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   // Reset form
+  const resetForm = () => {
+    form.resetFields();
+    setMarkdownContent("");
+    setTags([]);
+    setImageUrl(null);
+    setFileList([]);
+  };
+
   const handleReset = () => {
     Modal.confirm({
       title: "Are you sure you want to reset all fields?",
-      onOk() {
-        form.resetFields();
-        setMarkdownContent("");
-        setTags([]);
-        setImageUrl(null);
-        setFileList([]);
-      },
+      content: "This will clear all entered data and cannot be undone.",
+      onOk: resetForm,
     });
   };
+
+  // Table columns
+  const columns = [
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      width: "30%",
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      width: "15%",
+    },
+    {
+      title: "Tags",
+      dataIndex: "tags",
+      key: "tags",
+      width: "20%",
+      render: (tags: string[]) => (
+        <Space size={[0, 4]} wrap>
+          {tags?.map((tag) => (
+            <Tag key={tag}>{tag}</Tag>
+          ))}
+        </Space>
+      ),
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      width: "15%",
+      render: (date: string) => new Date(date).toLocaleDateString(),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: "20%",
+      render: (_: any, record: BlogPost) => (
+        <Space>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setSelectedPost(record);
+              setIsEditing(true);
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.id)}
+          >
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
   // Editor component
   const EditorComponent = (
@@ -251,155 +374,174 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ initialPost, onSuccess }) => {
           height={isFullScreen ? "calc(100vh - 120px)" : 500}
           preview="live"
           className="mb-4"
-          previewOptions={{
-            breaks: true,
-            rehypePlugins: [],
-          }}
         />
       </div>
     </div>
   );
 
+  // Render editor view
+  if (isEditing) {
+    return (
+      <div className="p-6">
+        {isFullScreen ? (
+          EditorComponent
+        ) : (
+          <Card title={selectedPost ? "Edit Blog Post" : "Create Blog Post"} 
+                className="max-w-4xl mx-auto">
+            <Form form={form} layout="vertical" onFinish={onFinish}>
+              <Form.Item
+                name="title"
+                label="Title"
+                rules={[{ required: true, message: "Please enter a title" }]}
+              >
+                <Input placeholder="Enter blog post title" />
+              </Form.Item>
+
+              <Form.Item
+                name="category"
+                label="Category"
+                rules={[{ required: true, message: "Please select a category" }]}
+              >
+                <Select placeholder="Select a category" options={categories} />
+              </Form.Item>
+
+              <Form.Item
+                name="excerpt"
+                label="Excerpt"
+                rules={[{ required: true, message: "Please enter an excerpt" }]}
+              >
+                <TextArea rows={3} placeholder="Enter a brief description" />
+              </Form.Item>
+
+              <Form.Item label="Content" required>
+                {EditorComponent}
+              </Form.Item>
+
+              <Form.Item label="Featured Image">
+                <Upload {...uploadProps} listType="picture-card">
+                  {imageUrl ? (
+                    <div className="relative group">
+                      <img src={imageUrl} alt="Featured" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 
+                                    group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <DeleteOutlined className="text-white text-xl" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <UploadOutlined />
+                      <div className="mt-2">Upload</div>
+                    </div>
+                  )}
+                </Upload>
+              </Form.Item>
+
+              <Form.Item label="Tags">
+                <Space size={[0, 8]} wrap>
+                  {tags.map((tag) => (
+                    <Tag key={tag} closable onClose={() => handleTagClose(tag)}>
+                      {tag}
+                    </Tag>
+                  ))}
+                  {inputVisible ? (
+                    <Input
+                      type="text"
+                      size="small"
+                      value={inputValue}
+                      onChange={handleTagInputChange}
+                      onBlur={handleTagInputConfirm}
+                      onPressEnter={handleTagInputConfirm}
+                      autoFocus
+                      style={{ width: 78 }}
+                    />
+                  ) : (
+                    <Tag onClick={showTagInput}>
+                      <PlusOutlined /> New Tag
+                    </Tag>
+                  )}
+                </Space>
+              </Form.Item>
+
+              <Divider />
+
+              <Form.Item className="flex justify-end mb-0">
+                <Space>
+                  <Button onClick={() => {
+                    setIsEditing(false);
+                    setSelectedPost(undefined);
+                    resetForm();
+                  }}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleReset}>Reset</Button>
+                  <Button 
+                    type="primary" 
+                    icon={<SaveOutlined />}
+                    loading={saving} 
+                    onClick={() => form.submit()}
+                  >
+                    {selectedPost ? "Update Post" : "Publish Post"}
+                  </Button>
+                </Space>
+                </Form.Item>
+            </Form>
+          </Card>
+        )}
+
+        {/* Preview Modal */}
+        <Modal
+          title="Preview Blog Post"
+          open={isPreviewModalVisible}
+          onCancel={() => setIsPreviewModalVisible(false)}
+          width={1000}
+          footer={null}
+        >
+          <div className="prose max-w-none">
+            <MarkdownPreview
+              source={markdownContent}
+              wrapperElement={{
+                "data-color-mode": "light",
+              }}
+            />
+          </div>
+        </Modal>
+      </div>
+    );
+  }
+
+  // Render list view
   return (
     <div className="p-6">
-      {isFullScreen ? (
-        EditorComponent
-      ) : (
-        <Card
-          title={initialPost ? "Edit Blog Post" : "Create Blog Post"}
-          className="max-w-4xl mx-auto"
-        >
-          <Form form={form} layout="vertical" onFinish={onFinish}>
-            <Form.Item
-              name="title"
-              label="Title"
-              rules={[{ required: true, message: "Please enter a title" }]}
-            >
-              <Input placeholder="Enter blog post title" className="w-full" />
-            </Form.Item>
-
-            <Form.Item
-              name="category"
-              label="Category"
-              rules={[{ required: true, message: "Please select a category" }]}
-            >
-              <Select placeholder="Select a category" options={categories} />
-            </Form.Item>
-
-            <Form.Item
-              name="excerpt"
-              label="Excerpt"
-              rules={[{ required: true, message: "Please enter an excerpt" }]}
-            >
-              <TextArea
-                placeholder="Enter a brief description of the blog post"
-                rows={3}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Content"
-              required
-              help="Use Markdown to format your content. Click 'Full Screen' for a better editing experience."
-            >
-              {EditorComponent}
-            </Form.Item>
-
-            <Form.Item label="Featured Image">
-              <Upload
-                {...uploadProps}
-                listType="picture-card"
-                showUploadList={imageUrl ? false : true}
-              >
-                {imageUrl ? (
-                  <div className="relative group">
-                    <img
-                      src={imageUrl}
-                      alt="Featured"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <DeleteOutlined className="text-white text-xl" />
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <UploadOutlined />
-                    <div className="mt-2">Upload</div>
-                  </div>
-                )}
-              </Upload>
-            </Form.Item>
-
-            <Form.Item label="Tags">
-              <Space size={[0, 8]} wrap>
-                {tags.map((tag) => (
-                  <Tag
-                    key={tag}
-                    closable
-                    onClose={() => handleTagClose(tag)}
-                    className="mr-1"
-                  >
-                    {tag}
-                  </Tag>
-                ))}
-                {inputVisible ? (
-                  <Input
-                    type="text"
-                    size="small"
-                    className="w-20"
-                    value={inputValue}
-                    onChange={handleTagInputChange}
-                    onBlur={handleTagInputConfirm}
-                    onPressEnter={handleTagInputConfirm}
-                    autoFocus
-                  />
-                ) : (
-                  <Tag onClick={showTagInput} className="cursor-pointer">
-                    <PlusOutlined /> New Tag
-                  </Tag>
-                )}
-              </Space>
-            </Form.Item>
-
-            <Divider />
-
-            <Form.Item className="flex justify-end mb-0">
-              <Space>
-                <Button onClick={handleReset}>Reset</Button>
-                <Button
-                  type="primary"
-                  icon={<SaveOutlined />}
-                  loading={loading}
-                  onClick={() => form.submit()}
-                >
-                  {initialPost ? "Update Post" : "Publish Post"}
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Card>
-      )}
-
-      {/* Preview Modal */}
-      <Modal
-        title="Preview Blog Post"
-        open={isPreviewModalVisible}
-        onCancel={() => setIsPreviewModalVisible(false)}
-        width={1000}
-        footer={null}
-      >
-        <div className="prose max-w-none">
-          <MarkdownPreview
-            source={markdownContent}
-            wrapperElement={{
-              "data-color-mode": "light",
+      <Card>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Blog Management</h1>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setIsEditing(true);
+              setSelectedPost(undefined);
+              resetForm();
             }}
-          />
+          >
+            Create New Post
+          </Button>
         </div>
-      </Modal>
+        <Divider />
+        <Table
+          columns={columns}
+          dataSource={posts}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            defaultPageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+        />
+      </Card>
     </div>
   );
 };
 
-export default BlogEditor;
+export default BlogAdminPage;

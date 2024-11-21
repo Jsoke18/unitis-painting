@@ -19,7 +19,8 @@
     "init-services": "ts-node scripts/init-services-landing-content.ts",
     "project-content": "ts-node scripts/init-project-content.ts",
     "init-clients": "ts-node scripts/init-clients.ts",
-    "init-reviews": "ts-node scripts/init-reviews.ts"
+    "init-reviews": "ts-node scripts/init-reviews.ts",
+    "init-blogs": "ts-node scripts/init-blog.ts"
 
 
 
