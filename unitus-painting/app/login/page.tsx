@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,14 +14,27 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Check if already logged in
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (isAuthenticated) {
-      router.push('/admin/');
-    }
-  }, [router]);
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'GET',
+        });
+
+        if (response.ok) {
+          const from = searchParams.get('from') || '/admin';
+          router.push(from);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+
+    checkAuth();
+  }, [router, searchParams]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,8 +54,10 @@ const LoginPage = () => {
       if (data.success) {
         localStorage.setItem('isAuthenticated', 'true');
         toast.success('Logged in successfully');
-        // Ensure the redirect includes the trailing slash
-        router.push('/admin/');
+        
+        // Redirect to the original destination if available
+        const from = searchParams.get('from') || '/admin';
+        router.push(from);
       } else {
         toast.error(data.message || 'Invalid credentials');
       }
@@ -51,13 +66,6 @@ const LoginPage = () => {
       toast.error('An error occurred during login');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Function to handle the enter key
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleLogin(e);
     }
   };
 
@@ -81,9 +89,9 @@ const LoginPage = () => {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={handleKeyPress}
                 required
                 className="w-full"
+                autoComplete="email"
               />
             </div>
 
@@ -98,9 +106,9 @@ const LoginPage = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyPress={handleKeyPress}
                   required
                   className="w-full pr-10"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"

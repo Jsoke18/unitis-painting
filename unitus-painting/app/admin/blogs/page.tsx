@@ -258,7 +258,7 @@ const BlogCMS = () => {
 
   const handleDelete = async (postId: number) => {
     try {
-      const response = await fetch('/api/posts', {
+      const response = await fetch('/api/blogs', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -287,7 +287,7 @@ const BlogCMS = () => {
         try {
           await Promise.all(
             selectedRows.map(post => 
-              fetch('/api/posts', {
+              fetch('/api/blogs', {
                 method: 'DELETE',
                 headers: {
                   'Content-Type': 'application/json',
@@ -321,7 +321,7 @@ const BlogCMS = () => {
       };
 
       const method = editingPost ? 'PUT' : 'POST';
-      const response = await fetch('/api/posts', {
+      const response = await fetch('/api/blogs', {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -361,36 +361,25 @@ const BlogCMS = () => {
     }
 
     try {
-      // Create a dummy post with the new category to trigger category creation
-      const response = await fetch('/api/posts', {
+      const response = await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title: "Temporary Post",
-          excerpt: "Temporary",
-          content: "Temporary",
-          image: "/placeholder.jpg",
-          author: "System",
-          category: trimmedCategory,
-          tags: [],
-          readTime: "1 min read"
-        }),
+        body: JSON.stringify({ name: trimmedCategory }),
       });
 
       if (!response.ok) throw new Error('Failed to add category');
 
       setNewCategory("");
       message.success("Category added successfully");
-      fetchPosts();
+      fetchPosts(); // This will also fetch updated categories
     } catch (error) {
       message.error("Failed to add category");
       console.error(error);
     }
   };
 
-  // Render
   return (
     <div className="p-6">
       {/* Header */}
@@ -452,11 +441,13 @@ const BlogCMS = () => {
         onCancel={handleModalClose}
         width={800}
         confirmLoading={false}
+        bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
       >
         <Form
           form={form}
           layout="vertical"
           initialValues={{ readTime: "5 min read" }}
+          className="overflow-visible"
         >
           <Form.Item
             name="image"
@@ -504,135 +495,197 @@ const BlogCMS = () => {
             label="Content"
             required
             tooltip="Rich text editor for the main content of your post"
+            className="mb-16"
           >
-            <ReactQuill
-              theme="snow"
-              value={content}
-              onChange={setContent}
-              style={{ height: "200px", marginBottom: "50px" }}
+            <div className="quill-wrapper">
+              <ReactQuill
+                theme="snow"
+                value={content}
+                onChange={setContent}
+                style={{ height: "200px" }}
               />
-            </Form.Item>
-  
-            <Form.Item
-              name="tags"
-              label="Tags"
-              tooltip="Comma-separated list of tags"
-              rules={[
-                { required: true, message: "Please input at least one tag!" },
-                {
-                  validator: (_, value) => {
-                    if (!value) return Promise.resolve();
-                    const tags = value.split(",").map((tag: string) => tag.trim());
-                    if (tags.some((tag: string) => tag.length > 20)) {
-                      return Promise.reject("Tags must be less than 20 characters");
-                    }
-                    if (tags.some((tag: string) => !tag)) {
-                      return Promise.reject("Tags cannot be empty");
-                    }
-                    return Promise.resolve();
-                  },
+            </div>
+          </Form.Item>
+
+          <Form.Item
+            name="tags"
+            label="Tags"
+            tooltip="Comma-separated list of tags"
+            rules={[
+              { required: true, message: "Please input at least one tag!" },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const tags = value.split(",").map((tag: string) => tag.trim());
+                  if (tags.some((tag: string) => tag.length > 20)) {
+                    return Promise.reject("Tags must be less than 20 characters");
+                  }
+                  if (tags.some((tag: string) => !tag)) {
+                    return Promise.reject("Tags cannot be empty");
+                  }
+                  return Promise.resolve();
                 },
+              },
+            ]}
+          >
+            <Input.TextArea
+              rows={2}
+              placeholder="Enter tags separated by commas (e.g., painting, renovation, tips)"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="readTime"
+            label="Read Time"
+            rules={[{ required: true, message: "Please input the read time!" }]}
+          >
+            <Input placeholder="e.g., 5 min read" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Category Management Modal */}
+      <Modal
+        title="Manage Categories"
+        open={isCategoryModalOpen}
+        onCancel={() => setIsCategoryModalOpen(false)}
+        footer={null}
+        bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
+      >
+        <div className="mb-4">
+          <Input.Group compact>
+            <Input
+              style={{ width: "calc(100% - 100px)" }}
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="New category name"
+              maxLength={30}
+              onPressEnter={handleAddCategory}
+            />
+            <Button
+              type="primary"
+              onClick={handleAddCategory}
+              disabled={!newCategory.trim()}
+            >
+              Add
+            </Button>
+          </Input.Group>
+        </div>
+
+        <List
+          dataSource={categories}
+          renderItem={(category) => (
+            <List.Item
+              actions={[
+                <Popconfirm
+                  key="delete"
+                  title="Delete category?"
+                  description={`This will affect ${
+                    posts.filter((post) => post.category === category).length
+                  } posts. They will be marked as "Uncategorized"`}
+                  onConfirm={() => {
+                    message.info("Category deletion not implemented in this version");
+                  }}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button danger icon={<DeleteOutlined />} />
+                </Popconfirm>,
               ]}
             >
-              <Input.TextArea
-                rows={2}
-                placeholder="Enter tags separated by commas (e.g., painting, renovation, tips)"
-              />
-            </Form.Item>
-  
-            <Form.Item
-              name="readTime"
-              label="Read Time"
-              rules={[{ required: true, message: "Please input the read time!" }]}
-            >
-              <Input placeholder="e.g., 5 min read" />
-            </Form.Item>
-          </Form>
-        </Modal>
-  
-        {/* Category Management Modal */}
-        <Modal
-          title="Manage Categories"
-          open={isCategoryModalOpen}
-          onCancel={() => setIsCategoryModalOpen(false)}
-          footer={null}
-        >
-          <div className="mb-4">
-            <Input.Group compact>
-              <Input
-                style={{ width: "calc(100% - 100px)" }}
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                placeholder="New category name"
-                maxLength={30}
-                onPressEnter={handleAddCategory}
-              />
-              <Button
-                type="primary"
-                onClick={handleAddCategory}
-                disabled={!newCategory.trim()}
-              >
-                Add
-              </Button>
-            </Input.Group>
-          </div>
-  
-          <List
-            dataSource={categories}
-            renderItem={(category) => (
-              <List.Item
-                actions={[
-                  <Popconfirm
-                    key="delete"
-                    title="Delete category?"
-                    description={`This will affect ${
-                      posts.filter((post) => post.category === category).length
-                    } posts. They will be marked as "Uncategorized"`}
-                    onConfirm={() => {
-                      // Note: Category deletion should be implemented in the API
-                      message.info("Category deletion not implemented in this version");
-                    }}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button danger icon={<DeleteOutlined />} />
-                  </Popconfirm>,
-                ]}
-              >
-                <div className="flex items-center gap-2">
-                  <Tag color="blue">{category}</Tag>
-                  <span className="text-gray-500">
-                    ({posts.filter((post) => post.category === category).length} posts)
-                  </span>
-                </div>
-              </List.Item>
-            )}
-          />
-        </Modal>
-  
-        {/* Style for Image Upload */}
-        <style jsx global>{`
-          .avatar-uploader .ant-upload {
-            width: 200px;
-            height: 200px;
-          }
-          .ant-upload-select-picture-card i {
-            font-size: 32px;
-            color: #999;
-          }
-          .ant-upload-select-picture-card .ant-upload-text {
-            margin-top: 8px;
-            color: #666;
-          }
-          .ant-form-item-has-error .ant-upload {
-            border-color: #ff4d4f;
-          }
-          .ql-editor {
-            min-height: 200px;
-          }
-        `}</style>
-      </div>
-    );
-  };
-  
-  export default BlogCMS;
+              <div className="flex items-center gap-2">
+                <Tag color="blue">{category}</Tag>
+                <span className="text-gray-500">
+                  ({posts.filter((post) => post.category === category).length} posts)
+                </span>
+              </div>
+            </List.Item>
+          )}
+        />
+      </Modal>
+
+      {/* Style for Image Upload and Modal */}
+      <style jsx global>{`
+        .avatar-uploader .ant-upload {
+          width: 200px;
+          height: 200px;
+        }
+        .ant-upload-select-picture-card i {
+          font-size: 32px;
+          color: #999;
+        }
+        .ant-upload-select-picture-card .ant-upload-text {
+          margin-top: 8px;
+          color: #666;
+        }
+        .ant-form-item-has-error .ant-upload {
+          border-color: #ff4d4f;
+        }
+        .quill-wrapper {
+          position: relative;
+          z-index: 1;
+        }
+        .ql-editor {
+          min-height: 200px;
+        }
+        .ql-toolbar.ql-snow {
+          position: sticky;
+          top: 0;
+          z-index: 2;
+          background: white;
+        }
+        .ant-modal-body {
+          scrollbar-width: thin;
+          scrollbar-color: #d9d9d9 #f5f5f5;
+          padding: 24px;
+        }
+        .ant-modal-body::-webkit-scrollbar {
+          width: 6px;
+        }
+        .ant-modal-body::-webkit-scrollbar-track {
+          background: #f5f5f5;
+        }
+        .ant-modal-body::-webkit-scrollbar-thumb {
+          background-color: #d9d9d9;
+          border-radius: 3px;
+        }
+        .ant-form-item {
+          margin-bottom: 24px;
+        }
+        .ant-modal-wrap {
+          display: flex;
+          align-items: flex-start;
+          padding: 20px 0;
+        }
+        .ant-modal {
+          top: 20px;
+          padding-bottom: 0;
+        }
+        .ant-modal-footer {
+          border-top: 1px solid #f0f0f0;
+          padding: 16px 24px;
+          background: white;
+          border-radius: 0 0 8px 8px;
+          position: sticky;
+          bottom: 0;
+          z-index: 1;
+        }
+        .ant-modal-content {
+          max-height: calc(100vh - 40px);
+          display: flex;
+          flex-direction: column;
+        }
+        .ql-container.ql-snow {
+          border-bottom-left-radius: 4px;
+          border-bottom-right-radius: 4px;
+        }
+        .ql-toolbar.ql-snow {
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default BlogCMS;

@@ -1,5 +1,6 @@
-"use client";
-import React, { useState } from "react";
+'use client';
+
+import React, { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   FileEdit,
@@ -31,7 +32,7 @@ const menuItems: MenuItem[] = [
     key: "Home",
     icon: <LayoutDashboard className="w-4 h-4" />,
     label: "Home",
-    href: "/admin/home",
+    href: "/admin",
   },
   {
     key: "Blog",
@@ -145,17 +146,59 @@ const menuItems: MenuItem[] = [
   },
 ];
 
+const transformMenuItem = (item: MenuItem) => {
+  const menuItem: any = {
+    key: item.key,
+    icon: item.icon,
+    label: item.href ? (
+      <Link href={item.href}>{item.label}</Link>
+    ) : (
+      item.label
+    ),
+  };
+
+  if (item.children) {
+    menuItem.children = item.children.map(transformMenuItem);
+  }
+
+  return menuItem;
+};
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+  
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'GET',
+        });
+
+        if (!response.ok) {
+          router.push('/login');
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        router.push('/login');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleLogout = async () => {
     try {
@@ -164,7 +207,6 @@ export default function AdminLayout({
       });
 
       if (response.ok) {
-        // Clear authentication state
         localStorage.removeItem('isAuthenticated');
         toast.success('Logged out successfully');
         router.push('/login');
@@ -187,31 +229,23 @@ export default function AdminLayout({
     {
       key: "profile",
       label: "Profile",
+      onClick: () => router.push('/admin/profile'),
     },
     {
       key: "logout",
       label: "Logout",
       danger: true,
+      onClick: handleLogout,
     },
   ];
 
-  const transformMenuItem = (item: MenuItem) => {
-    const menuItem: any = {
-      key: item.key,
-      icon: item.icon,
-      label: item.href ? (
-        <Link href={item.href}>{item.label}</Link>
-      ) : (
-        item.label
-      ),
-    };
-
-    if (item.children) {
-      menuItem.children = item.children.map(transformMenuItem);
-    }
-
-    return menuItem;
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -229,7 +263,7 @@ export default function AdminLayout({
         }}
       >
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
-          <Link href="/admin/home">
+          <Link href="/admin">
             <h1
               className={`text-xl font-bold transition-all duration-200 ${
                 collapsed ? "scale-0" : "scale-100"
@@ -249,7 +283,6 @@ export default function AdminLayout({
             fontSize: '14px',
             width: '100%'
           }}
-          itemStyle={{ padding: '0 24px 0 16px' }}
         />
       </Sider>
       <Layout>
