@@ -4,7 +4,22 @@ import { neon } from '@neondatabase/serverless';
 import * as argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 
-console.log('API route loaded, environment:', process.env.NODE_ENV);
+// Enhanced logging setup
+const log = {
+  info: (message: string, ...args: any[]) => {
+    console.log(`[AUTH] [INFO] ${message}`, ...args);
+  },
+  error: (message: string, error: any) => {
+    console.error(`[AUTH] [ERROR] ${message}`, {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack,
+      cause: error?.cause
+    });
+  }
+};
+
+log.info('API route loaded, environment:', process.env.NODE_ENV);
 
 // Validate environment variables
 const requiredEnvVars = {
@@ -15,36 +30,57 @@ const requiredEnvVars = {
 // Check all required environment variables
 Object.entries(requiredEnvVars).forEach(([name, value]) => {
   if (!value) {
-    console.error(`${name} is not defined in environment variables`);
-    throw new Error(`${name} is not defined in environment variables`);
+    const error = `${name} is not defined in environment variables`;
+    log.error(error, new Error(error));
+    throw new Error(error);
   }
 });
 
+// Initialize database connection
 const sql = neon(process.env.DATABASE_URL);
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Cookie configuration
+// Enhanced cookie configuration
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  sameSite: 'lax' as const,
   path: '/',
+  domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
 };
+
+// Helper function to sanitize user object
+const sanitizeUser = (user: any) => ({
+  id: user.id,
+  email: user.email,
+});
 
 /**
  * Login handler
  */
 export async function POST(request: Request) {
-  console.log('POST /api/auth - Login request received');
+  log.info('Login request received');
   
   try {
-    const body = await request.json();
+    // Validate request body
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      log.error('Failed to parse request body', error);
+      return NextResponse.json(
+        { success: false, message: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+
     const { email, password } = body;
 
-    console.log('Login attempt for email:', email);
+    log.info('Processing login attempt', { email: email?.toLowerCase() });
 
+    // Validate required fields
     if (!email || !password) {
-      console.log('Login failed: Missing email or password');
+      log.info('Login failed: Missing required fields');
       return NextResponse.json(
         { success: false, message: 'Email and password are required' },
         { status: 400 }
@@ -52,14 +88,22 @@ export async function POST(request: Request) {
     }
 
     // Get user from database
-    console.log('Querying database for user');
-    const users = await sql`
-      SELECT * FROM admin_users 
-      WHERE email = ${email.toLowerCase().trim()}
-    `;
+    let users;
+    try {
+      users = await sql`
+        SELECT * FROM admin_users 
+        WHERE email = ${email.toLowerCase().trim()}
+      `;
+    } catch (error) {
+      log.error('Database query failed', error);
+      return NextResponse.json(
+        { success: false, message: 'Database error occurred' },
+        { status: 500 }
+      );
+    }
 
     if (users.length === 0) {
-      console.log('Login failed: User not found');
+      log.info('Login failed: User not found');
       return NextResponse.json(
         { success: false, message: 'Invalid credentials' },
         { status: 401 }
@@ -67,52 +111,53 @@ export async function POST(request: Request) {
     }
 
     const user = users[0];
-    console.log('User found, verifying password');
 
     // Verify password
+    let validPassword = false;
     try {
-      const validPassword = await argon2.verify(user.password_hash, password);
-      if (!validPassword) {
-        console.log('Login failed: Invalid password');
-        return NextResponse.json(
-          { success: false, message: 'Invalid credentials' },
-          { status: 401 }
-        );
-      }
+      validPassword = await argon2.verify(user.password_hash, password);
     } catch (error) {
-      console.error('Password verification error:', error);
+      log.error('Password verification failed', error);
       return NextResponse.json(
         { success: false, message: 'Authentication error' },
         { status: 500 }
       );
     }
 
-    console.log('Password verified, generating JWT');
+    if (!validPassword) {
+      log.info('Login failed: Invalid password');
+      return NextResponse.json(
+        { success: false, message: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
 
     // Generate JWT token
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        iat: Math.floor(Date.now() / 1000),
-      },
-      JWT_SECRET,
-      {
-        expiresIn: '24h',
-      }
-    );
-
-    console.log('Creating response with cookies');
+    let token;
+    try {
+      token = jwt.sign(
+        {
+          userId: user.id,
+          email: user.email,
+          iat: Math.floor(Date.now() / 1000),
+        },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+    } catch (error) {
+      log.error('Token generation failed', error);
+      return NextResponse.json(
+        { success: false, message: 'Error generating authentication token' },
+        { status: 500 }
+      );
+    }
 
     // Create response with cookies
     const response = NextResponse.json(
       {
         success: true,
         message: 'Login successful',
-        user: {
-          id: user.id,
-          email: user.email
-        }
+        user: sanitizeUser(user)
       },
       { status: 200 }
     );
@@ -128,11 +173,11 @@ export async function POST(request: Request) {
       maxAge: 86400 // 24 hours
     });
 
-    console.log('Login successful, returning response');
+    log.info('Login successful', { userId: user.id });
     return response;
 
   } catch (error) {
-    console.error('Login error:', error);
+    log.error('Unexpected error during login', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
@@ -144,7 +189,7 @@ export async function POST(request: Request) {
  * Logout handler
  */
 export async function DELETE(request: Request) {
-  console.log('DELETE /api/auth - Logout request received');
+  log.info('Logout request received');
   
   try {
     const response = NextResponse.json(
@@ -156,7 +201,6 @@ export async function DELETE(request: Request) {
     );
 
     // Clear cookies
-    console.log('Clearing auth cookies');
     response.cookies.set('auth-token', '', {
       ...cookieOptions,
       maxAge: 0
@@ -167,9 +211,10 @@ export async function DELETE(request: Request) {
       maxAge: 0
     });
 
+    log.info('Logout successful');
     return response;
   } catch (error) {
-    console.error('Logout error:', error);
+    log.error('Error during logout', error);
     return NextResponse.json(
       { success: false, message: 'Error during logout' },
       { status: 500 }
@@ -181,14 +226,13 @@ export async function DELETE(request: Request) {
  * GET handler for checking auth status
  */
 export async function GET(request: Request) {
-  console.log('GET /api/auth - Auth check request received');
+  log.info('Auth check request received');
   
   try {
     const authToken = request.cookies.get('auth-token');
-    console.log('Auth token present:', !!authToken);
+    log.info('Auth token present:', !!authToken);
 
     if (!authToken?.value) {
-      console.log('Auth check failed: No token found');
       return NextResponse.json(
         { success: false, message: 'Not authenticated' },
         { status: 401 }
@@ -196,13 +240,12 @@ export async function GET(request: Request) {
     }
 
     try {
-      console.log('Verifying JWT token');
       const decoded = jwt.verify(authToken.value, JWT_SECRET) as {
         userId: string;
         email: string;
       };
 
-      console.log('Token verified, user authenticated');
+      log.info('Token verified successfully', { userId: decoded.userId });
       return NextResponse.json({
         success: true,
         message: 'Authenticated',
@@ -212,15 +255,30 @@ export async function GET(request: Request) {
         }
       });
     } catch (error) {
-      console.error('Token verification failed:', error);
-      return NextResponse.json(
+      log.error('Token verification failed', error);
+      
+      // Create response with cleared cookies for invalid token
+      const response = NextResponse.json(
         { success: false, message: 'Invalid token' },
         { status: 401 }
       );
+
+      // Clear invalid cookies
+      response.cookies.set('auth-token', '', {
+        ...cookieOptions,
+        maxAge: 0
+      });
+
+      response.cookies.set('admin', '', {
+        ...cookieOptions,
+        maxAge: 0
+      });
+
+      return response;
     }
 
   } catch (error) {
-    console.error('Auth check error:', error);
+    log.error('Auth check error', error);
     return NextResponse.json(
       { success: false, message: 'Error checking authentication' },
       { status: 500 }
@@ -228,9 +286,11 @@ export async function GET(request: Request) {
   }
 }
 
-// Handle OPTIONS requests for CORS
+/**
+ * Handle OPTIONS requests for CORS
+ */
 export async function OPTIONS(request: Request) {
-  console.log('OPTIONS /api/auth - CORS preflight request received');
+  log.info('CORS preflight request received');
   
   return new NextResponse(null, {
     status: 200,
