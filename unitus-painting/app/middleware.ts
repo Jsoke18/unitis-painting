@@ -1,75 +1,120 @@
+// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@vercel/edge-config';
 
-// Create Edge Config client - make sure to handle undefined case
-const edge = process.env.EDGE_CONFIG 
-  ? createClient(process.env.EDGE_CONFIG)
-  : null;
+// Enhanced logging setup
+const log = {
+  info: (message: string, ...args: any[]) => {
+    console.log(`[MIDDLEWARE] [INFO] ${message}`, ...args);
+  },
+  error: (message: string, error: any) => {
+    console.error(`[MIDDLEWARE] [ERROR] ${message}`, {
+      name: error?.name,
+      message: error?.message,
+      stack: error?.stack
+    });
+  }
+};
+
+export function middleware(request: NextRequest) {
+  const startTime = Date.now();
+  log.info('Request received:', {
+    path: request.nextUrl.pathname,
+    method: request.method,
+    host: request.headers.get('host')
+  });
+
+  try {
+    const response = handleRequest(request);
+    
+    const duration = Date.now() - startTime;
+    log.info('Request completed:', {
+      path: request.nextUrl.pathname,
+      duration: `${duration}ms`,
+      status: response instanceof NextResponse ? response.status : 'N/A'
+    });
+
+    return response;
+  } catch (error) {
+    log.error('Middleware error:', error);
+    return NextResponse.next();
+  }
+}
+
+function handleRequest(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Always allow API routes to pass through
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith('/uploads/')) {
+    return handleUploadsProtection(request);
+  }
+
+  if (pathname.startsWith('/admin')) {
+    return handleAdminProtection(request);
+  }
+
+  return NextResponse.next();
+}
+
+function handleUploadsProtection(request: NextRequest) {
+  const filepath = request.nextUrl.pathname;
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+  
+  const hasAllowedExtension = allowedExtensions.some(ext =>
+    filepath.toLowerCase().endsWith(ext)
+  );
+  
+  if (!hasAllowedExtension) {
+    log.info('Blocked invalid file access:', filepath);
+    return NextResponse.json(
+      { error: 'Invalid file type' },
+      { status: 400 }
+    );
+  }
+  
+  return NextResponse.next();
+}
+
+function handleAdminProtection(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const authToken = request.cookies.get('auth-token');
+  const isLoginPage = pathname === '/admin/login';
+
+  log.info('Admin access check:', {
+    path: pathname,
+    hasAuthToken: !!authToken,
+    isLoginPage
+  });
+
+  // Redirect to login if not authenticated and not on login page
+  if (!authToken && !isLoginPage) {
+    const loginUrl = new URL('/admin/login', request.url);
+    loginUrl.searchParams.set('from', pathname);
+    log.info('Redirecting to login:', loginUrl.toString());
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Redirect to admin dashboard if authenticated and on login page
+  if (authToken && isLoginPage) {
+    const adminUrl = new URL('/admin', request.url);
+    log.info('Redirecting to admin dashboard:', adminUrl.toString());
+    return NextResponse.redirect(adminUrl);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
-    '/admin/:path*',          // Admin routes
-    '/welcome',               // Edge config route
-    '/((?!api|_next/static|_next/image|favicon.ico).*)', // All routes except API and Next.js internals
+    // Match all API routes
+    '/api/:path*',
+    // Match all admin routes
+    '/admin/:path*',
+    // Match upload routes
+    '/uploads/:path*'
   ]
 };
-
-export async function middleware(request: NextRequest) {
-  // Get the pathname
-  const path = request.nextUrl.pathname;
-
-  // Handle welcome route with edge config
-  if (path === '/welcome') {
-    try {
-      if (!edge) {
-        throw new Error('Edge config not initialized');
-      }
-      const greeting = await edge.get('greeting');
-      return NextResponse.json(
-        { greeting },
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store'
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Edge Config error:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch greeting' },
-        { status: 500 }
-      );
-    }
-  }
-
-  // Handle admin routes authentication
-  if (path.startsWith('/admin') && !path.startsWith('/api')) {
-    // Check for auth token
-    const authToken = request.cookies.get('auth-token');
-
-    if (!authToken) {
-      // Store the intended destination and redirect to login
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('from', path);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    try {
-      // Additional token validation can be added here
-      // You could call verifyAuth() from lib/auth.ts
-      return NextResponse.next();
-    } catch (error) {
-      console.error('Auth validation error:', error);
-      // If token validation fails, redirect to login
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('from', path);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // Allow all other routes to pass through
-  return NextResponse.next();
-}

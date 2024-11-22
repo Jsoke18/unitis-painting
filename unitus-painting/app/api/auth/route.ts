@@ -40,14 +40,39 @@ Object.entries(requiredEnvVars).forEach(([name, value]) => {
 const sql = neon(process.env.DATABASE_URL);
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Enhanced cookie configuration
-const cookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  path: '/',
-  domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
-};
+// Helper function to determine cookie domain
+function getCookieDomain(request: Request) {
+  if (process.env.NODE_ENV !== 'production') return undefined;
+  
+  const host = request.headers.get('host') || '';
+  if (host.includes('unituspainting.com')) {
+    return '.unituspainting.com';
+  }
+  return undefined;
+}
+
+// Cookie configuration function
+function getCookieOptions(request: Request) {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/',
+    domain: getCookieDomain(request)
+  };
+}
+
+// Debug logging helper
+function logCookieStatus(request: Request, response: NextResponse) {
+  log.info('Cookie Debug Info:', {
+    environment: process.env.NODE_ENV,
+    host: request.headers.get('host'),
+    requestCookies: request.headers.get('cookie'),
+    responseCookies: response.headers.get('set-cookie'),
+    secure: process.env.NODE_ENV === 'production',
+    domain: getCookieDomain(request)
+  });
+}
 
 // Helper function to sanitize user object
 const sanitizeUser = (user: any) => ({
@@ -162,6 +187,8 @@ export async function POST(request: Request) {
       { status: 200 }
     );
 
+    const cookieOptions = getCookieOptions(request);
+
     // Set cookies
     response.cookies.set('auth-token', token, {
       ...cookieOptions,
@@ -172,6 +199,9 @@ export async function POST(request: Request) {
       ...cookieOptions,
       maxAge: 86400 // 24 hours
     });
+
+    // Log cookie status for debugging
+    logCookieStatus(request, response);
 
     log.info('Login successful', { userId: user.id });
     return response;
@@ -200,6 +230,8 @@ export async function DELETE(request: Request) {
       { status: 200 }
     );
 
+    const cookieOptions = getCookieOptions(request);
+
     // Clear cookies
     response.cookies.set('auth-token', '', {
       ...cookieOptions,
@@ -211,6 +243,7 @@ export async function DELETE(request: Request) {
       maxAge: 0
     });
 
+    logCookieStatus(request, response);
     log.info('Logout successful');
     return response;
   } catch (error) {
@@ -257,11 +290,12 @@ export async function GET(request: Request) {
     } catch (error) {
       log.error('Token verification failed', error);
       
-      // Create response with cleared cookies for invalid token
       const response = NextResponse.json(
         { success: false, message: 'Invalid token' },
         { status: 401 }
       );
+
+      const cookieOptions = getCookieOptions(request);
 
       // Clear invalid cookies
       response.cookies.set('auth-token', '', {
