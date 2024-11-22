@@ -8,7 +8,8 @@ import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import dynamic from 'next/dynamic';
+import parse from 'html-react-parser';
+import Image from "next/image";
 
 // Types
 interface BlogPost {
@@ -24,17 +25,13 @@ interface BlogPost {
   date: string;
 }
 
-// Dynamic imports for markdown rendering
-const ReactMarkdown = dynamic(() => import('react-markdown'), {
-  ssr: false,
-  loading: () => <LoadingPlaceholder />
-});
+// Loading components
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center p-4">
+    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+  </div>
+);
 
-const RemarkGfm = dynamic(() => import('remark-gfm'), {
-  ssr: false
-});
-
-// Reusable components
 const LoadingPlaceholder = () => (
   <div className="space-y-4">
     <div className="animate-pulse h-4 bg-gray-200 rounded w-3/4" />
@@ -42,110 +39,6 @@ const LoadingPlaceholder = () => (
     <div className="animate-pulse h-4 bg-gray-200 rounded w-5/6" />
   </div>
 );
-
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center p-4">
-    <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-  </div>
-);
-
-const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="bg-red-50 border-l-4 border-red-400 p-4 my-4">
-    <div className="flex">
-      <div className="flex-shrink-0">
-        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-        </svg>
-      </div>
-      <div className="ml-3">
-        <p className="text-sm text-red-700">{message}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const MarkdownRenderer = ({ content }: { content: string }) => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return <LoadingPlaceholder />;
-  }
-
-  return (
-    <ReactMarkdown
-      remarkPlugins={[RemarkGfm]}
-      components={{
-        h1: ({ ...props }) => (
-          <h1 className="text-4xl font-bold mt-8 mb-4 block" {...props} />
-        ),
-        h2: ({ ...props }) => (
-          <h2 className="text-3xl font-semibold mt-8 mb-4 block" {...props} />
-        ),
-        h3: ({ ...props }) => (
-          <h3 className="text-2xl font-semibold mt-6 mb-3 block" {...props} />
-        ),
-        h4: ({ ...props }) => (
-          <h4 className="text-xl font-semibold mt-4 mb-2 block" {...props} />
-        ),
-        p: ({ ...props }) => (
-          <p className="mt-4 mb-4 text-gray-700 leading-relaxed block whitespace-pre-wrap" {...props} />
-        ),
-        pre: ({ ...props }) => (
-          <pre className="mt-4 mb-4 block overflow-auto bg-gray-100 p-4 rounded-lg" {...props} />
-        ),
-        code: ({ inline, className, children, ...props }) => {
-          if (inline) {
-            return (
-              <code className="bg-gray-100 rounded px-1.5 py-0.5 text-sm" {...props}>
-                {children}
-              </code>
-            );
-          }
-          return (
-            <pre className="mt-4 mb-4 block overflow-auto bg-gray-100 p-4 rounded-lg">
-              <code {...props}>{children}</code>
-            </pre>
-          );
-        },
-        ul: ({ ...props }) => (
-          <ul className="list-disc list-inside mt-4 mb-4 space-y-2" {...props} />
-        ),
-        ol: ({ ...props }) => (
-          <ol className="list-decimal list-inside mt-4 mb-4 space-y-2" {...props} />
-        ),
-        li: ({ ...props }) => (
-          <li className="text-gray-700" {...props} />
-        ),
-        blockquote: ({ ...props }) => (
-          <blockquote className="border-l-4 border-gray-200 pl-4 italic my-4" {...props} />
-        ),
-        a: ({ ...props }) => (
-          <a className="text-blue-600 hover:text-blue-800 underline" {...props} />
-        ),
-        img: ({ ...props }) => (
-          <img className="max-w-full h-auto my-4 rounded-lg" {...props} />
-        ),
-        table: ({ ...props }) => (
-          <div className="overflow-x-auto my-4">
-            <table className="min-w-full divide-y divide-gray-200" {...props} />
-          </div>
-        ),
-        th: ({ ...props }) => (
-          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" {...props} />
-        ),
-        td: ({ ...props }) => (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" {...props} />
-        ),
-      }}
-    >
-      {content}
-    </ReactMarkdown>
-  );
-};
 
 const LoadingState = () => (
   <div className="min-h-screen bg-gray-50">
@@ -178,6 +71,56 @@ const NotFoundState = () => (
   </div>
 );
 
+// Content renderer component
+const ContentRenderer = ({ content }: { content: string }) => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <LoadingPlaceholder />;
+  }
+
+  // Clean HTML content
+  const cleanContent = (htmlContent: string) => {
+    return htmlContent
+      .replace(/<p><br><\/p>/g, '') // Remove empty paragraphs with just <br>
+      .replace(/<p>\s*<\/p>/g, '')  // Remove empty paragraphs
+      .replace(/(<br>){2,}/g, '<br>') // Reduce multiple <br> tags to single
+      .replace(/\s*<br>\s*<\/p>/g, '</p>') // Remove <br> before closing </p>
+      .replace(/<p>\s*<br>\s*/g, '<p>'); // Remove <br> after opening <p>
+  };
+
+  const options = {
+    replace: (domNode: any) => {
+      if (domNode.type === 'tag') {
+        const styleMap: { [key: string]: string } = {
+          p: 'mt-4 mb-4 text-gray-700 leading-relaxed block',
+          strong: 'font-semibold',
+          ul: 'list-disc list-inside mt-4 mb-4 space-y-2',
+          li: 'text-gray-700 ml-4',
+          a: 'text-blue-600 hover:text-blue-800 underline',
+          h1: 'text-4xl font-bold mt-8 mb-4',
+          h2: 'text-3xl font-semibold mt-8 mb-4',
+          h3: 'text-2xl font-semibold mt-6 mb-3',
+          h4: 'text-xl font-semibold mt-4 mb-2',
+          blockquote: 'border-l-4 border-gray-200 pl-4 italic my-4',
+          img: 'max-w-full h-auto my-4 rounded-lg'
+        };
+
+        if (domNode.name in styleMap) {
+          domNode.attribs.class = (domNode.attribs.class || '') + ' ' + styleMap[domNode.name];
+        }
+      }
+    }
+  };
+
+  const cleanedContent = cleanContent(content);
+  return <div className="prose prose-lg max-w-none">{parse(cleanedContent, options)}</div>;
+};
+
 // Main component
 const BlogPostPage = () => {
   const params = useParams();
@@ -191,14 +134,17 @@ const BlogPostPage = () => {
       try {
         setIsLoading(true);
         setError(null);
-
+        console.log('Fetching post with ID:', params.id);
+        
         const response = await fetch(`/api/blogs?id=${params.id}`);
+        console.log('Response status:', response.status);
         
         if (!response.ok) {
           throw new Error(response.status === 404 ? 'Post not found' : 'Failed to fetch post');
         }
         
         const data = await response.json();
+        console.log('Post data received:', data);
         setPost(data);
       } catch (err) {
         console.error('Error fetching post:', err);
@@ -216,15 +162,8 @@ const BlogPostPage = () => {
     }
   }, [params.id]);
 
-  // Handle loading state
-  if (isLoading) {
-    return <LoadingState />;
-  }
-
-  // Handle error state
-  if (error || !post) {
-    return <NotFoundState />;
-  }
+  if (isLoading) return <LoadingState />;
+  if (error || !post) return <NotFoundState />;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -296,17 +235,12 @@ const BlogPostPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                {/* Category Badge */}
                 <span className="inline-block px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-6">
                   {post.category}
                 </span>
 
-                {/* Content */}
-                <div className="prose prose-lg max-w-none">
-                  <MarkdownRenderer content={post.content} />
-                </div>
+                <ContentRenderer content={post.content} />
 
-                {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
                   <motion.div 
                     className="mt-8 pt-8 border-t border-gray-200"
