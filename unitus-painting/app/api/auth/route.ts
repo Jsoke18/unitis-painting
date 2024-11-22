@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import * as argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
-import { headers } from 'next/headers';
 
 // Types
 interface User {
@@ -11,22 +10,10 @@ interface User {
   email: string;
 }
 
-interface LoginResponse {
-  success: boolean;
-  message: string;
-  user?: User;
-}
-
-interface AuthCheckResponse {
-  success: boolean;
-  message: string;
-  user?: User;
-}
-
 // Enhanced logging
 const logger = {
-  info: (message: string, ...args: any[]) => {
-    console.log(`[AUTH] [INFO] ${message}`, ...args);
+  info: (message: string, data?: any) => {
+    console.log(`[AUTH] [INFO] ${message}`, data || '');
   },
   error: (message: string, error: any) => {
     console.error(`[AUTH] [ERROR] ${message}`, {
@@ -34,57 +21,47 @@ const logger = {
       message: error?.message,
       stack: error?.stack
     });
+  },
+  debug: (message: string, data?: any) => {
+    if (process.env.DEBUG === 'true') {
+      console.debug(`[AUTH] [DEBUG] ${message}`, data || '');
+    }
   }
 };
 
-// Database initialization
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined');
-}
-
-const sql = neon(process.env.DATABASE_URL);
-
-// JWT configuration
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET is not defined');
-}
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-// Domain configuration
-const PRODUCTION_DOMAIN = 'unituspainting.com';
-const DEV_DOMAIN = 'localhost';
-
-// Environment-specific configurations
-const isProduction = process.env.NODE_ENV === 'production';
-const DOMAIN = isProduction ? PRODUCTION_DOMAIN : DEV_DOMAIN;
-const PROTOCOL = isProduction ? 'https' : 'http';
-const BASE_URL = isProduction ? `https://${PRODUCTION_DOMAIN}` : `http://${DEV_DOMAIN}:3000`;
-
-// CORS and cookie configurations
-const CORS_HEADERS = {
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Origin': BASE_URL,
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-  'Access-Control-Max-Age': '86400',
+// Environment and configuration
+const ENV = {
+  isProd: process.env.NODE_ENV === 'production',
+  domain: process.env.NODE_ENV === 'production' ? 'unituspainting.com' : 'localhost',
+  jwtSecret: process.env.JWT_SECRET!,
+  dbUrl: process.env.DATABASE_URL!
 };
 
+// Initialize database
+const sql = neon(ENV.dbUrl);
+
+// CORS configuration
+const CORS_HEADERS = {
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Allow-Origin': ENV.isProd 
+    ? `https://${ENV.domain}` 
+    : `http://${ENV.domain}:3000`,
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+  'Access-Control-Max-Age': '86400'
+};
+
+// Cookie configuration
 const getCookieOptions = () => ({
   httpOnly: true,
-  secure: isProduction,
+  secure: ENV.isProd,
   sameSite: 'lax' as const,
   path: '/',
-  domain: isProduction ? `.${PRODUCTION_DOMAIN}` : undefined, // Note the dot prefix for production
+  domain: ENV.isProd ? `.${ENV.domain}` : undefined,
   maxAge: 86400 // 24 hours
 });
 
 // Helper functions
-const sanitizeUser = (user: any): User => ({
-  id: user.id,
-  email: user.email,
-});
-
 const createResponse = (data: any, status: number = 200): NextResponse => {
   const response = NextResponse.json(data, { 
     status,
@@ -93,15 +70,23 @@ const createResponse = (data: any, status: number = 200): NextResponse => {
   return response;
 };
 
+const sanitizeUser = (user: any): User => ({
+  id: user.id,
+  email: user.email
+});
+
 // Route handlers
 export async function POST(request: NextRequest) {
-  logger.info('Processing login request');
+  logger.debug('Processing login request', {
+    headers: Object.fromEntries(request.headers.entries())
+  });
 
   try {
     const body = await request.json();
     const { email, password } = body;
 
-    // Validate inputs
+    logger.debug('Login attempt', { email });
+
     if (!email || !password) {
       return createResponse({ 
         success: false, 
@@ -109,7 +94,6 @@ export async function POST(request: NextRequest) {
       }, 400);
     }
 
-    // Query database
     const users = await sql<any[]>`
       SELECT * FROM admin_users 
       WHERE email = ${email.toLowerCase().trim()}
@@ -123,7 +107,6 @@ export async function POST(request: NextRequest) {
       }, 401);
     }
 
-    // Verify password
     const validPassword = await argon2.verify(users[0].password_hash, password);
     if (!validPassword) {
       logger.info('Login failed: Invalid password', { email });
@@ -133,26 +116,25 @@ export async function POST(request: NextRequest) {
       }, 401);
     }
 
-    // Generate JWT
     const token = jwt.sign(
       { 
         userId: users[0].id, 
         email: users[0].email,
         iat: Math.floor(Date.now() / 1000)
       },
-      JWT_SECRET,
+      ENV.jwtSecret,
       { expiresIn: '24h' }
     );
 
-    // Create success response
     const response = createResponse({
       success: true,
       message: 'Login successful',
       user: sanitizeUser(users[0])
     });
 
-    // Set auth cookies
     const cookieOptions = getCookieOptions();
+    logger.debug('Setting cookies with options', cookieOptions);
+    
     response.cookies.set('auth-token', token, cookieOptions);
     response.cookies.set('admin', 'true', cookieOptions);
 
@@ -169,10 +151,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  logger.info('Checking authentication status');
+  logger.debug('Checking authentication status');
 
   try {
     const authToken = request.cookies.get('auth-token');
+    logger.debug('Auth token present:', !!authToken);
 
     if (!authToken?.value) {
       return createResponse({ 
@@ -182,7 +165,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const decoded = jwt.verify(authToken.value, JWT_SECRET) as {
+      const decoded = jwt.verify(authToken.value, ENV.jwtSecret) as {
         userId: string;
         email: string;
       };
@@ -203,7 +186,6 @@ export async function GET(request: NextRequest) {
         message: 'Invalid token' 
       }, 401);
 
-      // Clear invalid cookies
       const cookieOptions = getCookieOptions();
       response.cookies.set('auth-token', '', { ...cookieOptions, maxAge: 0 });
       response.cookies.set('admin', '', { ...cookieOptions, maxAge: 0 });
@@ -221,7 +203,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  logger.info('Processing logout request');
+  logger.debug('Processing logout request');
 
   try {
     const response = createResponse({
@@ -229,11 +211,11 @@ export async function DELETE(request: NextRequest) {
       message: 'Logout successful'
     });
 
-    // Clear cookies
     const cookieOptions = getCookieOptions();
     response.cookies.set('auth-token', '', { ...cookieOptions, maxAge: 0 });
     response.cookies.set('admin', '', { ...cookieOptions, maxAge: 0 });
 
+    logger.info('Logout successful');
     return response;
 
   } catch (error) {
@@ -246,6 +228,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function OPTIONS() {
+  logger.debug('Handling OPTIONS request');
   return new NextResponse(null, {
     status: 200,
     headers: CORS_HEADERS
