@@ -1,10 +1,11 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createClient } from '@vercel/edge-config';
 
-// Create Edge Config client
-const edge = createClient(process.env.EDGE_CONFIG!);
+// Create Edge Config client - make sure to handle undefined case
+const edge = process.env.EDGE_CONFIG 
+  ? createClient(process.env.EDGE_CONFIG)
+  : null;
 
 export const config = {
   matcher: [
@@ -21,6 +22,9 @@ export async function middleware(request: NextRequest) {
   // Handle welcome route with edge config
   if (path === '/welcome') {
     try {
+      if (!edge) {
+        throw new Error('Edge config not initialized');
+      }
       const greeting = await edge.get('greeting');
       return NextResponse.json(
         { greeting },
@@ -54,7 +58,8 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      // You can add additional token validation here if needed
+      // Additional token validation can be added here
+      // You could call verifyAuth() from lib/auth.ts
       return NextResponse.next();
     } catch (error) {
       console.error('Auth validation error:', error);

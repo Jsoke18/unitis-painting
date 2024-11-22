@@ -1,7 +1,13 @@
-// lib/auth.ts
 import { jwtVerify } from 'jose';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { Loading } from './components/Loading';
 
 export async function verifyAuth(token: string) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured');
+  }
+
   try {
     const verified = await jwtVerify(
       token,
@@ -13,15 +19,17 @@ export async function verifyAuth(token: string) {
   }
 }
 
-// Optional: Client-side auth check
-export function checkAuth() {
+export function checkAuth(): boolean {
+  if (typeof window === 'undefined') return false;
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
   return isAuthenticated;
 }
 
-// Optional: HOC to protect client components
-export function withAuth(Component: React.ComponentType) {
-  return function ProtectedRoute(props: any) {
+// Fixed HOC typing
+export function withAuth<T extends React.ComponentType<any>>(
+  WrappedComponent: T
+): React.FC<React.ComponentProps<T>> {
+  return function ProtectedRoute(props: React.ComponentProps<T>) {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
 
@@ -32,12 +40,12 @@ export function withAuth(Component: React.ComponentType) {
       } else {
         setLoading(false);
       }
-    }, []);
+    }, [router]);
 
     if (loading) {
-      return <div>Loading...</div>; // Or your loading component
+      return <Loading />;
     }
 
-    return <Component {...props} />;
+    return <WrappedComponent {...props} />;
   };
 }
