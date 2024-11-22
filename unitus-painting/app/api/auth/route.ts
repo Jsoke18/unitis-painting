@@ -10,6 +10,18 @@ interface User {
   email: string;
 }
 
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  user?: User;
+}
+
+interface AuthCheckResponse {
+  success: boolean;
+  message: string;
+  user?: User;
+}
+
 // Enhanced logging
 const logger = {
   info: (message: string, data?: any) => {
@@ -29,13 +41,28 @@ const logger = {
   }
 };
 
-// Environment and configuration
+// Environment configuration
 const ENV = {
   isProd: process.env.NODE_ENV === 'production',
-  domain: process.env.NODE_ENV === 'production' ? 'unituspainting.com' : 'localhost',
+  baseDomain: 'unituspainting.com',
+  get domain() {
+    return this.isProd ? `www.${this.baseDomain}` : 'localhost';
+  },
+  get origin() {
+    return this.isProd 
+      ? `https://www.${this.baseDomain}`
+      : 'http://localhost:3000';
+  },
+  get apiUrl() {
+    return `${this.origin}/api`;
+  },
   jwtSecret: process.env.JWT_SECRET!,
   dbUrl: process.env.DATABASE_URL!
 };
+
+// Validate required environment variables
+if (!ENV.jwtSecret) throw new Error('JWT_SECRET is not defined');
+if (!ENV.dbUrl) throw new Error('DATABASE_URL is not defined');
 
 // Initialize database
 const sql = neon(ENV.dbUrl);
@@ -43,9 +70,7 @@ const sql = neon(ENV.dbUrl);
 // CORS configuration
 const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Origin': ENV.isProd 
-    ? `https://${ENV.domain}` 
-    : `http://${ENV.domain}:3000`,
+  'Access-Control-Allow-Origin': ENV.origin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
   'Access-Control-Max-Age': '86400'
@@ -57,7 +82,7 @@ const getCookieOptions = () => ({
   secure: ENV.isProd,
   sameSite: 'lax' as const,
   path: '/',
-  domain: ENV.isProd ? `.${ENV.domain}` : undefined,
+  domain: ENV.isProd ? `.${ENV.baseDomain}` : undefined,
   maxAge: 86400 // 24 hours
 });
 
@@ -75,8 +100,23 @@ const sanitizeUser = (user: any): User => ({
   email: user.email
 });
 
+const verifyDomain = (request: NextRequest): NextResponse | null => {
+  if (!ENV.isProd) return null;
+
+  const host = request.headers.get('host');
+  if (host && !host.startsWith('www.')) {
+    const url = new URL(request.url);
+    url.host = ENV.domain;
+    return NextResponse.redirect(url, { status: 308 });
+  }
+  return null;
+};
+
 // Route handlers
 export async function POST(request: NextRequest) {
+  const domainRedirect = verifyDomain(request);
+  if (domainRedirect) return domainRedirect;
+
   logger.debug('Processing login request', {
     headers: Object.fromEntries(request.headers.entries())
   });
@@ -151,6 +191,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const domainRedirect = verifyDomain(request);
+  if (domainRedirect) return domainRedirect;
+
   logger.debug('Checking authentication status');
 
   try {
@@ -203,6 +246,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const domainRedirect = verifyDomain(request);
+  if (domainRedirect) return domainRedirect;
+
   logger.debug('Processing logout request');
 
   try {
@@ -227,7 +273,10 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  const domainRedirect = verifyDomain(request);
+  if (domainRedirect) return domainRedirect;
+
   logger.debug('Handling OPTIONS request');
   return new NextResponse(null, {
     status: 200,

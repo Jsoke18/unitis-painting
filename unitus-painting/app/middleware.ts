@@ -21,6 +21,20 @@ const logger = {
   }
 };
 
+// Environment configuration
+const ENV = {
+  isProd: process.env.NODE_ENV === 'production',
+  baseDomain: 'unituspainting.com',
+  get domain() {
+    return this.isProd ? `www.${this.baseDomain}` : 'localhost';
+  },
+  get origin() {
+    return this.isProd 
+      ? `https://www.${this.baseDomain}`
+      : 'http://localhost:3000';
+  }
+};
+
 // Path exclusion patterns
 const EXCLUDED_PATHS = new Set([
   '/api/',
@@ -29,32 +43,48 @@ const EXCLUDED_PATHS = new Set([
   '/_vercel/',
   '/favicon.ico',
   '/robots.txt',
-  '/sitemap.xml'
+  '/sitemap.xml',
+  '/manifest.json',
+  '/.well-known/'
 ]);
 
-// Helper function to check if a path should be excluded
+// Helper functions
 function isExcludedPath(path: string): boolean {
   return Array.from(EXCLUDED_PATHS).some(excluded => path.startsWith(excluded));
 }
 
-// Helper function to check if path is an admin route
 function isAdminRoute(path: string): boolean {
   return path.startsWith('/admin');
 }
 
-// Helper function to get login URL
 function getLoginUrl(request: NextRequest): URL {
   const loginUrl = new URL('/admin/login', request.url);
   loginUrl.searchParams.set('from', request.nextUrl.pathname);
   return loginUrl;
 }
 
-// Helper function to get admin dashboard URL
 function getAdminUrl(request: NextRequest): URL {
   return new URL('/admin', request.url);
 }
 
-// Helper function to handle admin access
+function handleDomainRedirect(request: NextRequest): NextResponse | null {
+  if (!ENV.isProd) return null;
+
+  const url = request.nextUrl.clone();
+  const hostname = request.headers.get('host');
+
+  if (hostname && !hostname.startsWith('www.')) {
+    url.host = ENV.domain;
+    logger.debug('Redirecting to www domain', {
+      from: hostname,
+      to: url.host
+    });
+    return NextResponse.redirect(url, { status: 308 });
+  }
+
+  return null;
+}
+
 function handleAdminAccess(request: NextRequest) {
   const authToken = request.cookies.get('auth-token');
   const isLoginPage = request.nextUrl.pathname === '/admin/login';
@@ -83,6 +113,7 @@ function handleAdminAccess(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Main middleware function
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
@@ -94,6 +125,10 @@ export async function middleware(request: NextRequest) {
       host: request.headers.get('host'),
       userAgent: request.headers.get('user-agent')
     });
+
+    // Handle www redirect first
+    const domainRedirect = handleDomainRedirect(request);
+    if (domainRedirect) return domainRedirect;
 
     // Skip middleware for excluded paths
     if (isExcludedPath(pathname)) {
