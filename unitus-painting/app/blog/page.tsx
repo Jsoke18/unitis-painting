@@ -8,6 +8,7 @@ import { Search, ChevronUp, Loader2 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import Link from "next/link";
+import Image from "next/image";
 import debounce from "lodash/debounce";
 
 // Types
@@ -28,6 +29,65 @@ interface BlogData {
   posts: BlogPost[];
   categories: string[];
 }
+
+// Image dimensions
+const IMAGE_ASPECT_RATIO = 16 / 9;
+const IMAGE_HEIGHT = 240; // Fixed height in pixels
+const IMAGE_WIDTH = IMAGE_HEIGHT * IMAGE_ASPECT_RATIO;
+
+// Reusable Blog Card Component
+const BlogCard = ({ post }: { post: BlogPost }) => (
+  <Link href={`/blog/${post.id}`}>
+    <Card className="h-full hover:shadow-xl transition-shadow duration-300 overflow-hidden group cursor-pointer">
+      {/* Regular img tag for Google Cloud Storage images */}
+      <div 
+        className="relative w-full overflow-hidden"
+        style={{ height: '240px' }} // Fixed height
+      >
+        <img
+          src={post.image}
+          alt={post.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+        />
+      </div>
+      <CardContent className="p-6">
+        {/* Rest of the card content remains the same */}
+        <div className="flex items-center gap-4 mb-4">
+          <span className="text-sm text-gray-500">
+            {new Date(post.date).toLocaleDateString()}
+          </span>
+          <span className="text-sm text-gray-500">•</span>
+          <span className="text-sm text-gray-500">{post.readTime}</span>
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-800 transition-colors duration-200">
+          {post.title}
+        </h2>
+        <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
+        <div className="flex items-center justify-between mt-4">
+          <span className="inline-block px-3 py-1 bg-blue-50 text-blue-800 text-sm font-medium rounded-full">
+            {post.category}
+          </span>
+          <span className="text-yellow-500 font-medium group-hover:text-yellow-600 transition-colors duration-200">
+            Read More →
+          </span>
+        </div>
+        {post.tags && post.tags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <span 
+                key={tag}
+                className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  </Link>
+);
 
 const BlogPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -121,7 +181,6 @@ const BlogPage = () => {
     }
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -134,7 +193,6 @@ const BlogPage = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -240,50 +298,7 @@ const BlogPage = () => {
                   animate="visible"
                   exit={{ opacity: 0, scale: 0.9 }}
                 >
-                  <Link href={`/blog/${post.id}`}>
-                    <Card className="h-full hover:shadow-xl transition-shadow duration-300 overflow-hidden group cursor-pointer">
-                      <div className="aspect-w-16 aspect-h-9 overflow-hidden">
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-4 mb-4">
-                          <span className="text-sm text-gray-500">
-                            {new Date(post.date).toLocaleDateString()}
-                          </span>
-                          <span className="text-sm text-gray-500">•</span>
-                          <span className="text-sm text-gray-500">{post.readTime}</span>
-                        </div>
-                        <h2 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-800 transition-colors duration-200">
-                          {post.title}
-                        </h2>
-                        <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
-                        <div className="flex items-center justify-between mt-4">
-                          <span className="inline-block px-3 py-1 bg-blue-50 text-blue-800 text-sm font-medium rounded-full">
-                            {post.category}
-                          </span>
-                          <span className="text-yellow-500 font-medium group-hover:text-yellow-600 transition-colors duration-200">
-                            Read More →
-                          </span>
-                        </div>
-                        {post.tags && post.tags.length > 0 && (
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {post.tags.map((tag) => (
-                              <span 
-                                key={tag}
-                                className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-                              >
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <BlogCard post={post} />
                 </motion.div>
               ))
             ) : (
