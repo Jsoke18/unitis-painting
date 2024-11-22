@@ -45,6 +45,12 @@ const menuItems: MenuItem[] = [
     href: "/admin/areas-served",
   },
   {
+    key: "contact",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Contact",
+    href: "/admin/contact",
+  },
+  {
     key: "about",
     icon: <LayoutIcon className="w-4 h-4" />,
     label: "Update About",

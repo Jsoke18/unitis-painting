@@ -22,7 +22,9 @@
     "init-reviews": "ts-node scripts/init-reviews.ts",
     "init-blogs": "ts-node scripts/init-blog.ts",
     "init-warranty": "ts-node scripts/init-warranty-data.ts",
-    "init-areas": "ts-node scripts/init-areas-served.ts"
+    "init-areas": "ts-node scripts/init-areas-served.ts",
+    "init-contact": "ts-node scripts/init-contact.ts"
+
 
   },
   "prisma": {
