@@ -53,14 +53,16 @@ const initialFormData: FormData = {
 
 const defaultPageContent: PageContent = {
   pageTitle: "Get in Touch",
-  pageDescription: "Have a question or ready to transform your space? We're here to help!",
+  pageDescription:
+    "Have a question or ready to transform your space? We're here to help!",
   openingHours: "8:00 am - 5:00 pm",
-  contactInfo: []
+  contactInfo: [],
 };
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [pageContent, setPageContent] = useState<PageContent>(defaultPageContent);
+  const [pageContent, setPageContent] =
+    useState<PageContent>(defaultPageContent);
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -73,19 +75,19 @@ const ContactPage: React.FC = () => {
 
   const fetchPageContent = async () => {
     try {
-      const response = await fetch('/api/contact');
+      const response = await fetch("/api/contact");
       if (!response.ok) {
-        throw new Error('Failed to fetch contact page content');
+        throw new Error("Failed to fetch contact page content");
       }
       const data = await response.json();
       setPageContent({
         pageTitle: data.pageTitle,
         pageDescription: data.pageDescription,
         openingHours: data.openingHours,
-        contactInfo: data.contactInfo || []
+        contactInfo: data.contactInfo || [],
       });
     } catch (error) {
-      console.error('Error fetching page content:', error);
+      console.error("Error fetching page content:", error);
       toast({
         title: "Error Loading Content",
         description: "Please refresh the page or try again later.",
@@ -192,13 +194,13 @@ const ContactPage: React.FC = () => {
   };
 
   const getContactInfoByType = (type: string): ContactInfo | undefined => {
-    return pageContent.contactInfo.find(info => info.infoType === type);
+    return pageContent.contactInfo.find((info) => info.infoType === type);
   };
 
   const renderContactInfo = () => {
-    const phone = getContactInfoByType('phone');
-    const headOffice = getContactInfoByType('head_office');
-    const calgaryOffice = getContactInfoByType('calgary_office');
+    const phone = getContactInfoByType("phone");
+    const headOffice = getContactInfoByType("head_office");
+    const calgaryOffice = getContactInfoByType("calgary_office");
 
     return [
       {
@@ -238,7 +240,7 @@ const ContactPage: React.FC = () => {
           </div>
         ),
       },
-    ].filter(info => info.content); // Only show info that exists
+    ].filter((info) => info.content); // Only show info that exists
   };
 
   if (loading) {
@@ -306,9 +308,19 @@ const ContactPage: React.FC = () => {
                             onChange={handleChange}
                             placeholder={field.placeholder}
                             className={`border-gray-300 focus:ring-2 focus:ring-navy-blue focus:border-transparent
-                              ${errors[field.name as keyof FormData] ? "border-red-500" : ""}`}
-                            aria-invalid={!!errors[field.name as keyof FormData]}
-                            aria-describedby={errors[field.name as keyof FormData] ? `${field.name}-error` : undefined}
+                              ${
+                                errors[field.name as keyof FormData]
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
+                            aria-invalid={
+                              !!errors[field.name as keyof FormData]
+                            }
+                            aria-describedby={
+                              errors[field.name as keyof FormData]
+                                ? `${field.name}-error`
+                                : undefined
+                            }
                           />
                           <AnimatePresence>
                             {errors[field.name as keyof FormData] && (
@@ -356,9 +368,17 @@ const ContactPage: React.FC = () => {
                           onChange={handleChange}
                           placeholder={field.placeholder}
                           className={`border-gray-300 focus:ring-2 focus:ring-navy-blue focus:border-transparent
-                            ${errors[field.name as keyof FormData] ? "border-red-500" : ""}`}
+                            ${
+                              errors[field.name as keyof FormData]
+                                ? "border-red-500"
+                                : ""
+                            }`}
                           aria-invalid={!!errors[field.name as keyof FormData]}
-                          aria-describedby={errors[field.name as keyof FormData] ? `${field.name}-error` : undefined}
+                          aria-describedby={
+                            errors[field.name as keyof FormData]
+                              ? `${field.name}-error`
+                              : undefined
+                          }
                         />
                         <AnimatePresence>
                           {errors[field.name as keyof FormData] && (
@@ -392,7 +412,9 @@ const ContactPage: React.FC = () => {
                         className={`border-gray-300 focus:ring-2 focus:ring-navy-blue focus:border-transparent min-h-[120px]
                           ${errors.message ? "border-red-500" : ""}`}
                         aria-invalid={!!errors.message}
-                        aria-describedby={errors.message ? "message-error" : undefined}
+                        aria-describedby={
+                          errors.message ? "message-error" : undefined
+                        }
                       />
                       <AnimatePresence>
                         {errors.message && (
@@ -405,13 +427,13 @@ const ContactPage: React.FC = () => {
                           >
                             {errors.message}
                           </motion.p>
- )}
- </AnimatePresence>
-</div>
+                        )}
+                      </AnimatePresence>
+                    </div>
 
-<Button
- type="submit"
- className={`w-full transition-all duration-300 text-lg font-semibold py-3 rounded-full
+                    <Button
+                      type="submit"
+                      className={`w-full transition-all duration-300 text-lg font-semibold py-3 rounded-full
    flex items-center justify-center space-x-2
    ${
      submitted
@@ -419,77 +441,79 @@ const ContactPage: React.FC = () => {
        : "bg-amber-400 hover:bg-amber-500"
    } 
    text-navy-blue`}
- disabled={isSubmitting || submitted}
->
- {isSubmitting ? (
-   <>
-     <Loader2 className="animate-spin mr-2" size={20} />
-     <span>Sending...</span>
-   </>
- ) : submitted ? (
-   <>
-     <CheckCircle size={20} className="mr-2" />
-     <span>Sent Successfully!</span>
-   </>
- ) : (
-   <>
-     <span>Send Message</span>
-     <Send size={20} className="ml-2" />
-   </>
- )}
-</Button>
-</form>
-</motion.div>
+                      disabled={isSubmitting || submitted}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="animate-spin mr-2" size={20} />
+                          <span>Sending...</span>
+                        </>
+                      ) : submitted ? (
+                        <>
+                          <CheckCircle size={20} className="mr-2" />
+                          <span>Sent Successfully!</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Send Message</span>
+                          <Send size={20} className="ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </motion.div>
 
-<motion.div
-className="space-y-8"
-initial={{ opacity: 0, x: 20 }}
-animate={{ opacity: 1, x: 0 }}
-transition={{ delay: 0.4 }}
->
-<div>
-<h3 className="text-xl font-semibold text-navy-blue mb-6">
- Contact Information
-</h3>
-<div className="space-y-6">
- {renderContactInfo().map((info) => (
-   <motion.div
-     key={info.title}
-     className="flex items-start p-4 rounded-lg hover:bg-gray-50 transition-colors duration-300"
-     whileHover={{ x: 5 }}
-     transition={{ type: "spring", stiffness: 300 }}
-   >
-     <div className="mr-4 mt-1">{info.icon}</div>
-     <div>
-       <h4 className="font-medium text-gray-900 mb-1">
-         {info.title}
-       </h4>
-       {info.content}
-     </div>
-   </motion.div>
- ))}
-</div>
-</div>
+                <motion.div
+                  className="space-y-8"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div>
+                    <h3 className="text-xl font-semibold text-navy-blue mb-6">
+                      Contact Information
+                    </h3>
+                    <div className="space-y-6">
+                      {renderContactInfo().map((info) => (
+                        <motion.div
+                          key={info.title}
+                          className="flex items-start p-4 rounded-lg hover:bg-gray-50 transition-colors duration-300"
+                          whileHover={{ x: 5 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <div className="mr-4 mt-1">{info.icon}</div>
+                          <div>
+                            <h4 className="font-medium text-gray-900 mb-1">
+                              {info.title}
+                            </h4>
+                            {info.content}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
 
-{/* Operating Hours */}
-<div className="mt-8">
-<h3 className="text-xl font-semibold text-navy-blue mb-4">
- Operating Hours
-</h3>
-<div className="p-4 bg-gray-50 rounded-lg">
- <p className="text-gray-700">{pageContent.openingHours}</p>
-</div>
-</div>
-</motion.div>
-</div>
-</CardContent>
-</Card>
-</motion.div>
-</main>
+                  {/* Operating Hours */}
+                  <div className="mt-8">
+                    <h3 className="text-xl font-semibold text-navy-blue mb-4">
+                      Operating Hours
+                    </h3>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <p className="text-gray-700">
+                        {pageContent.openingHours}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </main>
 
-<Footer />
-</div>
-);
+      <Footer />
+    </div>
+  );
 };
 
 export default ContactPage;

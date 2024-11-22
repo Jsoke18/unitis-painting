@@ -23,9 +23,8 @@
     "init-blogs": "ts-node scripts/init-blog.ts",
     "init-warranty": "ts-node scripts/init-warranty-data.ts",
     "init-areas": "ts-node scripts/init-areas-served.ts",
-    "init-contact": "ts-node scripts/init-contact.ts"
-
-
+    "init-contact": "ts-node scripts/init-contact.ts",
+    "init-auth": "ts-node scripts/init-auth.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -59,11 +58,14 @@
     "@vercel/edge-config": "^1.4.0",
     "@vercel/kv": "^3.0.0",
     "antd": "^5.21.6",
+    "argon2": "^0.41.1",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.11.9",
+    "jose": "^5.9.6",
+    "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.452.0",
     "mapbox-gl": "^3.7.0",

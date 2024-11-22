@@ -1,71 +1,54 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { createClient } from '@vercel/edge-config';
-
-// Define config for matching routes
-export const config = {
-  matcher: '/welcome'
-};
 
 // Create Edge Config client
 const edge = createClient(process.env.EDGE_CONFIG!);
 
-export async function middleware() {
-  try {
-    // Get greeting from Edge Config
-    const greeting = await edge.get('greeting');
-    
-    // Return JSON response
-    return NextResponse.json(
-      { greeting },
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store'
-        }
-      }
-    );
-  } catch (error) {
-    console.error('Edge Config error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch greeting' },
-      { status: 500 }
-    );
-  }
-}
-
-// next.config.js
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    allowMiddlewareResponseBody: true
-  }
+export const config = {
+  matcher: [
+    '/admin/:path*', // Admin routes
+    '/welcome',      // Edge config route
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ]
 };
 
-module.exports = nextConfig;
+export async function middleware(request: NextRequest) {
+  // Handle welcome route with edge config
+  if (request.nextUrl.pathname === '/welcome') {
+    try {
+      const greeting = await edge.get('greeting');
+      return NextResponse.json(
+        { greeting },
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store'
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Edge Config error:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch greeting' },
+        { status: 500 }
+      );
+    }
+  }
 
-// .env.local
-EDGE_CONFIG="your_edge_config_url_here"
+  // Handle admin routes authentication
+  if (request.nextUrl.pathname.startsWith('/admin') && 
+      !request.nextUrl.pathname.startsWith('/api')) {
+    const isAdmin = request.cookies.get('admin')?.value === 'true';
+    
+    if (!isAdmin) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('from', request.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
 
-// app/welcome/page.tsx
-'use client';
-
-import { useEffect, useState } from 'react';
-
-export default function WelcomePage() {
-  const [greeting, setGreeting] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch('/welcome')
-      .then(res => res.json())
-      .then(data => setGreeting(data.greeting))
-      .catch(err => setError(err.message));
-  }, []);
-
-  if (error) return <div>Error: {error}</div>;
-  if (!greeting) return <div>Loading...</div>;
-
-  return <div>{greeting}</div>;
+  return NextResponse.next();
 }

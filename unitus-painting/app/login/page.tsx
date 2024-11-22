@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,14 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Check if already logged in
+  useEffect(() => {
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    if (isAuthenticated) {
+      router.push('/admin/');
+    }
+  }, [router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -31,19 +39,25 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (data.success) {
-        // Store the token
-        document.cookie = `auth-token=${data.token}; path=/`;
         localStorage.setItem('isAuthenticated', 'true');
-        
         toast.success('Logged in successfully');
-        router.push('/admin');
+        // Ensure the redirect includes the trailing slash
+        router.push('/admin/');
       } else {
         toast.error(data.message || 'Invalid credentials');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast.error('An error occurred during login');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to handle the enter key
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleLogin(e);
     }
   };
 
@@ -67,6 +81,7 @@ const LoginPage = () => {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyPress={handleKeyPress}
                 required
                 className="w-full"
               />
@@ -83,6 +98,7 @@ const LoginPage = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   required
                   className="w-full pr-10"
                 />

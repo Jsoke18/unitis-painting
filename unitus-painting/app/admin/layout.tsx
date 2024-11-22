@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from "antd";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const { Header, Sider, Content } = Layout;
 
@@ -27,10 +28,16 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   {
+    key: "Home",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Home",
+    href: "/admin/home",
+  },
+  {
     key: "Blog",
     icon: <LayoutDashboard className="w-4 h-4" />,
     label: "Blog Management",
-    href: "/admin",
+    href: "/admin/blogs",
   },
   {
     key: "projects",
@@ -78,12 +85,6 @@ const menuItems: MenuItem[] = [
         icon: <MessageSquare className="w-4 h-4" />,
         label: "Company History",
         href: "/admin/history",
-      },
-      {
-        key: "our-approach",
-        icon: <MessageSquare className="w-4 h-4" />,
-        label: "Our Approach",
-        href: "/admin/our-approach",
       },
       {
         key: "our-approach",
@@ -142,24 +143,6 @@ const menuItems: MenuItem[] = [
       },
     ],
   },
-  {
-    key: "users",
-    icon: <Users className="w-4 h-4" />,
-    label: "Users",
-    href: "/admin/users",
-  },
-];
-
-const userMenuItems = [
-  {
-    key: "profile",
-    label: "Profile",
-  },
-  {
-    key: "logout",
-    label: "Logout",
-    danger: true,
-  },
 ];
 
 export default function AdminLayout({
@@ -169,9 +152,48 @@ export default function AdminLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Clear authentication state
+        localStorage.removeItem('isAuthenticated');
+        toast.success('Logged out successfully');
+        router.push('/login');
+      } else {
+        toast.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('An error occurred during logout');
+    }
+  };
+
+  const handleMenuClick = async ({ key }: { key: string }) => {
+    if (key === 'logout') {
+      await handleLogout();
+    }
+  };
+
+  const userMenuItems = [
+    {
+      key: "profile",
+      label: "Profile",
+    },
+    {
+      key: "logout",
+      label: "Logout",
+      danger: true,
+    },
+  ];
 
   const transformMenuItem = (item: MenuItem) => {
     const menuItem: any = {
@@ -200,14 +222,14 @@ export default function AdminLayout({
         className="border-r border-gray-200"
         style={{ 
           background: colorBgContainer,
-          width: collapsed ? 80 : 320,          // Increased from 280 to 320
-          minWidth: collapsed ? 80 : 320,       // Increased min width
-          maxWidth: collapsed ? 80 : 320,       // Increased max width
-          flex: '0 0 320px'                     // Increased flex basis
+          width: collapsed ? 80 : 320,
+          minWidth: collapsed ? 80 : 320,
+          maxWidth: collapsed ? 80 : 320,
+          flex: '0 0 320px'
         }}
       >
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
-          <Link href="/admin">
+          <Link href="/admin/home">
             <h1
               className={`text-xl font-bold transition-all duration-200 ${
                 collapsed ? "scale-0" : "scale-100"
@@ -220,14 +242,13 @@ export default function AdminLayout({
         <Menu
           mode="inline"
           selectedKeys={[pathname.split("/")[2] || "dashboard"]}
-          defaultOpenKeys={['about', 'landing']} // Auto-expand these sections
+          defaultOpenKeys={['about', 'landing']}
           items={menuItems.map(transformMenuItem)}
           className="border-none"
           style={{
             fontSize: '14px',
             width: '100%'
           }}
-          // Added padding to menu items
           itemStyle={{ padding: '0 24px 0 16px' }}
         />
       </Sider>
@@ -245,7 +266,13 @@ export default function AdminLayout({
             onClick={() => setCollapsed(!collapsed)}
           />
           <div className="flex items-center gap-4">
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+            <Dropdown 
+              menu={{ 
+                items: userMenuItems,
+                onClick: handleMenuClick
+              }} 
+              placement="bottomRight"
+            >
               <Button type="text" className="flex items-center gap-2">
                 <Avatar
                   size="small"
