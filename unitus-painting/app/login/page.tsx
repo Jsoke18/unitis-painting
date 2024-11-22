@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Loading fallback component
 function LoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -17,7 +16,6 @@ function LoadingFallback() {
   );
 }
 
-// Login content component
 function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,17 +26,21 @@ function LoginContent() {
 
   React.useEffect(() => {
     const checkAuth = async () => {
+      console.log('Checking authentication status...');
       try {
         const response = await fetch('/api/auth', {
           method: 'GET',
         });
+        console.log('Auth check response status:', response.status);
+        console.log('Auth check response:', await response.clone().json());
 
         if (response.ok) {
           const from = searchParams.get('from') || '/admin';
+          console.log('User is authenticated, redirecting to:', from);
           router.push(from);
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('Auth check failed with error:', error);
       }
     };
 
@@ -48,8 +50,10 @@ function LoginContent() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('Attempting login with email:', email);
 
     try {
+      console.log('Sending login request to /api/auth...');
       const response = await fetch('/api/auth', {
         method: 'POST',
         headers: {
@@ -58,21 +62,27 @@ function LoginContent() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login response status:', response.status);
       const data = await response.json();
+      console.log('Login response data:', data);
 
       if (data.success) {
+        console.log('Login successful, setting authentication state');
         localStorage.setItem('isAuthenticated', 'true');
         toast.success('Logged in successfully');
         
         const from = searchParams.get('from') || '/admin';
+        console.log('Redirecting to:', from);
         router.push(from);
       } else {
+        console.error('Login failed:', data.message);
         toast.error(data.message || 'Invalid credentials');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login request failed with error:', error);
       toast.error('An error occurred during login');
     } finally {
+      console.log('Login attempt completed');
       setLoading(false);
     }
   };
@@ -146,7 +156,6 @@ function LoginContent() {
   );
 }
 
-// Main component with Suspense boundary
 export default function LoginPage() {
   return (
     <Suspense fallback={<LoadingFallback />}>
