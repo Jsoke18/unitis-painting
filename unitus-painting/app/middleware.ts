@@ -2,8 +2,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Enhanced logging setup
-const log = {
+// Enhanced logging
+const logger = {
   info: (message: string, data?: any) => {
     console.log(`[MIDDLEWARE] [INFO] ${message}`, data || '');
   },
@@ -13,21 +13,45 @@ const log = {
       message: error?.message,
       stack: error?.stack
     });
+  },
+  debug: (message: string, data?: any) => {
+    if (process.env.DEBUG === 'true') {
+      console.debug(`[MIDDLEWARE] [DEBUG] ${message}`, data || '');
+    }
   }
 };
 
-// Helper function to check if a path should be excluded from middleware
+// Path exclusion patterns
+const EXCLUDED_PATHS = new Set([
+  '/api/',
+  '/_next/',
+  '/static/',
+  '/_vercel/',
+  '/favicon.ico',
+  '/robots.txt',
+  '/sitemap.xml'
+]);
+
+// Helper function to check if a path should be excluded
 function isExcludedPath(path: string): boolean {
-  const excludedPaths = [
-    '/api/',
-    '/_next/',
-    '/static/',
-    '/_vercel/',
-    '/favicon.ico',
-    '/robots.txt',
-    '/sitemap.xml'
-  ];
-  return excludedPaths.some(excluded => path.startsWith(excluded));
+  return Array.from(EXCLUDED_PATHS).some(excluded => path.startsWith(excluded));
+}
+
+// Helper function to check if path is an admin route
+function isAdminRoute(path: string): boolean {
+  return path.startsWith('/admin');
+}
+
+// Helper function to get login URL
+function getLoginUrl(request: NextRequest): URL {
+  const loginUrl = new URL('/admin/login', request.url);
+  loginUrl.searchParams.set('from', request.nextUrl.pathname);
+  return loginUrl;
+}
+
+// Helper function to get admin dashboard URL
+function getAdminUrl(request: NextRequest): URL {
+  return new URL('/admin', request.url);
 }
 
 // Helper function to handle admin access
@@ -35,73 +59,72 @@ function handleAdminAccess(request: NextRequest) {
   const authToken = request.cookies.get('auth-token');
   const isLoginPage = request.nextUrl.pathname === '/admin/login';
 
-  log.info('Admin access check:', {
+  logger.debug('Admin access check:', {
     path: request.nextUrl.pathname,
     hasToken: !!authToken,
-    isLoginPage,
-    method: request.method
+    isLoginPage
   });
 
-  // Non-authenticated users must go to login
+  // Redirect to login if no auth token (except for login page)
   if (!authToken && !isLoginPage) {
-    const loginUrl = new URL('/admin/login', request.url);
-    loginUrl.searchParams.set('from', request.nextUrl.pathname);
-    log.info('Redirecting to login:', loginUrl.toString());
+    const loginUrl = getLoginUrl(request);
+    logger.info('Redirecting to login:', loginUrl.toString());
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated users trying to access login page go to admin
+  // Redirect to admin dashboard if already authenticated and trying to access login
   if (authToken && isLoginPage) {
-    const adminUrl = new URL('/admin', request.url);
-    log.info('Redirecting to admin dashboard:', adminUrl.toString());
+    const adminUrl = getAdminUrl(request);
+    logger.info('Redirecting to admin dashboard:', adminUrl.toString());
     return NextResponse.redirect(adminUrl);
   }
 
-  log.info('Admin access granted');
+  logger.info('Admin access granted');
   return NextResponse.next();
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
 
-    // Log all requests in production
-    log.info('Request received:', {
+    // Debug logging
+    logger.debug('Request received:', {
       path: pathname,
       method: request.method,
       host: request.headers.get('host'),
       userAgent: request.headers.get('user-agent')
     });
 
-    // Skip excluded paths
+    // Skip middleware for excluded paths
     if (isExcludedPath(pathname)) {
-      log.info('Skipping middleware for excluded path:', pathname);
+      logger.debug('Skipping middleware for excluded path:', pathname);
       return NextResponse.next();
     }
 
     // Handle admin routes
-    if (pathname.startsWith('/admin')) {
+    if (isAdminRoute(pathname)) {
       return handleAdminAccess(request);
     }
 
-    // All other routes pass through
+    // Allow all other routes
     return NextResponse.next();
 
   } catch (error) {
-    log.error('Middleware error:', error);
+    logger.error('Middleware error:', error);
     // In case of error, allow the request to proceed
     return NextResponse.next();
   }
 }
 
 export const config = {
-  /*
-   * Match:
-   * - /admin/* (all admin routes)
-   * - /((?!api/|_next/|_static/|_vercel|[\w-]+\.\w+).*) (everything except api, _next, etc)
-   */
   matcher: [
-    '/admin/:path*',
-    '/((?!api/|_next/|_static/|_vercel|[\\w-]+\\.\\w+).*)'
-  ]
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)'
+  ],
 };

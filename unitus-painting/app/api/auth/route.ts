@@ -3,9 +3,10 @@ import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import * as argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
+import { LoginResponse, AuthCheckResponse, User } from '@/types/auth';
 
 // Enhanced logging setup
-const log = {
+const logger = {
   info: (message: string, ...args: any[]) => {
     console.log(`[AUTH] [INFO] ${message}`, ...args);
   },
@@ -16,57 +17,64 @@ const log = {
       stack: error?.stack,
       cause: error?.cause
     });
+  },
+  debug: (message: string, ...args: any[]) => {
+    if (process.env.DEBUG === 'true') {
+      console.debug(`[AUTH] [DEBUG] ${message}`, ...args);
+    }
   }
 };
 
-// Initialize database and JWT configuration
-let sql: any;
-try {
-  sql = neon(process.env.DATABASE_URL!);
-  log.info('Database connection initialized');
-} catch (error) {
-  log.error('Database initialization failed', error);
-  throw new Error('Database initialization failed');
-}
+// Database initialization
+const initializeDatabase = () => {
+  try {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) {
+      throw new Error('DATABASE_URL is not defined');
+    }
+    return neon(dbUrl);
+  } catch (error) {
+    logger.error('Database initialization failed', error);
+    throw new Error('Database initialization failed');
+  }
+};
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const sql = initializeDatabase();
+
+// JWT configuration
+const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not defined');
 }
 
-// Helper function for CORS headers
+// CORS configuration
+const CORS_ORIGIN = process.env.NODE_ENV === 'production' 
+  ? 'https://unituspainting.com'
+  : 'http://localhost:3000';
+
 function getCorsHeaders() {
   return {
     'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production' 
-      ? 'https://www.unituspainting.com' 
-      : 'http://localhost:3000',
+    'Access-Control-Allow-Origin': CORS_ORIGIN,
     'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Max-Age': '86400',
   };
 }
 
-// Helper function to add CORS headers to response
 function addCorsHeaders(response: NextResponse) {
-  const corsHeaders = getCorsHeaders();
-  Object.entries(corsHeaders).forEach(([key, value]) => {
+  Object.entries(getCorsHeaders()).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
   return response;
 }
 
-// Cookie domain helper
-function getCookieDomain(request: Request) {
-  if (process.env.NODE_ENV !== 'production') return undefined;
-  
-  const host = request.headers.get('host') || '';
-  if (host.includes('unituspainting.com')) {
-    return '.unituspainting.com';
-  }
-  return undefined;
+// Cookie configuration
+function getCookieDomain(request: Request): string {
+  if (process.env.NODE_ENV !== 'production') return 'localhost';
+  return 'unituspainting.com';
 }
 
-// Cookie configuration
 function getCookieOptions(request: Request) {
   return {
     httpOnly: true,
@@ -77,28 +85,47 @@ function getCookieOptions(request: Request) {
   };
 }
 
-// Helper function to sanitize user object
-const sanitizeUser = (user: any) => ({
-  id: user.id,
-  email: user.email,
-});
+// User sanitization
+function sanitizeUser(user: any): User {
+  return {
+    id: user.id,
+    email: user.email,
+  };
+}
 
-// Debug helper
+// Request logging
 function logRequestInfo(request: Request) {
-  log.info('Request details:', {
+  logger.debug('Request details:', {
     method: request.method,
     url: request.url,
     headers: Object.fromEntries(request.headers.entries()),
-    cookies: request.headers.get('cookie'),
   });
+}
+
+// Error response helper
+function createErrorResponse(message: string, status: number): NextResponse {
+  const response = NextResponse.json(
+    { success: false, message },
+    { status }
+  );
+  return addCorsHeaders(response);
+}
+
+// Success response helper
+function createSuccessResponse(data: any, status = 200): NextResponse {
+  const response = NextResponse.json(
+    { success: true, ...data },
+    { status }
+  );
+  return addCorsHeaders(response);
 }
 
 /**
  * POST - Handle login
  */
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse<LoginResponse>> {
   logRequestInfo(request);
-  log.info('Processing login request');
+  logger.info('Processing login request');
 
   try {
     // Parse request body
@@ -106,50 +133,40 @@ export async function POST(request: Request) {
     try {
       body = await request.json();
     } catch (error) {
-      log.error('Failed to parse request body', error);
-      const response = NextResponse.json(
-        { success: false, message: 'Invalid request body' },
-        { status: 400 }
-      );
-      return addCorsHeaders(response);
+      logger.error('Failed to parse request body', error);
+      return createErrorResponse('Invalid request body', 400);
     }
 
     const { email, password } = body;
 
-    // Validate inputs
+    // Input validation
     if (!email || !password) {
-      const response = NextResponse.json(
-        { success: false, message: 'Email and password are required' },
-        { status: 400 }
-      );
-      return addCorsHeaders(response);
+      return createErrorResponse('Email and password are required', 400);
+    }
+
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return createErrorResponse('Invalid input types', 400);
     }
 
     // Query database
-    const users = await sql`
+    const users = await sql<any[]>`
       SELECT * FROM admin_users 
       WHERE email = ${email.toLowerCase().trim()}
     `;
 
     if (users.length === 0) {
-      const response = NextResponse.json(
-        { success: false, message: 'Invalid credentials' },
-        { status: 401 }
-      );
-      return addCorsHeaders(response);
+      logger.info('Login attempt failed: User not found', { email });
+      return createErrorResponse('Invalid credentials', 401);
     }
 
     // Verify password
     const validPassword = await argon2.verify(users[0].password_hash, password);
     if (!validPassword) {
-      const response = NextResponse.json(
-        { success: false, message: 'Invalid credentials' },
-        { status: 401 }
-      );
-      return addCorsHeaders(response);
+      logger.info('Login attempt failed: Invalid password', { email });
+      return createErrorResponse('Invalid credentials', 401);
     }
 
-    // Generate token
+    // Generate JWT
     const token = jwt.sign(
       {
         userId: users[0].id,
@@ -161,20 +178,16 @@ export async function POST(request: Request) {
     );
 
     // Create successful response
-    const response = NextResponse.json(
-      {
-        success: true,
-        message: 'Login successful',
-        user: sanitizeUser(users[0])
-      },
-      { status: 200 }
-    );
+    const response = createSuccessResponse({
+      message: 'Login successful',
+      user: sanitizeUser(users[0])
+    });
 
     // Set cookies
     const cookieOptions = getCookieOptions(request);
     response.cookies.set('auth-token', token, {
       ...cookieOptions,
-      maxAge: 86400 // 24 hours
+      maxAge: 86400
     });
 
     response.cookies.set('admin', 'true', {
@@ -182,34 +195,27 @@ export async function POST(request: Request) {
       maxAge: 86400
     });
 
-    return addCorsHeaders(response);
+    logger.info('Login successful', { email });
+    return response;
 
   } catch (error) {
-    log.error('Login error', error);
-    const response = NextResponse.json(
-      { success: false, message: 'Internal server error' },
-      { status: 500 }
-    );
-    return addCorsHeaders(response);
+    logger.error('Login error', error);
+    return createErrorResponse('Internal server error', 500);
   }
 }
 
 /**
  * GET - Check authentication status
  */
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse<AuthCheckResponse>> {
   logRequestInfo(request);
-  log.info('Checking authentication status');
+  logger.info('Checking authentication status');
 
   try {
     const authToken = request.cookies.get('auth-token');
 
     if (!authToken?.value) {
-      const response = NextResponse.json(
-        { success: false, message: 'Not authenticated' },
-        { status: 401 }
-      );
-      return addCorsHeaders(response);
+      return createErrorResponse('Not authenticated', 401);
     }
 
     try {
@@ -218,38 +224,29 @@ export async function GET(request: Request) {
         email: string;
       };
 
-      const response = NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: 'Authenticated',
         user: {
           id: decoded.userId,
           email: decoded.email,
         }
       });
-      return addCorsHeaders(response);
 
     } catch (error) {
-      log.error('Token verification failed', error);
-      const response = NextResponse.json(
-        { success: false, message: 'Invalid token' },
-        { status: 401 }
-      );
+      logger.error('Token verification failed', error);
+      const response = createErrorResponse('Invalid token', 401);
 
       // Clear invalid cookies
       const cookieOptions = getCookieOptions(request);
       response.cookies.set('auth-token', '', { ...cookieOptions, maxAge: 0 });
       response.cookies.set('admin', '', { ...cookieOptions, maxAge: 0 });
 
-      return addCorsHeaders(response);
+      return response;
     }
 
   } catch (error) {
-    log.error('Auth check error', error);
-    const response = NextResponse.json(
-      { success: false, message: 'Error checking authentication' },
-      { status: 500 }
-    );
-    return addCorsHeaders(response);
+    logger.error('Auth check error', error);
+    return createErrorResponse('Error checking authentication', 500);
   }
 }
 
@@ -258,11 +255,10 @@ export async function GET(request: Request) {
  */
 export async function DELETE(request: Request) {
   logRequestInfo(request);
-  log.info('Processing logout request');
+  logger.info('Processing logout request');
 
   try {
-    const response = NextResponse.json({
-      success: true,
+    const response = createSuccessResponse({
       message: 'Logout successful'
     });
 
@@ -270,15 +266,11 @@ export async function DELETE(request: Request) {
     response.cookies.set('auth-token', '', { ...cookieOptions, maxAge: 0 });
     response.cookies.set('admin', '', { ...cookieOptions, maxAge: 0 });
 
-    return addCorsHeaders(response);
+    return response;
 
   } catch (error) {
-    log.error('Logout error', error);
-    const response = NextResponse.json(
-      { success: false, message: 'Error during logout' },
-      { status: 500 }
-    );
-    return addCorsHeaders(response);
+    logger.error('Logout error', error);
+    return createErrorResponse('Error during logout', 500);
   }
 }
 
@@ -286,7 +278,7 @@ export async function DELETE(request: Request) {
  * OPTIONS - Handle CORS preflight
  */
 export async function OPTIONS(request: Request) {
-  log.info('Handling OPTIONS request');
+  logger.info('Handling OPTIONS request');
   return new NextResponse(null, {
     status: 200,
     headers: getCorsHeaders(),
