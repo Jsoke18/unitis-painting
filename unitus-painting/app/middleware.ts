@@ -26,7 +26,7 @@ const ENV = {
   isProd: process.env.NODE_ENV === 'production',
   baseDomain: 'unituspainting.com',
   get domain() {
-    return this.isProd ? `www.${this.baseDomain}` : 'localhost';
+    return this.isProd ? `www.${this.baseDomain}` : 'localhost:3000';
   },
   get origin() {
     return this.isProd 
@@ -58,13 +58,13 @@ function isAdminRoute(path: string): boolean {
 }
 
 function getLoginUrl(request: NextRequest): URL {
-  const loginUrl = new URL('/admin/login', request.url);
+  const loginUrl = new URL('/admin/login', ENV.origin);
   loginUrl.searchParams.set('from', request.nextUrl.pathname);
   return loginUrl;
 }
 
 function getAdminUrl(request: NextRequest): URL {
-  return new URL('/admin', request.url);
+  return new URL('/admin', ENV.origin);
 }
 
 function handleDomainRedirect(request: NextRequest): NextResponse | null {
@@ -92,7 +92,8 @@ function handleAdminAccess(request: NextRequest) {
   logger.debug('Admin access check:', {
     path: request.nextUrl.pathname,
     hasToken: !!authToken,
-    isLoginPage
+    isLoginPage,
+    environment: process.env.NODE_ENV
   });
 
   // Redirect to login if no auth token (except for login page)

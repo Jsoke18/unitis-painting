@@ -3,18 +3,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 
+// Environment configuration
+const ENV = {
+  isProd: process.env.NODE_ENV === 'production',
+  jwtSecret: process.env.JWT_SECRET || 'default-development-secret',
+  get domain() {
+    return this.isProd ? '.unituspainting.com' : '';
+  },
+  get origin() {
+    return this.isProd 
+      ? 'https://www.unituspainting.com'
+      : 'http://localhost:3000';
+  }
+};
+
 // Test user configuration
 const TEST_USER = {
   id: '1',
   email: 'admin@unitus.com',
   // Using SHA-256 hash of 'admin123' for comparison
   passwordHash: createHash('sha256').update('admin123').digest('hex')
-};
-
-// Environment configuration
-const ENV = {
-  isProd: process.env.NODE_ENV === 'production',
-  jwtSecret: process.env.JWT_SECRET || 'default-development-secret'
 };
 
 // Helper function for password hashing
@@ -25,7 +33,7 @@ const hashPassword = (password: string) => {
 // CORS headers configuration
 const CORS_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Origin': 'https://www.unituspainting.com',
+  'Access-Control-Allow-Origin': ENV.origin,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
 };
@@ -33,10 +41,10 @@ const CORS_HEADERS = {
 // Cookie configuration
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: true,
+  secure: ENV.isProd, // Only true in production
   sameSite: 'lax' as const,
   path: '/',
-  domain: '.unituspainting.com',
+  ...(ENV.isProd && { domain: ENV.domain }), // Only set domain in production
   maxAge: 86400 // 24 hours
 };
 

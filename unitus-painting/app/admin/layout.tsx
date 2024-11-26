@@ -6,11 +6,12 @@ import {
   FileEdit,
   Users,
   Settings,
-  MenuIcon,
   Bell,
   User,
   MessageSquare,
   Layout as LayoutIcon,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Layout, Menu, Button, theme, Dropdown, Badge, Avatar } from "antd";
 import Link from "next/link";
@@ -249,55 +250,58 @@ export default function AdminLayout({
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        className="border-r border-gray-200"
-        style={{ 
-          background: colorBgContainer,
-          width: collapsed ? 80 : 320,
-          minWidth: collapsed ? 80 : 320,
-          maxWidth: collapsed ? 80 : 320,
-          flex: '0 0 320px'
-        }}
-      >
-        <div className="p-4 flex items-center justify-between border-b border-gray-200">
-          <Link href="/admin">
-            <h1
-              className={`text-xl font-bold transition-all duration-200 ${
-                collapsed ? "scale-0" : "scale-100"
-              }`}
-            >
-              Admin CMS
-            </h1>
-          </Link>
-        </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[pathname.split("/")[2] || "dashboard"]}
-          defaultOpenKeys={['about', 'landing']}
-          items={menuItems.map(transformMenuItem)}
-          className="border-none"
-          style={{
-            fontSize: '14px',
-            width: '100%'
+      <div className="relative">
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          className="border-r border-gray-200 min-h-screen"
+          style={{ 
+            background: colorBgContainer,
+            width: collapsed ? 80 : 320,
+            minWidth: collapsed ? 80 : 320,
+            maxWidth: collapsed ? 80 : 320,
+            flex: '0 0 320px'
           }}
+        >
+          <div className="p-4 flex items-center justify-between border-b border-gray-200">
+            <Link href="/admin">
+              <h1
+                className={`text-xl font-bold transition-all duration-200 ${
+                  collapsed ? "scale-0" : "scale-100"
+                }`}
+              >
+                Admin CMS
+              </h1>
+            </Link>
+          </div>
+          <Menu
+            mode="inline"
+            selectedKeys={[pathname.split("/")[2] || "dashboard"]}
+            defaultOpenKeys={['about', 'landing']}
+            items={menuItems.map(transformMenuItem)}
+            className="border-none"
+            style={{
+              fontSize: '14px',
+              width: '100%'
+            }}
+          />
+        </Sider>
+        <Button
+          type="text"
+          icon={collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-4 top-1/2 transform -translate-y-1/2 bg-white border shadow-md rounded-full w-8 h-8 flex items-center justify-center z-10"
         />
-      </Sider>
+      </div>
       <Layout>
         <Header
           style={{
             padding: "0 24px",
             background: colorBgContainer,
           }}
-          className="flex items-center justify-between border-b border-gray-200"
+          className="flex items-center justify-end border-b border-gray-200"
         >
-          <Button
-            type="text"
-            icon={<MenuIcon className="w-4 h-4" />}
-            onClick={() => setCollapsed(!collapsed)}
-          />
           <div className="flex items-center gap-4">
             <Dropdown 
               menu={{ 
