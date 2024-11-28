@@ -117,7 +117,7 @@ const BlogAdminPage = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setPosts(data); // Remove the .posts since API returns data directly
+      setPosts(data);
     } catch (error) {
       console.error("Error fetching posts:", error);
       message.error("Failed to fetch blog posts");
@@ -416,25 +416,26 @@ const BlogAdminPage = () => {
               <Form.Item label="Content" required>
                 {EditorComponent}
               </Form.Item>
-
               <Form.Item label="Featured Image">
-                <Upload {...uploadProps} listType="picture-card">
-                  {imageUrl ? (
-                    <div className="relative group">
-                      <img src={imageUrl} alt="Featured" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 
-                                    group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <DeleteOutlined className="text-white text-xl" />
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <UploadOutlined />
-                      <div className="mt-2">Upload</div>
-                    </div>
-                  )}
-                </Upload>
-              </Form.Item>
+  <Upload {...uploadProps} listType="picture-card">
+    {imageUrl ? (
+      <div className="relative group">
+        <img src={imageUrl} alt="Featured" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 
+                      group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <DeleteOutlined className="text-white text-xl" />
+        </div>
+      </div>
+    ) : (
+      <div className="flex flex-col items-center justify-center h-20">
+        <div className="flex flex-col items-center">
+          <UploadOutlined className="text-2xl mb-2" />
+          <span>Upload</span>
+        </div>
+      </div>
+    )}
+  </Upload>
+</Form.Item>
 
               <Form.Item label="Tags">
                 <Space size={[0, 8]} wrap>
@@ -475,73 +476,73 @@ const BlogAdminPage = () => {
                   </Button>
                   <Button onClick={handleReset}>Reset</Button>
                   <Button 
-                    type="primary" 
-                    icon={<SaveOutlined />}
-                    loading={saving} 
-                    onClick={() => form.submit()}
-                  >
-                    {selectedPost ? "Update Post" : "Publish Post"}
-                  </Button>
-                </Space>
-                </Form.Item>
-            </Form>
-          </Card>
-        )}
+type="primary" 
+icon={<SaveOutlined />}
+loading={saving} 
+onClick={() => form.submit()}
+>
+{selectedPost ? "Update Post" : "Publish Post"}
+</Button>
+</Space>
+</Form.Item>
+</Form>
+</Card>
+)}
 
-        {/* Preview Modal */}
-        <Modal
-          title="Preview Blog Post"
-          open={isPreviewModalVisible}
-          onCancel={() => setIsPreviewModalVisible(false)}
-          width={1000}
-          footer={null}
-        >
-          <div className="prose max-w-none">
-            <MarkdownPreview
-              source={markdownContent}
-              wrapperElement={{
-                "data-color-mode": "light",
-              }}
-            />
-          </div>
-        </Modal>
-      </div>
-    );
-  }
+{/* Preview Modal */}
+<Modal
+title="Preview Blog Post"
+open={isPreviewModalVisible}
+onCancel={() => setIsPreviewModalVisible(false)}
+width={1000}
+footer={null}
+>
+<div className="prose max-w-none">
+<MarkdownPreview
+source={markdownContent}
+wrapperElement={{
+"data-color-mode": "light",
+}}
+/>
+</div>
+</Modal>
+</div>
+);
+}
 
-  // Render list view
-  return (
-    <div className="p-6">
-      <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Blog Management</h1>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setIsEditing(true);
-              setSelectedPost(undefined);
-              resetForm();
-            }}
-          >
-            Create New Post
-          </Button>
-        </div>
-        <Divider />
-        <Table
-          columns={columns}
-          dataSource={posts}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            defaultPageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-          }}
-        />
-      </Card>
-    </div>
-  );
+// Render list view
+return (
+<div className="p-6">
+<Card>
+<div className="flex justify-between items-center mb-4">
+<h1 className="text-2xl font-bold">Blog Management</h1>
+<Button
+type="primary"
+icon={<PlusOutlined />}
+onClick={() => {
+setIsEditing(true);
+setSelectedPost(undefined);
+resetForm();
+}}
+>
+Create New Post
+</Button>
+</div>
+<Divider />
+<Table
+columns={columns}
+dataSource={posts}
+rowKey="id"
+loading={loading}
+pagination={{
+defaultPageSize: 10,
+showSizeChanger: true,
+showQuickJumper: true,
+}}
+/>
+</Card>
+</div>
+);
 };
 
 export default BlogAdminPage;

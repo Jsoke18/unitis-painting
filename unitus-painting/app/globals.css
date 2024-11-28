@@ -25,6 +25,26 @@ body {
   z-index: 49;
 }
 
+/* Ant Design Upload styles */
+.ant-upload.ant-upload-select-picture-card,
+.ant-upload-list-picture-card-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ant-upload.ant-upload-select-picture-card .ant-upload {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item {
+  padding: 0 !important;
+}
+
 /* Markdown Editor Styles */
 .wmde-markdown {
   @apply font-sans;
@@ -65,6 +85,7 @@ body {
 .wmde-markdown h2 {
   @apply text-2xl font-semibold mb-4 mt-6;
 }
+
 .cursor-grab {
   cursor: grab;
 }
@@ -72,6 +93,7 @@ body {
 .cursor-grabbing {
   cursor: grabbing;
 }
+
 .wmde-markdown h3 {
   @apply text-xl font-semibold mb-3 mt-5;
 }
@@ -198,7 +220,6 @@ body {
     @apply bg-muted;
   }
 }
-
 
 .project-modal {
   .ant-modal-content {

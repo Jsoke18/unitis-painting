@@ -50,7 +50,6 @@ interface CategoryCount {
   category: string;
   count: number;
 }
-
 // Image Upload Component
 const ImageUpload: React.FC<{
   value?: string;
@@ -105,14 +104,25 @@ const ImageUpload: React.FC<{
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       ) : (
-        <div className="upload-placeholder">
-          {loading ? <LoadingOutlined /> : <PlusOutlined />}
-          <div style={{ marginTop: 8 }}>Upload</div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}>
+          {loading ? (
+            <LoadingOutlined style={{ fontSize: 24, marginBottom: 8 }} />
+          ) : (
+            <PlusOutlined style={{ fontSize: 24, marginBottom: 8 }} />
+          )}
+          <span>Upload</span>
         </div>
       )}
     </Upload>
   );
 };
+
 
 // Main Component
 const BlogCMS = () => {
@@ -606,61 +616,78 @@ const BlogCMS = () => {
 
       {/* Style for Image Upload and Modal */}
       <style jsx global>{`
+        /* Upload styles */
         .avatar-uploader .ant-upload {
-          width: 200px;
-          height: 200px;
+          width: 200px !important;
+          height: 200px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
         }
-        .ant-upload-select-picture-card i {
-          font-size: 32px;
-          color: #999;
+        
+        .ant-upload-select-picture-card {
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          width: 100% !important;
+          height: 100% !important;
         }
-        .ant-upload-select-picture-card .ant-upload-text {
-          margin-top: 8px;
-          color: #666;
+        
+        .ant-upload-select-picture-card .ant-upload {
+          padding: 0 !important;
         }
-        .ant-form-item-has-error .ant-upload {
-          border-color: #ff4d4f;
-        }
+        
+        /* Existing modal styles */
         .quill-wrapper {
           position: relative;
           z-index: 1;
         }
+        
         .ql-editor {
           min-height: 200px;
         }
+        
         .ql-toolbar.ql-snow {
           position: sticky;
           top: 0;
           z-index: 2;
           background: white;
         }
+        
         .ant-modal-body {
           scrollbar-width: thin;
           scrollbar-color: #d9d9d9 #f5f5f5;
           padding: 24px;
         }
+        
         .ant-modal-body::-webkit-scrollbar {
           width: 6px;
         }
+        
         .ant-modal-body::-webkit-scrollbar-track {
           background: #f5f5f5;
         }
+        
         .ant-modal-body::-webkit-scrollbar-thumb {
           background-color: #d9d9d9;
           border-radius: 3px;
         }
+        
         .ant-form-item {
           margin-bottom: 24px;
         }
+        
         .ant-modal-wrap {
           display: flex;
           align-items: flex-start;
           padding: 20px 0;
         }
+        
         .ant-modal {
           top: 20px;
           padding-bottom: 0;
         }
+        
         .ant-modal-footer {
           border-top: 1px solid #f0f0f0;
           padding: 16px 24px;
@@ -670,15 +697,18 @@ const BlogCMS = () => {
           bottom: 0;
           z-index: 1;
         }
+        
         .ant-modal-content {
           max-height: calc(100vh - 40px);
           display: flex;
           flex-direction: column;
         }
+        
         .ql-container.ql-snow {
           border-bottom-left-radius: 4px;
           border-bottom-right-radius: 4px;
         }
+        
         .ql-toolbar.ql-snow {
           border-top-left-radius: 4px;
           border-top-right-radius: 4px;
