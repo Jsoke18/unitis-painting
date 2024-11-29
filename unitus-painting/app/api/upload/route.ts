@@ -1,24 +1,22 @@
 // app/api/upload/route.ts
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { Storage } from '@google-cloud/storage';
 import crypto from 'crypto';
+
+// Initialize Google Cloud Storage client
+const storage = new Storage({
+  projectId: 'hidden-terrain-439216',
+  keyFilename: 'C:/Users/mucky/Documents/GitHub/unitis-painting/hidden-terrain-439216-q7-2c71aad589a1.json'
+});
+
+const bucket = storage.bucket('unitis-videos');
 
 // Function to generate a unique filename
 function generateUniqueFilename(originalName: string): string {
   const timestamp = Date.now();
   const hash = crypto.randomBytes(8).toString('hex');
-  const ext = path.extname(originalName);
-  return `${timestamp}-${hash}${ext}`;
-}
-
-// Function to ensure upload directory exists
-async function ensureUploadDir(uploadDir: string) {
-  try {
-    await fs.access(uploadDir);
-  } catch {
-    await fs.mkdir(uploadDir, { recursive: true });
-  }
+  const ext = originalName.substring(originalName.lastIndexOf('.'));
+  return `blog-images/${timestamp}-${hash}${ext}`;
 }
 
 export async function POST(request: Request) {
@@ -57,24 +55,35 @@ export async function POST(request: Request) {
       const buffer = Buffer.from(bytes);
 
       // Generate unique filename
-      const uniqueFilename = generateUniqueFilename(file.name);
-      
-      // Set up upload directory in public folder
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      await ensureUploadDir(uploadDir);
+      const filename = generateUniqueFilename(file.name);
 
-      // Full path for file
-      const filePath = path.join(uploadDir, uniqueFilename);
+      // Create a new blob in the bucket
+      const blob = bucket.file(filename);
       
-      // Write file
-      await fs.writeFile(filePath, buffer);
-      
-      // Return the public URL
-      const publicUrl = `/uploads/${uniqueFilename}`;
-      
-      return NextResponse.json({ 
-        success: true,
-        url: publicUrl 
+      // Upload file
+      return new Promise(async (resolve, reject) => {
+        try {
+          await blob.save(buffer, {
+            metadata: {
+              contentType: file.type,
+            },
+            resumable: false
+          });
+
+          // Construct the public URL
+          const publicUrl = `https://storage.googleapis.com/unitis-videos/${filename}`;
+
+          resolve(NextResponse.json({
+            success: true,
+            url: publicUrl
+          }));
+        } catch (error) {
+          console.error('Upload error:', error);
+          reject(NextResponse.json(
+            { error: 'Failed to upload file' },
+            { status: 500 }
+          ));
+        }
       });
 
     } catch (error) {
@@ -84,7 +93,6 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-
   } catch (error) {
     console.error('API route error:', error);
     return NextResponse.json(
@@ -94,16 +102,20 @@ export async function POST(request: Request) {
   }
 }
 
+// Optional: List uploads
 export async function GET() {
   try {
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    const files = await fs.readdir(uploadDir);
-    
-    const fileUrls = files.map(file => `/uploads/${file}`);
-    
-    return NextResponse.json({ 
+    const [files] = await bucket.getFiles({
+      prefix: 'blog-images/',
+    });
+
+    const fileUrls = files.map(file => 
+      `https://storage.googleapis.com/unitis-videos/${file.name}`
+    );
+
+    return NextResponse.json({
       success: true,
-      files: fileUrls 
+      files: fileUrls
     });
   } catch (error) {
     console.error('Failed to list uploads:', error);
