@@ -240,16 +240,20 @@ const BlogAdminPage = () => {
         author: "John Smith",
       };
 
-      const response = await fetch('/api/blogs', {
-        method: selectedPost ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(selectedPost ? { ...blogData, id: selectedPost.id } : blogData),
+      const response = await fetch("/api/blogs", {
+        method: selectedPost ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          selectedPost ? { ...blogData, id: selectedPost.id } : blogData
+        ),
       });
 
-      if (!response.ok) throw new Error('Failed to save blog post');
+      if (!response.ok) throw new Error("Failed to save blog post");
 
-      message.success(`Blog post ${selectedPost ? 'updated' : 'created'} successfully!`);
-      
+      message.success(
+        `Blog post ${selectedPost ? "updated" : "created"} successfully!`
+      );
+
       if (!selectedPost) {
         resetForm();
       }
@@ -386,8 +390,10 @@ const BlogAdminPage = () => {
         {isFullScreen ? (
           EditorComponent
         ) : (
-          <Card title={selectedPost ? "Edit Blog Post" : "Create Blog Post"} 
-                className="max-w-4xl mx-auto">
+          <Card
+            title={selectedPost ? "Edit Blog Post" : "Create Blog Post"}
+            className="max-w-4xl mx-auto"
+          >
             <Form form={form} layout="vertical" onFinish={onFinish}>
               <Form.Item
                 name="title"
@@ -400,7 +406,9 @@ const BlogAdminPage = () => {
               <Form.Item
                 name="category"
                 label="Category"
-                rules={[{ required: true, message: "Please select a category" }]}
+                rules={[
+                  { required: true, message: "Please select a category" },
+                ]}
               >
                 <Select placeholder="Select a category" options={categories} />
               </Form.Item>
@@ -417,25 +425,31 @@ const BlogAdminPage = () => {
                 {EditorComponent}
               </Form.Item>
               <Form.Item label="Featured Image">
-  <Upload {...uploadProps} listType="picture-card">
-    {imageUrl ? (
-      <div className="relative group">
-        <img src={imageUrl} alt="Featured" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 
-                      group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <DeleteOutlined className="text-white text-xl" />
-        </div>
-      </div>
-    ) : (
-      <div className="flex flex-col items-center justify-center h-20">
-        <div className="flex flex-col items-center">
-          <UploadOutlined className="text-2xl mb-2" />
-          <span>Upload</span>
-        </div>
-      </div>
-    )}
-  </Upload>
-</Form.Item>
+                <Upload {...uploadProps} listType="picture-card">
+                  {imageUrl ? (
+                    <div className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt="Featured"
+                        className="w-full h-full object-cover"
+                      />
+                      <div
+                        className="absolute inset-0 bg-black bg-opacity-50 opacity-0 
+                      group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      >
+                        <DeleteOutlined className="text-white text-xl" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-20">
+                      <div className="flex flex-col items-center">
+                        <UploadOutlined className="text-2xl mb-2" />
+                        <span>Upload</span>
+                      </div>
+                    </div>
+                  )}
+                </Upload>
+              </Form.Item>
 
               <Form.Item label="Tags">
                 <Space size={[0, 8]} wrap>
@@ -467,82 +481,84 @@ const BlogAdminPage = () => {
 
               <Form.Item className="flex justify-end mb-0">
                 <Space>
-                  <Button onClick={() => {
-                    setIsEditing(false);
-                    setSelectedPost(undefined);
-                    resetForm();
-                  }}>
+                  <Button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setSelectedPost(undefined);
+                      resetForm();
+                    }}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleReset}>Reset</Button>
-                  <Button 
-type="primary" 
-icon={<SaveOutlined />}
-loading={saving} 
-onClick={() => form.submit()}
->
-{selectedPost ? "Update Post" : "Publish Post"}
-</Button>
-</Space>
-</Form.Item>
-</Form>
-</Card>
-)}
+                  <Button
+                    type="primary"
+                    icon={<SaveOutlined />}
+                    loading={saving}
+                    onClick={() => form.submit()}
+                  >
+                    {selectedPost ? "Update Post" : "Publish Post"}
+                  </Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Card>
+        )}
 
-{/* Preview Modal */}
-<Modal
-title="Preview Blog Post"
-open={isPreviewModalVisible}
-onCancel={() => setIsPreviewModalVisible(false)}
-width={1000}
-footer={null}
->
-<div className="prose max-w-none">
-<MarkdownPreview
-source={markdownContent}
-wrapperElement={{
-"data-color-mode": "light",
-}}
-/>
-</div>
-</Modal>
-</div>
-);
-}
+        {/* Preview Modal */}
+        <Modal
+          title="Preview Blog Post"
+          open={isPreviewModalVisible}
+          onCancel={() => setIsPreviewModalVisible(false)}
+          width={1000}
+          footer={null}
+        >
+          <div className="prose max-w-none">
+            <MarkdownPreview
+              source={markdownContent}
+              wrapperElement={{
+                "data-color-mode": "light",
+              }}
+            />
+          </div>
+        </Modal>
+      </div>
+    );
+  }
 
-// Render list view
-return (
-<div className="p-6">
-<Card>
-<div className="flex justify-between items-center mb-4">
-<h1 className="text-2xl font-bold">Blog Management</h1>
-<Button
-type="primary"
-icon={<PlusOutlined />}
-onClick={() => {
-setIsEditing(true);
-setSelectedPost(undefined);
-resetForm();
-}}
->
-Create New Post
-</Button>
-</div>
-<Divider />
-<Table
-columns={columns}
-dataSource={posts}
-rowKey="id"
-loading={loading}
-pagination={{
-defaultPageSize: 10,
-showSizeChanger: true,
-showQuickJumper: true,
-}}
-/>
-</Card>
-</div>
-);
+  // Render list view
+  return (
+    <div className="p-6">
+      <Card>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Blog Management</h1>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setIsEditing(true);
+              setSelectedPost(undefined);
+              resetForm();
+            }}
+          >
+            Create New Post
+          </Button>
+        </div>
+        <Divider />
+        <Table
+          columns={columns}
+          dataSource={posts}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            defaultPageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+        />
+      </Card>
+    </div>
+  );
 };
 
 export default BlogAdminPage;

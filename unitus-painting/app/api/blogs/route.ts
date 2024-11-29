@@ -96,3 +96,37 @@ export async function PUT(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+    
+    // First delete related records in post_tags
+    await sql`
+      DELETE FROM post_tags 
+      WHERE post_id = ${id}
+    `;
+    
+    // Then delete the post itself
+    const result = await sql`
+      DELETE FROM blog_posts 
+      WHERE id = ${id} 
+      RETURNING id
+    `;
+    
+    if (result.length === 0) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ message: 'Post deleted successfully' });
+  } catch (error) {
+    console.error('Error in DELETE:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete blog post', details: error.message },
+      { status: 500 }
+    );
+  }
+}
