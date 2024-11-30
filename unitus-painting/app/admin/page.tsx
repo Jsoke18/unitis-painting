@@ -48,7 +48,7 @@ export default function AdminDashboard() {
       title: 'Blog Management',
       description: 'Create and edit blog posts and articles',
       icon: <MessageSquare className="w-6 h-6" />,
-      href: '/admin/blog',
+      href: '/admin/blogs',
       color: '#7c3aed'
     },
 
