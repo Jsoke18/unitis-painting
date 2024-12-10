@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { Star } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,17 +9,40 @@ import { AboutContent, defaultAboutContent } from '@/app/types/about';
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse" />
-});
+});const VideoPlayer: React.FC<{ url: string }> = ({ url }) => {
+  const [isReady, setIsReady] = useState(false);
+  const playerRef = useRef<any>(null);
+  
+  // Remove the t parameter and hash from URL - we'll handle seeking purely through the player API
+  const cleanUrl = url.split('?')[0].split('#')[0];
+  
+  useEffect(() => {
+    if (isReady && playerRef.current) {
+      // Implement multiple seek attempts to ensure the frame is set
+      const seekAttempts = [0, 100, 500, 1000]; // Try at different delays
+      
+      seekAttempts.forEach(delay => {
+        const timer = setTimeout(() => {
+          playerRef.current.seekTo(2, 'seconds');
+        }, delay);
+        
+        return () => clearTimeout(timer);
+      });
+    }
+  }, [isReady]);
 
-const VideoPlayer: React.FC<{ url: string }> = ({ url }) => {
   return (
     <div className="w-full relative pt-[56.25%]">
       <div className="absolute top-0 left-0 right-0 bottom-0">
         <ReactPlayer
-          url={url}
+          ref={playerRef}
+          url={cleanUrl}
           width="100%"
           height="100%"
           controls
+          playing={false}
+          playsinline
+          progressInterval={1000}
           config={{
             vimeo: {
               playerOptions: {
@@ -27,10 +50,22 @@ const VideoPlayer: React.FC<{ url: string }> = ({ url }) => {
                 background: false,
                 muted: false,
                 pip: true,
+                autoplay: false,
+                autopause: true,
+                dnt: true,
+                quality: 'auto',
+                // Remove time from player options to avoid conflicts
+                time: undefined
               },
-            },
+              preload: true
+            }
           }}
           style={{ position: 'absolute', top: 0, left: 0 }}
+          onReady={(player) => {
+            setIsReady(true);
+            // Immediate seek on ready
+            player.seekTo(2, 'seconds');
+          }}
         />
       </div>
     </div>
