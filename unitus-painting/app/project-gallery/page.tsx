@@ -18,8 +18,8 @@ interface Project {
   id: number;
   title: string;
   category: string;
-  imageUrl: string;  // Updated to match the API response
-  description: string;
+  imageUrl: string;
+  description?: string;
   completionDate?: string;
   location?: string;
   specs?: ProjectSpecs;
@@ -33,80 +33,56 @@ const categories = [
   "Commercial",
 ];
 
-// Helper functions for handling optional data
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Date TBA";
-  try {
-    return new Date(dateString).toLocaleDateString();
-  } catch {
-    return "Date TBA";
-  }
-};
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
+  const hasLocationOrDate = 
+    (project.location && project.location !== "Location TBA") || 
+    (project.completionDate && project.completionDate !== "Date TBA");
 
-const formatLocation = (location?: string) => {
-  return location || "Location TBA";
-};
-
-const ProjectSpecs: React.FC<{ specs?: ProjectSpecs }> = ({ specs }) => {
-  const defaultSpecs = {
-    area: "Area TBA",
-    duration: "Duration TBA",
-    team: "Team TBA"
-  };
-
-  const displaySpecs = {
-    ...defaultSpecs,
-    ...specs
+  const formatInfo = () => {
+    const parts = [];
+    if (project.location && project.location !== "Location TBA") {
+      parts.push(project.location);
+    }
+    if (project.completionDate && project.completionDate !== "Date TBA") {
+      parts.push(`Completed ${project.completionDate}`);
+    }
+    return parts.join(" • ");
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2 text-xs text-gray-500">
-      <div>
-        <span className="block font-medium">Area</span>
-        {displaySpecs.area}
-      </div>
-      <div>
-        <span className="block font-medium">Duration</span>
-        {displaySpecs.duration}
-      </div>
-      <div>
-        <span className="block font-medium">Team Size</span>
-        {displaySpecs.team}
-      </div>
-    </div>
+    <Card className="group overflow-hidden h-full flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300">
+      <AspectRatio ratio={4 / 3} className="overflow-hidden">
+        <img
+          src={project.imageUrl}
+          alt={project.title}
+          className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
+        />
+      </AspectRatio>
+      <CardContent className="p-6 flex flex-col justify-between h-[calc(100%-75%)]">
+        <div className="flex-1">
+          <h3 className="text-xl font-semibold text-gray-800 mb-3 group-hover:text-blue-900 transition-colors duration-200">
+            {project.title}
+          </h3>
+          {hasLocationOrDate && (
+            <p className="text-gray-600 text-sm mb-3">
+              {formatInfo()}
+            </p>
+          )}
+          {project.description && project.description !== "N/A" && (
+            <p className="text-gray-600 text-sm leading-relaxed">
+              {project.description}
+            </p>
+          )}
+        </div>
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <span className="inline-block px-3 py-1 bg-indigo-50 text-blue-900 text-sm font-medium rounded-full">
+            {project.category}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
-
-const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
-  <Card className="group overflow-hidden h-full flex flex-col bg-white shadow-md hover:shadow-xl transition-all duration-300">
-    <AspectRatio ratio={4 / 3} className="overflow-hidden">
-      <img
-        src={project.imageUrl}
-        alt={project.title}
-        className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105"
-      />
-    </AspectRatio>
-    <CardContent className="p-6 flex-grow flex flex-col justify-between">
-      <div>
-        <h3 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-900 transition-colors duration-200">
-          {project.title}
-        </h3>
-        <p className="text-gray-600 text-sm mb-3">
-          {formatLocation(project.location)} • Completed {formatDate(project.completionDate)}
-        </p>
-        <p className="text-gray-600 text-sm leading-relaxed mb-4">
-          {project.description}
-        </p>
-        <ProjectSpecs specs={project.specs} />
-      </div>
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <span className="inline-block px-3 py-1 bg-indigo-50 text-blue-900 text-sm font-medium rounded-full">
-          {project.category}
-        </span>
-      </div>
-    </CardContent>
-  </Card>
-);
 
 const ProjectGallery: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);

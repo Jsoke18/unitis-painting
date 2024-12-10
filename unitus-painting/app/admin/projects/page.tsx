@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, message, Table, Upload, Modal, Popconfirm, Image, Collapse } from 'antd';
+import { Form, Input, Select, Button, message, Table, Upload, Modal, Popconfirm, Image, Divider } from 'antd';
 import { UploadOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
 import axios from 'axios';
 
 const { TextArea } = Input;
-const { Panel } = Collapse;
 
 interface ProjectSpecs {
   area?: string;
@@ -19,7 +18,7 @@ interface ProjectSpecs {
 interface Project {
   id: number;
   title: string;
-  description: string;
+  description?: string;
   imageUrl?: string;
   category?: string;
   location?: string;
@@ -131,11 +130,10 @@ const ProjectAdmin: React.FC = () => {
       const newProject: Project = {
         id: projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1,
         title: values.title,
-        description: values.description,
+        description: values.description || '',
         category: values.category,
         location: values.location,
         completionDate: values.completionDate,
-        specs: values.specs,
         imageUrl: imageUrl,
         createdAt: new Date().toISOString(),
       };
@@ -164,11 +162,10 @@ const ProjectAdmin: React.FC = () => {
       const updatedProject: Project = {
         ...editingProject,
         title: values.title,
-        description: values.description,
+        description: values.description || '',
         category: values.category,
         location: values.location,
         completionDate: values.completionDate,
-        specs: values.specs,
         imageUrl: editImageUrl || editingProject.imageUrl,
         updatedAt: new Date().toISOString(),
       };
@@ -199,18 +196,21 @@ const ProjectAdmin: React.FC = () => {
       key: 'description',
       width: '25%',
       ellipsis: true,
+      render: (text: string) => text || '',
     },
     {
       title: 'Category',
       dataIndex: 'category',
       key: 'category',
       width: '10%',
+      render: (text: string) => text || '',
     },
     {
       title: 'Location',
       dataIndex: 'location',
       key: 'location',
       width: '10%',
+      render: (text: string) => text || '',
     },
     {
       title: 'Image',
@@ -265,7 +265,6 @@ const ProjectAdmin: React.FC = () => {
     setEditingProject(record);
     editForm.setFieldsValue({
       ...record,
-      specs: record.specs,
     });
     setEditImageUrl(record.imageUrl || '');
     setEditModalVisible(true);
@@ -287,25 +286,56 @@ const ProjectAdmin: React.FC = () => {
       form={form}
       layout="vertical"
       onFinish={onFinish}
+      className="overflow-y-auto max-h-[calc(100vh-200px)]"
     >
-      <Form.Item
-        name="title"
-        label="Project Title"
-        rules={[{ required: true, message: 'Please enter project title' }]}
-      >
-        <Input placeholder="Enter project title" />
-      </Form.Item>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium mb-4">Basic Information</h3>
+          <Form.Item
+            name="title"
+            label="Project Title"
+            rules={[{ required: true, message: 'Please enter project title' }]}
+          >
+            <Input placeholder="Enter project title" />
+          </Form.Item>
 
-      <Form.Item
-        name="description"
-        label="Description"
-        rules={[{ required: true, message: 'Please enter description' }]}
-      >
-        <TextArea rows={4} placeholder="Enter project description" />
-      </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+          >
+            <TextArea rows={4} placeholder="Enter project description" />
+          </Form.Item>
 
-      <Collapse className="mb-4">
-        <Panel header="Additional Information (Optional)" key="1">
+          <Form.Item
+            label="Project Image"
+            required
+          >
+            <Upload {...uploadProps}>
+              {!currentImageUrl && (
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
+            </Upload>
+            {currentImageUrl && (
+              <div className="mt-2">
+                <Image
+                  src={currentImageUrl}
+                  alt="Current project image"
+                  width={200}
+                  height={200}
+                  className="object-cover rounded"
+                />
+              </div>
+            )}
+          </Form.Item>
+        </div>
+
+        <Divider />
+
+        <div>
+          <h3 className="text-lg font-medium mb-4">Additional Information</h3>
           <Form.Item
             name="category"
             label="Category"
@@ -332,54 +362,14 @@ const ProjectAdmin: React.FC = () => {
           >
             <Input type="date" />
           </Form.Item>
+        </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h3 className="text-lg font-medium mb-4">Project Specifications</h3>
-            <Form.Item name={["specs", "area"]} label="Area">
-              <Input placeholder="e.g., 10,000 sq ft" />
-            </Form.Item>
-
-            <Form.Item name={["specs", "duration"]} label="Duration">
-              <Input placeholder="e.g., 3 months" />
-            </Form.Item>
-
-            <Form.Item name={["specs", "team"]} label="Team Size">
-              <Input placeholder="e.g., 12 professionals" />
-            </Form.Item>
-          </div>
-        </Panel>
-      </Collapse>
-
-      <Form.Item
-        label="Project Image"
-        required
-      >
-        <Upload {...uploadProps}>
-          {!currentImageUrl && (
-            <div>
-              <PlusOutlined />
-              <div style={{ marginTop: 8 }}>Upload</div>
-            </div>
-          )}
-        </Upload>
-        {currentImageUrl && (
-          <div className="mt-2">
-            <Image
-              src={currentImageUrl}
-              alt="Current project image"
-              width={200}
-              height={200}
-              className="object-cover rounded"
-            />
-          </div>
-        )}
-      </Form.Item>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          {submitText}
-        </Button>
-      </Form.Item>
+        <Form.Item className="mb-0 sticky bottom-0 bg-white pt-4 pb-0">
+          <Button type="primary" htmlType="submit" loading={loading}>
+            {submitText}
+          </Button>
+        </Form.Item>
+      </div>
     </Form>
   );
 

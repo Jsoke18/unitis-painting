@@ -48,11 +48,10 @@
     {
       "id": 6,
       "title": "Save on Foods ",
-      "description": "N/A ",
-      "category": "Commercial",
-      "specs": {},
+      "description": " ",
       "imageUrl": "/uploads/1730769235671-61e5a531677e0961.jpg",
-      "createdAt": "2024-11-05T01:14:00.690Z"
+      "createdAt": "2024-11-05T01:14:00.690Z",
+      "updatedAt": "2024-12-10T13:58:29.432Z"
     },
     {
       "id": 7,
