@@ -43,12 +43,6 @@ const expertsData: ExpertData[] = [
     link: "/about/kyle-rooney"
   },
   {
-    name: "Tony Balazs",
-    role: "Project Manager",
-    imageSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/3da8d9d953149e442f735f85f3a2f8f359fcf9d934895b7bc78df1dc21125129?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
-    link: "/about/tony-balazs"
-  },
-  {
     name: "Michael Powell",
     role: "Client Relations",
     imageSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/1614588dec73992d594aa34099aaf2a59503d4115a4d534b76fd10e1f9f0d194?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
