@@ -9,34 +9,30 @@ import { AboutContent, defaultAboutContent } from '@/app/types/about';
 const ReactPlayer = dynamic(() => import('react-player/lazy'), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse" />
-});const VideoPlayer: React.FC<{ url: string }> = ({ url }) => {
-  const [isReady, setIsReady] = useState(false);
+});
+
+const VideoPlayer: React.FC<{ url: string }> = ({ url }) => {
   const playerRef = useRef<any>(null);
   
-  // Remove the t parameter and hash from URL - we'll handle seeking purely through the player API
-  const cleanUrl = url.split('?')[0].split('#')[0];
-  
-  useEffect(() => {
-    if (isReady && playerRef.current) {
-      // Implement multiple seek attempts to ensure the frame is set
-      const seekAttempts = [0, 100, 500, 1000]; // Try at different delays
-      
-      seekAttempts.forEach(delay => {
-        const timer = setTimeout(() => {
-          playerRef.current.seekTo(2, 'seconds');
-        }, delay);
-        
-        return () => clearTimeout(timer);
-      });
+  // Convert Vimeo URL to embed URL if necessary.
+  const getEmbedUrl = (url: string): string => {
+    if (url.includes('vimeo.com') && !url.includes('player.vimeo.com')) {
+      const parts = url.split('/');
+      const videoId = parts[parts.length - 1];
+      return `https://player.vimeo.com/video/${videoId}`;
     }
-  }, [isReady]);
+    return url;
+  };
+  const embedUrl = getEmbedUrl(url);
+  
+  const [hasSeeked, setHasSeeked] = useState(false);
 
   return (
     <div className="w-full relative pt-[56.25%]">
       <div className="absolute top-0 left-0 right-0 bottom-0">
         <ReactPlayer
           ref={playerRef}
-          url={cleanUrl}
+          url={embedUrl}
           width="100%"
           height="100%"
           controls
@@ -54,17 +50,19 @@ const ReactPlayer = dynamic(() => import('react-player/lazy'), {
                 autopause: true,
                 dnt: true,
                 quality: 'auto',
-                // Remove time from player options to avoid conflicts
+                // Removed 'time' conflicts by explicitly setting it undefined
                 time: undefined
-              },
-              preload: true
+              }
+              // Removed the unsupported preload property
             }
           }}
           style={{ position: 'absolute', top: 0, left: 0 }}
-          onReady={(player) => {
-            setIsReady(true);
-            // Immediate seek on ready
-            player.seekTo(2, 'seconds');
+          onPlay={() => {
+            // On first play (i.e. after user interaction) seek to 2 seconds using the playerRef.
+            if (!hasSeeked && playerRef.current) {
+              playerRef.current.seekTo(2, 'seconds');
+              setHasSeeked(true);
+            }
           }}
         />
       </div>
