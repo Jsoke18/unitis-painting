@@ -12,58 +12,53 @@ const ReactPlayer = dynamic(() => import('react-player/lazy'), {
 });
 
 const VideoPlayer: React.FC<{ url: string }> = ({ url }) => {
-  const playerRef = useRef<any>(null);
-  
-  // Convert Vimeo URL to embed URL if necessary.
-  const getEmbedUrl = (url: string): string => {
-    if (url.includes('vimeo.com') && !url.includes('player.vimeo.com')) {
-      const parts = url.split('/');
-      const videoId = parts[parts.length - 1];
-      return `https://player.vimeo.com/video/${videoId}`;
-    }
-    return url;
-  };
-  const embedUrl = getEmbedUrl(url);
-  
+  // Convert the video URL to the Vimeo embed URL and add a starting time via hash
+  let fixedUrl = url;
+  if (url.includes('vimeo.com') && !url.includes('player.vimeo.com')) {
+    // Extract the video ID. Assuming that the ID is the last segment.
+    const parts = url.split('/');
+    const videoId = parts[parts.length - 1];
+    fixedUrl = `https://player.vimeo.com/video/${videoId}#t=2s`;
+  } else if (url.includes('player.vimeo.com') && !url.includes('#t=')) {
+    fixedUrl = url + '#t=2s';
+  }
+
   const [hasSeeked, setHasSeeked] = useState(false);
 
   return (
     <div className="w-full relative pt-[56.25%]">
       <div className="absolute top-0 left-0 right-0 bottom-0">
         <ReactPlayer
-          ref={playerRef}
-          url={embedUrl}
+          url={fixedUrl}
           width="100%"
           height="100%"
           controls
           playing={false}
           playsinline
-          progressInterval={1000}
+          // Trigger a one-time seek when the player is ready
+          onReady={(player) => {
+            if (!hasSeeked) {
+              // Delay slightly to ensure the player is fully primed
+              setTimeout(() => {
+                player.seekTo(2, 'seconds');
+                setHasSeeked(true);
+              }, 200);
+            }
+          }}
           config={{
             vimeo: {
               playerOptions: {
                 responsive: true,
-                background: false,
-                muted: false,
-                pip: true,
-                autoplay: false,
+                controls: true,
                 autopause: true,
-                dnt: true,
-                quality: 'auto',
-                // Removed 'time' conflicts by explicitly setting it undefined
-                time: undefined
-              }
-              // Removed the unsupported preload property
-            }
+                muted: false,
+                autoplay: false,
+                pip: true,
+              },
+              preload: true,
+            },
           }}
           style={{ position: 'absolute', top: 0, left: 0 }}
-          onPlay={() => {
-            // On first play (i.e. after user interaction) seek to 2 seconds using the playerRef.
-            if (!hasSeeked && playerRef.current) {
-              playerRef.current.seekTo(2, 'seconds');
-              setHasSeeked(true);
-            }
-          }}
         />
       </div>
     </div>
