@@ -28,6 +28,7 @@ import dynamic from "next/dynamic";
 import type { UploadChangeParam } from "antd/es/upload";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
 import type { ColumnsType } from 'antd/es/table';
+import { calculateReadTime } from "@/lib/blogService";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
@@ -158,6 +159,15 @@ const BlogCMS = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
+
+  // Debounced update: recalculate readTime 500ms after the user stops typing
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      form.setFieldsValue({ readTime: calculateReadTime(content) });
+    }, 500); // Adjust delay as needed
+
+    return () => clearTimeout(debounceTimeout);
+  }, [content, form]);
 
   // Table Columns Definition
   const columns: ColumnsType<BlogPost> = [
@@ -341,6 +351,7 @@ const BlogCMS = () => {
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
+      // Overwrite any readTime value with the calculated value
       const postData = {
         ...values,
         content,
@@ -348,7 +359,8 @@ const BlogCMS = () => {
           .split(",")
           .map((tag: string) => tag.trim())
           .filter(Boolean),
-        author: "John Smith", // In a real app, this would come from auth context
+        readTime: calculateReadTime(content),
+        author: "John Smith",
       };
 
       const method = editingPost ? 'PUT' : 'POST';
@@ -482,7 +494,7 @@ const BlogCMS = () => {
         <Form
           form={form}
           layout="vertical"
-          initialValues={{ readTime: "5 min read" }}
+          initialValues={{ readTime: "0 min read" }}
           className="overflow-visible"
         >
           <Form.Item
@@ -573,9 +585,9 @@ const BlogCMS = () => {
             <Form.Item
               name="readTime"
               label="Read Time"
-              rules={[{ required: true, message: "Please input the read time!" }]}
+              rules={[{ required: true, message: "Read time is required!" }]}
             >
-              <Input placeholder="e.g., 5 min read" />
+              <Input disabled placeholder="Read time will update automatically" />
             </Form.Item>
           </Form>
         </Modal>

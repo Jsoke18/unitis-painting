@@ -33,7 +33,7 @@ interface BlogStore {
   getRelatedPosts: (postId: number) => BlogPost[];
 }
 
-const calculateReadTime = (content: string): string => {
+export const calculateReadTime = (content: string): string => {
   const wordsPerMinute = 200;
   const words = content.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / wordsPerMinute);

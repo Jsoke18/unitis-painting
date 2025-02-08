@@ -136,6 +136,14 @@ const BlogAdminPage = () => {
       .trim();
   };
 
+  // Calculate read time
+  const calculateReadTime = (content: string): string => {
+    if (!content) return "0 min read";
+    const wordCount = content.split(/\s+/).filter((word) => word.length > 0).length;
+    const minutes = Math.ceil(wordCount / 200); // using an average reading speed of 200 words per minute
+    return `${minutes} min read`;
+  };
+
   // Handle post deletion
   const handleDelete = async (id: number) => {
     Modal.confirm({
@@ -236,7 +244,7 @@ const BlogAdminPage = () => {
         content: processedContent,
         tags,
         image: imageUrl || "/api/placeholder/1200/800",
-        readTime: `${Math.ceil(processedContent.length / 1000)} min read`,
+        readTime: calculateReadTime(processedContent),
         author: "John Smith",
       };
 
