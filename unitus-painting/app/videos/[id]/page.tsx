@@ -55,7 +55,7 @@ export default async function VideoDetailPage({ params }: { params: { id: string
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto py-16 px-4">
+      <div className="max-w-4xl mx-auto py-16 px-4 pt-32">
         <Link href="/videos" className="text-blue-600 underline mb-4 inline-block">
           ← Back to Videos
         </Link>
