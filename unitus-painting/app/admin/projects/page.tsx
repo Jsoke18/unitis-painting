@@ -6,6 +6,16 @@ import { UploadOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant
 import type { UploadProps } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
 import axios from 'axios';
+import {
+  LayoutDashboard,
+  FileEdit,
+  Users,
+  Home,
+  Info,
+  MapPin,
+  Video,
+  ArrowRight,
+} from 'lucide-react';
 
 const { TextArea } = Input;
 

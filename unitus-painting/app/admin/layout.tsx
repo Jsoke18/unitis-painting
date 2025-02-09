@@ -60,6 +60,12 @@ const menuItems: MenuItem[] = [
     href: "/admin/contact",
   },
   {
+    key: "videos",
+    icon: <LayoutDashboard className="w-4 h-4" />,
+    label: "Video Management",
+    href: "/admin/videos",
+  },
+  {
     key: "about",
     icon: <LayoutIcon className="w-4 h-4" />,
     label: "Update About",

@@ -43,7 +43,7 @@ const navItems: NavItem[] = [
     label: "About Us",
     href: "/about",
     children: [
-      { label: "Meet The Team", href: "/about/management-team" }, // Added this line
+      { label: "Meet The Team", href: "/about/management-team" },
       { label: "Our Approach", href: "/our-approach" },
       { label: "Warranty", href: "/warranty" },
     ],
@@ -66,6 +66,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Areas Served", href: "/areas-served" },
+  { label: "Videos", href: "/videos" },
   { label: "Blog", href: "/blog" },
   { label: "Project Gallery", href: "/project-gallery" },
   { label: "Contact Us", href: "/contact" },

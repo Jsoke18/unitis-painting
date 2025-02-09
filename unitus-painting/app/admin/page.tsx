@@ -51,7 +51,13 @@ export default function AdminDashboard() {
       href: '/admin/blogs',
       color: '#7c3aed'
     },
-
+    {
+      title: 'Video Management',
+      description: 'Add and manage project videos',
+      icon: <Video className="w-6 h-6" />,
+      href: '/admin/videos',
+      color: '#7c3aed'
+    },
   ];
 
   return (
