@@ -13,6 +13,7 @@ const mainSections = [
       { title: "Areas Served", href: "/areas-served" },
       { title: "Blog", href: "/blog" },
       { title: "Project Gallery", href: "/project-gallery" },
+      { title: "Videos", href: "/videos" },
     ]
   },
   {
