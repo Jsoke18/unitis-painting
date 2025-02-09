@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -155,9 +156,12 @@ export default function VideosPage() {
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-start gap-4 mb-3">
-                          <h3 className="text-xl font-semibold text-blue-950 line-clamp-2">
+                          <Link
+                            href={`/videos/${video.id}`}
+                            className="text-xl font-semibold text-blue-950 line-clamp-2"
+                          >
                             {video.name}
-                          </h3>
+                          </Link>
                           <a 
                             href={video.url}
                             target="_blank"
