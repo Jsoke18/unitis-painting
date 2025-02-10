@@ -12,6 +12,7 @@ import {
   MapPin,
   MessageSquare,
   ArrowRight,
+  Video
 } from 'lucide-react';
 
 export default function AdminDashboard() {
