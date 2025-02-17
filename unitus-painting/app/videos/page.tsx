@@ -49,6 +49,16 @@ const getEmbedUrl = (url: string): string => {
   }
 };
 
+const getVideoThumbnail = (url: string): string => {
+  // Try to get thumbnail by replacing video extension with jpg
+  const thumbnailUrl = url.replace(/\.(mp4|webm|ogg)$/i, '.jpg');
+  
+  // You can add a default thumbnail if needed
+  const defaultThumbnail = '/images/video-thumbnail-placeholder.jpg';
+  
+  return thumbnailUrl || defaultThumbnail;
+};
+
 export default function VideosPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,6 +158,7 @@ export default function VideosPage() {
                         <video
                           className="absolute top-0 left-0 w-full h-full"
                           src={video.url}
+                          poster={getVideoThumbnail(video.url)}
                           controls
                           preload="none"
                           playsInline
