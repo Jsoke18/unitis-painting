@@ -137,12 +137,29 @@ const VideoAdmin: React.FC = () => {
   const VideoPreview = ({ url }: { url: string }) => {
     const embedUrl = getEmbedUrl(url);
     
+    // Check if it's a direct video URL (like from S3)
+    const isDirectVideo = url.match(/\.(mp4|webm|ogg)$/i);
+    
+    if (isDirectVideo) {
+      return (
+        <div className="relative pt-[56.25%] w-full">
+          <video
+            className="absolute top-0 left-0 w-full h-full rounded-lg"
+            src={url}
+            controls
+            preload="none"
+            playsInline
+          />
+        </div>
+      );
+    }
+    
     return (
       <div className="relative pt-[56.25%] w-full">
         <iframe
           className="absolute top-0 left-0 w-full h-full rounded-lg"
           src={embedUrl}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           referrerPolicy="strict-origin-when-cross-origin"
           sandbox="allow-same-origin allow-scripts allow-popups allow-presentation"
@@ -245,53 +262,68 @@ const VideoAdmin: React.FC = () => {
     };
 
     return (
-      <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item
-          name="name"
-          label="Video Name"
-          rules={[{ required: true, message: 'Please enter video name' }]}
-        >
-          <Input placeholder="Enter video name" />
-        </Form.Item>
-        <Form.Item
-          name="videoDate"
-          label="Video Date"
-          rules={[{ required: true, message: 'Please select video date' }]}
-        >
-          <Input type="date" />
-        </Form.Item>
-        <Form.Item
-          name="url"
-          label="Video URL"
-          rules={[{ required: true, message: 'Please enter video URL' }]}
-          extra="Enter a YouTube, Vimeo, or direct video URL"
-        >
-          <Input 
-            placeholder="Enter video URL (e.g., https://youtube.com/watch?v=xxxxx)" 
-            onChange={handleUrlChange}
-          />
-        </Form.Item>
-        
-        {previewUrl && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Video Preview
-            </label>
-            <VideoPreview url={previewUrl} />
-          </div>
-        )}
+      <Form 
+        form={form} 
+        layout="vertical" 
+        onFinish={onFinish}
+        className="w-full"
+      >
+        <div className="space-y-4">
+          <Form.Item
+            name="name"
+            label="Video Name"
+            rules={[{ required: true, message: 'Please enter video name' }]}
+          >
+            <Input placeholder="Enter video name" className="w-full" />
+          </Form.Item>
+          <Form.Item
+            name="videoDate"
+            label="Video Date"
+            rules={[{ required: true, message: 'Please select video date' }]}
+          >
+            <Input type="date" className="w-full" />
+          </Form.Item>
+          <Form.Item
+            name="url"
+            label="Video URL"
+            rules={[{ required: true, message: 'Please enter video URL' }]}
+            extra="Enter a YouTube, Vimeo, or direct video URL"
+          >
+            <Input 
+              placeholder="Enter video URL (e.g., https://youtube.com/watch?v=xxxxx)" 
+              onChange={handleUrlChange}
+              className="w-full"
+            />
+          </Form.Item>
+          
+          {previewUrl && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Video Preview
+              </label>
+              <div className="w-full">
+                <VideoPreview url={previewUrl} />
+              </div>
+            </div>
+          )}
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            {submitText}
-          </Button>
-        </Form.Item>
+          <Form.Item className="mb-0">
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={loading}
+              className="w-full md:w-auto"
+            >
+              {submitText}
+            </Button>
+          </Form.Item>
+        </div>
       </Form>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Video Management</h1>
@@ -322,7 +354,9 @@ const VideoAdmin: React.FC = () => {
             form.resetFields();
           }}
           footer={null}
-          width={600}
+          width={800}
+          style={{ top: 20 }}
+          bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
         >
           <VideoForm form={form} onFinish={createVideo} submitText="Add Video" />
         </Modal>
@@ -335,7 +369,9 @@ const VideoAdmin: React.FC = () => {
             editForm.resetFields();
           }}
           footer={null}
-          width={600}
+          width={800}
+          style={{ top: 20 }}
+          bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
         >
           <VideoForm form={editForm} onFinish={updateVideo} submitText="Update Video" />
         </Modal>

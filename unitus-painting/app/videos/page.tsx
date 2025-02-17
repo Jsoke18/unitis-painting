@@ -144,14 +144,25 @@ export default function VideosPage() {
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 bg-white h-[400px]">
                   <CardContent className="p-0 h-full flex flex-col">
                     <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-                      <iframe
-                        className="absolute top-0 left-0 w-full h-full"
-                        src={getEmbedUrl(video.url)}
-                        title={video.name}
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                        referrerPolicy="origin"
-                      />
+                      {video.url.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video
+                          className="absolute top-0 left-0 w-full h-full"
+                          src={video.url}
+                          controls
+                          preload="none"
+                          playsInline
+                          title={video.name}
+                        />
+                      ) : (
+                        <iframe
+                          className="absolute top-0 left-0 w-full h-full"
+                          src={getEmbedUrl(video.url)}
+                          title={video.name}
+                          allow="fullscreen; picture-in-picture"
+                          allowFullScreen
+                          referrerPolicy="origin"
+                        />
+                      )}
                     </div>
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div>
