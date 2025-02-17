@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +57,42 @@ const getVideoThumbnail = (url: string): string => {
   const defaultThumbnail = '/images/video-thumbnail-placeholder.jpg';
   
   return thumbnailUrl || defaultThumbnail;
+};
+
+const VideoWithThumbnail = ({ video }: { video: Video }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      // Load just enough of the video to get a thumbnail
+      video.preload = 'metadata';
+      
+      // Once metadata is loaded, seek to 0 second
+      video.onloadedmetadata = () => {
+        if (video.seekable.length > 0) {
+          video.currentTime = 0;
+        }
+      };
+      
+      // After seeking, capture the frame and pause
+      video.onseeked = () => {
+        video.pause();
+      };
+    }
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      className="absolute top-0 left-0 w-full h-full"
+      src={video.url}
+      controls
+      preload="metadata"
+      playsInline
+      title={video.name}
+    />
+  );
 };
 
 export default function VideosPage() {
@@ -155,15 +191,7 @@ export default function VideosPage() {
                   <CardContent className="p-0 h-full flex flex-col">
                     <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
                       {video.url.match(/\.(mp4|webm|ogg)$/i) ? (
-                        <video
-                          className="absolute top-0 left-0 w-full h-full"
-                          src={video.url}
-                          poster={getVideoThumbnail(video.url)}
-                          controls
-                          preload="none"
-                          playsInline
-                          title={video.name}
-                        />
+                        <VideoWithThumbnail video={video} />
                       ) : (
                         <iframe
                           className="absolute top-0 left-0 w-full h-full"
