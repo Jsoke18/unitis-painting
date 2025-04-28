@@ -37,12 +37,6 @@ const expertsData: ExpertData[] = [
     link: "/about/colin-atkinson"
   },
   {
-    name: "Kyle Rooney",
-    role: "Project Manager",
-    imageSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/765e8b96e602ceb349572b150a35fec30f2ac8ecd359320856f421735adbd718?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
-    link: "/about/kyle-rooney"
-  },
-  {
     name: "Michael Powell",
     role: "Client Relations",
     imageSrc: "https://cdn.builder.io/api/v1/image/assets/TEMP/1614588dec73992d594aa34099aaf2a59503d4115a4d534b76fd10e1f9f0d194?placeholderIfAbsent=true&apiKey=a05a9fe5da54475091abff9f564d40f8",
@@ -260,7 +254,7 @@ const ExpertTeam: React.FC = () => {
         </div>
         
         {lastRowItems > 0 && (
-          <div className={`flex justify-center mt-8 gap-8 ${lastRowItems === 1 ? 'md:justify-center' : 'md:justify-start'}`}>
+          <div className="flex justify-center mt-8 gap-8">
             {expertsData.slice(fullRows * itemsPerRow).map((expert, index) => (
               <ExpertCard 
                 key={fullRows * itemsPerRow + index} 
